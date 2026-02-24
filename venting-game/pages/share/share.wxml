@@ -1,0 +1,51 @@
+<!--pages/share/share.wxml-->
+<view class="container">
+  <!-- 海报预览区域 -->
+  <view class="poster-area">
+    <canvas 
+      id="poster-canvas" 
+      type="2d" 
+      class="poster-canvas"
+      style="width: 540rpx; height: 960rpx;"
+    ></canvas>
+    
+    <!-- 加载状态 -->
+    <view class="poster-loading" wx:if="{{isGenerating}}">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">正在生成海报...</text>
+    </view>
+  </view>
+
+  <!-- 统计信息 -->
+  <view class="stats-area">
+    <view class="stats-title">本次解压报告</view>
+    <view class="stats-list">
+      <view class="stats-item" wx:for="{{topSkills}}" wx:key="skillId">
+        <text class="skill-name">{{item.name}}</text>
+        <view class="skill-bar-wrapper">
+          <view class="skill-bar" style="width: {{item.percent}}%;"></view>
+        </view>
+        <text class="skill-count">{{item.count}}次</text>
+      </view>
+    </view>
+    <view class="stats-summary">
+      <text class="summary-text">总计攻击 {{sessionStats.totalAttacks}} 次</text>
+      <text class="summary-desc">{{summaryText}}</text>
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="action-area">
+    <button class="action-btn primary" bindtap="saveToAlbum" disabled="{{isGenerating}}">
+      <image class="btn-icon" src="/assets/images/save.png" mode="aspectFit"></image>
+      <text>保存到相册</text>
+    </button>
+    <button class="action-btn secondary" open-type="share">
+      <image class="btn-icon" src="/assets/images/wechat.png" mode="aspectFit"></image>
+      <text>分享给好友</text>
+    </button>
+    <button class="action-btn tertiary" bindtap="goBack">
+      <text>继续攻击</text>
+    </button>
+  </view>
+</view>
