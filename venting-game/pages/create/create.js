@@ -30,13 +30,15 @@ Page({
    */
   selectGender(e) {
     const gender = e.currentTarget.dataset.gender
+    console.log('选择性别:', gender)
     vibrate('light')
 
     this.setData({
       gender,
       cartoonList: CARTOON_CHARS[gender],
-      canNext: false  // 选择性别后不能直接下一步，需要选择类型
+      canNext: true  // 选择性别后可以进入步骤2
     })
+    console.log('选择性别后 canNext:', this.data.canNext)
   },
 
   /**
@@ -44,12 +46,15 @@ Page({
    */
   chooseType(e) {
     const type = e.currentTarget.dataset.type
+    console.log('选择类型:', type)
     vibrate('light')
 
     this.setData({
       type,
-      canNext: true
+      step: 3,  // 直接进入步骤3
+      canNext: false  // 步骤3需要选择具体角色或上传照片
     })
+    console.log('选择类型后 step:', this.data.step, 'canNext:', this.data.canNext)
   },
 
   /**
