@@ -7,11 +7,11 @@ const SKILL_CONFIG = {
   // 物理攻击
   slap: {
     id: 'slap',
-    name: '扇耳手',
+    name: '扇耳光',
     damage: 10,
     cd: 0,
     category: 'physical',
-    icon: '/assets/icons/slap.png'
+    emoji: '👋'
   },
   punch: {
     id: 'punch',
@@ -19,7 +19,7 @@ const SKILL_CONFIG = {
     damage: 30,
     cd: 1000,
     category: 'physical',
-    icon: '/assets/icons/punch.png'
+    emoji: '👊'
   },
   kick: {
     id: 'kick',
@@ -27,7 +27,7 @@ const SKILL_CONFIG = {
     damage: 50,
     cd: 3000,
     category: 'physical',
-    icon: '/assets/icons/kick.png'
+    emoji: '🦵'
   },
 
   // 道具攻击
@@ -37,7 +37,7 @@ const SKILL_CONFIG = {
     damage: 20,
     cd: 2000,
     category: 'item',
-    icon: '/assets/icons/egg.png'
+    emoji: '🥚'
   },
   splash: {
     id: 'splash',
@@ -45,7 +45,7 @@ const SKILL_CONFIG = {
     damage: 25,
     cd: 2000,
     category: 'item',
-    icon: '/assets/icons/water.png'
+    emoji: '💧'
   },
   throw_shoe: {
     id: 'throw_shoe',
@@ -53,7 +53,7 @@ const SKILL_CONFIG = {
     damage: 60,
     cd: 4000,
     category: 'item',
-    icon: '/assets/icons/shoe.png'
+    emoji: '👟'
   },
 
   // 魔法攻击
@@ -63,7 +63,7 @@ const SKILL_CONFIG = {
     damage: 40,
     cd: 3000,
     category: 'magic',
-    icon: '/assets/icons/fire.png'
+    emoji: '🔥'
   },
   lightning: {
     id: 'lightning',
@@ -71,7 +71,7 @@ const SKILL_CONFIG = {
     damage: 80,
     cd: 5000,
     category: 'magic',
-    icon: '/assets/icons/lightning.png'
+    emoji: '⚡'
   },
   freeze: {
     id: 'freeze',
@@ -79,7 +79,7 @@ const SKILL_CONFIG = {
     damage: 70,
     cd: 4000,
     category: 'magic',
-    icon: '/assets/icons/ice.png'
+    emoji: '❄️'
   },
 
   // 言语攻击
@@ -89,7 +89,7 @@ const SKILL_CONFIG = {
     damage: 15,
     cd: 0,
     category: 'speech',
-    icon: '/assets/icons/text.png'
+    emoji: '💬'
   },
   voice: {
     id: 'voice',
@@ -97,7 +97,7 @@ const SKILL_CONFIG = {
     damage: 35,
     cd: 5000,
     category: 'speech',
-    icon: '/assets/icons/voice.png'
+    emoji: '📢'
   },
   text_bomb: {
     id: 'text_bomb',
@@ -105,7 +105,7 @@ const SKILL_CONFIG = {
     damage: 50,
     cd: 8000,
     category: 'speech',
-    icon: '/assets/icons/bomb.png'
+    emoji: '💣'
   }
 }
 

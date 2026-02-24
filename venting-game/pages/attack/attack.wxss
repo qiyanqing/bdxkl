@@ -44,8 +44,8 @@
 }
 
 .share-icon {
-  width: 40rpx;
-  height: 40rpx;
+  font-size: 40rpx;
+  line-height: 40rpx;
 }
 
 /* Spine动画区域 */
@@ -185,7 +185,8 @@
 }
 
 .skill-icon {
-  width: 70rpx;
+  font-size: 50rpx;
+  line-height: 70rpx;
   height: 70rpx;
   margin-bottom: 12rpx;
 }
@@ -304,9 +305,11 @@
 }
 
 .milestone-icon {
-  width: 150rpx;
+  font-size: 100rpx;
+  line-height: 150rpx;
   height: 150rpx;
   margin-bottom: 30rpx;
+  text-align: center;
 }
 
 .milestone-text {

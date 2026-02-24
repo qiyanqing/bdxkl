@@ -64,7 +64,7 @@
           bindtap="useSkill"
           data-skill="{{item}}"
         >
-          <image class="skill-icon" src="{{item.icon}}" mode="aspectFit"></image>
+          <text class="skill-icon">{{item.emoji}}</text>
           <text class="skill-name">{{item.name}}</text>
           <text class="skill-damage">-{{item.damage}}</text>
           
