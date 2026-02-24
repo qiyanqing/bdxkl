@@ -259,23 +259,23 @@ Component({
     startRenderLoop() {
       const render = () => {
         if (!this.data.isLoaded) return
-        
+
         const { ctx, canvas } = this.data
         if (!ctx || !canvas) return
-        
+
         // 清除画布
         ctx.clearRect(0, 0, canvas.width, canvas.height)
-        
-        /* 
+
+        /*
         // 实际渲染代码
         const { spineRenderer, skeleton, animationState, scale } = this.data
-        
+
         // 更新动画
         const delta = 16 / 1000 // 假设60fps
         animationState.update(delta)
         animationState.apply(skeleton)
         skeleton.updateWorldTransform()
-        
+
         // 渲染
         ctx.save()
         ctx.translate(canvas.width / 2, canvas.height / 2)
@@ -283,32 +283,46 @@ Component({
         spineRenderer.render(skeleton)
         ctx.restore()
         */
-        
+
         // 临时：绘制占位图
         this.drawPlaceholder(ctx)
-        
-        requestAnimationFrame(render)
       }
-      
-      requestAnimationFrame(render)
+
+      // 使用 setInterval 替代 requestAnimationFrame（微信小程序兼容）
+      if (this.renderTimer) {
+        clearInterval(this.renderTimer)
+      }
+      this.renderTimer = setInterval(render, 16) // ~60fps
     },
 
     /**
      * 绘制占位图
      */
     drawPlaceholder(ctx) {
-      const { width, height, currentAnimation } = this.data
-      
+      const { canvas, currentAnimation } = this.data
+
+      if (!canvas) return
+
+      const dpr = wx.getSystemInfoSync().pixelRatio
+      const displayWidth = canvas.width / dpr
+      const displayHeight = canvas.height / dpr
+
       ctx.fillStyle = '#1a1a2e'
-      ctx.fillRect(0, 0, width, height)
-      
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+      ctx.save()
+      ctx.scale(dpr, dpr)
+
       ctx.fillStyle = '#667eea'
       ctx.font = '20px Arial'
       ctx.textAlign = 'center'
-      ctx.fillText('Spine动画区域', width / 2, height / 2 - 10)
+      ctx.textBaseline = 'middle'
+      ctx.fillText('Spine动画区域', displayWidth / 2, displayHeight / 2 - 10)
       ctx.font = '14px Arial'
       ctx.fillStyle = '#8892b0'
-      ctx.fillText('当前动画: ' + currentAnimation, width / 2, height / 2 + 15)
+      ctx.fillText('当前动画: ' + currentAnimation, displayWidth / 2, displayHeight / 2 + 15)
+
+      ctx.restore()
     },
 
     /**
@@ -317,7 +331,13 @@ Component({
     cleanup() {
       // TODO: 清理Spine资源
       console.log('清理Spine资源')
-      
+
+      // 清理渲染定时器
+      if (this.renderTimer) {
+        clearInterval(this.renderTimer)
+        this.renderTimer = null
+      }
+
       this.setData({
         isLoaded: false,
         spineRenderer: null,

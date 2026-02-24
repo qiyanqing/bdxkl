@@ -59,18 +59,14 @@ const clearSessionStats = () => {
 const getSessionStats = () => {
   try {
     return wx.getStorageSync('sessionStats') || {
-      hitCount: 0,
-      combo: 0,
-      maxCombo: 0,
-      damage: 0
+      totalAttacks: 0,
+      attacks: {}
     }
   } catch (e) {
     console.error('获取会话统计失败:', e)
     return {
-      hitCount: 0,
-      combo: 0,
-      maxCombo: 0,
-      damage: 0
+      totalAttacks: 0,
+      attacks: {}
     }
   }
 }
