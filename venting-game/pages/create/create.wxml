@@ -1,0 +1,127 @@
+<!--pages/create/create.wxml-->
+<view class="container">
+  <!-- 进度指示器 -->
+  <view class="progress-bar">
+    <view class="progress-item {{step >= 1 ? 'active' : ''}}">1</view>
+    <view class="progress-line {{step >= 2 ? 'active' : ''}}"></view>
+    <view class="progress-item {{step >= 2 ? 'active' : ''}}">2</view>
+    <view class="progress-line {{step >= 3 ? 'active' : ''}}"></view>
+    <view class="progress-item {{step >= 3 ? 'active' : ''}}">3</view>
+    <view class="progress-line {{step >= 4 ? 'active' : ''}}"></view>
+    <view class="progress-item {{step >= 4 ? 'active' : ''}}">4</view>
+  </view>
+
+  <!-- 步骤1: 选择性别 -->
+  <view class="step-content" wx:if="{{step === 1}}">
+    <view class="step-title">选择性别</view>
+    <view class="gender-options">
+      <view 
+        class="gender-option {{gender === 'male' ? 'selected' : ''}}"
+        bindtap="selectGender"
+        data-gender="male"
+      >
+        <image class="gender-icon" src="/assets/images/male.png" mode="aspectFit"></image>
+        <text class="gender-name">男性</text>
+      </view>
+      <view 
+        class="gender-option {{gender === 'female' ? 'selected' : ''}}"
+        bindtap="selectGender"
+        data-gender="female"
+      >
+        <image class="gender-icon" src="/assets/images/female.png" mode="aspectFit"></image>
+        <text class="gender-name">女性</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 步骤2: 选择形象来源 -->
+  <view class="step-content" wx:if="{{step === 2}}">
+    <view class="step-title">选择形象来源</view>
+    <view class="source-options">
+      <view class="source-option" bindtap="chooseType" data-type="photo">
+        <image class="source-icon" src="/assets/images/camera.png" mode="aspectFit"></image>
+        <text class="source-name">上传照片</text>
+        <text class="source-desc">使用真实照片生成形象</text>
+      </view>
+      <view class="source-option" bindtap="chooseType" data-type="cartoon">
+        <image class="source-icon" src="/assets/images/cartoon.png" mode="aspectFit"></image>
+        <text class="source-name">选择卡通</text>
+        <text class="source-desc">使用预制的卡通角色</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 步骤3a: 上传照片 -->
+  <view class="step-content" wx:if="{{step === 3 && type === 'photo'}}">
+    <view class="step-title">上传照片</view>
+    <view class="upload-area">
+      <view class="upload-box" bindtap="chooseImage">
+        <image 
+          class="upload-preview" 
+          src="{{uploadedImageUrl}}" 
+          mode="aspectFill"
+          wx:if="{{uploadedImageUrl}}"
+        ></image>
+        <view class="upload-placeholder" wx:else>
+          <image class="upload-icon" src="/assets/images/upload.png" mode="aspectFit"></image>
+          <text class="upload-text">点击上传照片</text>
+          <text class="upload-hint">建议使用正面清晰人像</text>
+        </view>
+      </view>
+      <view class="upload-actions" wx:if="{{uploadedImageUrl}}">
+        <button class="reupload-btn" bindtap="chooseImage">重新上传</button>
+      </view>
+    </view>
+    <view class="processing-tip" wx:if="{{isProcessing}}">
+      <image class="loading-icon" src="/assets/images/loading.gif" mode="aspectFit"></image>
+      <text class="processing-text">正在处理照片...</text>
+    </view>
+  </view>
+
+  <!-- 步骤3b: 选择卡通角色 -->
+  <view class="step-content" wx:if="{{step === 3 && type === 'cartoon'}}">
+    <view class="step-title">选择卡通角色</view>
+    <view class="cartoon-list">
+      <view 
+        class="cartoon-item {{selectedCartoonId === item.id ? 'selected' : ''}}"
+        wx:for="{{cartoonList}}"
+        wx:key="id"
+        bindtap="selectCartoon"
+        data-id="{{item.id}}"
+      >
+        <image class="cartoon-preview" src="{{item.preview}}" mode="aspectFill"></image>
+        <text class="cartoon-name">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 步骤4: 确认并命名 -->
+  <view class="step-content" wx:if="{{step === 4}}">
+    <view class="step-title">确认并命名</view>
+    <view class="preview-area">
+      <image class="final-preview" src="{{finalImageUrl}}" mode="aspectFill"></image>
+    </view>
+    <view class="name-input-wrapper">
+      <input 
+        class="name-input" 
+        placeholder="给形象起个名字吧" 
+        value="{{targetName}}"
+        bindinput="onNameInput"
+        maxlength="10"
+      />
+      <text class="name-count">{{targetName.length}}/10</text>
+    </view>
+    <view class="tips">
+      <text class="tips-icon">ℹ</text>
+      <text class="tips-text">创建后可在长按编辑名称</text>
+    </view>
+  </view>
+
+  <!-- 底部操作按钮 -->
+  <view class="bottom-actions">
+    <button class="prev-btn" bindtap="prevStep" wx:if="{{step > 1}}">上一步</button>
+    <button class="next-btn" bindtap="nextStep" disabled="{{!canNext}}">
+      {{step === 4 ? '完成创建' : '下一步'}}
+    </button>
+  </view>
+</view>

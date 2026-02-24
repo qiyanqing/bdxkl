@@ -1,0 +1,388 @@
+/* pages/create/create.wxss */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  padding: 40rpx 30rpx 180rpx;
+}
+
+/* 进度条 */
+.progress-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 60rpx;
+  padding: 0 20rpx;
+}
+
+.progress-item {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: #8892b0;
+  transition: all 0.3s ease;
+}
+
+.progress-item.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.progress-line {
+  width: 80rpx;
+  height: 4rpx;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 8rpx;
+  transition: all 0.3s ease;
+}
+
+.progress-line.active {
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+}
+
+/* 步骤内容 */
+.step-content {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.step-title {
+  font-size: 40rpx;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 60rpx;
+  font-weight: bold;
+}
+
+/* 性别选择 */
+.gender-options {
+  display: flex;
+  justify-content: space-around;
+  padding: 0 40rpx;
+}
+
+.gender-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2rpx solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  width: 240rpx;
+}
+
+.gender-option.selected {
+  background: rgba(102, 126, 234, 0.2);
+  border-color: #667eea;
+  transform: scale(1.05);
+}
+
+.gender-icon {
+  width: 120rpx;
+  height: 120rpx;
+  margin-bottom: 20rpx;
+}
+
+.gender-name {
+  font-size: 32rpx;
+  color: #ccd6f6;
+}
+
+.gender-option.selected .gender-name {
+  color: #667eea;
+  font-weight: bold;
+}
+
+/* 来源选择 */
+.source-options {
+  display: flex;
+  flex-direction: column;
+  gap: 30rpx;
+  padding: 0 40rpx;
+}
+
+.source-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 50rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2rpx solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.source-option:active {
+  transform: scale(0.98);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.source-icon {
+  width: 100rpx;
+  height: 100rpx;
+  margin-bottom: 20rpx;
+}
+
+.source-name {
+  font-size: 36rpx;
+  color: #ccd6f6;
+  margin-bottom: 12rpx;
+  font-weight: 500;
+}
+
+.source-desc {
+  font-size: 26rpx;
+  color: #8892b0;
+  text-align: center;
+}
+
+/* 上传照片 */
+.upload-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.upload-box {
+  width: 500rpx;
+  height: 500rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2rpx dashed rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+}
+
+.upload-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-icon {
+  width: 120rpx;
+  height: 120rpx;
+  margin-bottom: 30rpx;
+  opacity: 0.5;
+}
+
+.upload-text {
+  font-size: 32rpx;
+  color: #ccd6f6;
+  margin-bottom: 12rpx;
+}
+
+.upload-hint {
+  font-size: 26rpx;
+  color: #8892b0;
+}
+
+.upload-preview {
+  width: 100%;
+  height: 100%;
+}
+
+.upload-actions {
+  margin-top: 30rpx;
+}
+
+.reupload-btn {
+  width: 200rpx;
+  height: 70rpx;
+  line-height: 70rpx;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 35rpx;
+  font-size: 28rpx;
+  color: #ccd6f6;
+  border: none;
+}
+
+.reupload-btn::after {
+  border: none;
+}
+
+.processing-tip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 40rpx;
+}
+
+.loading-icon {
+  width: 60rpx;
+  height: 60rpx;
+}
+
+.processing-text {
+  font-size: 28rpx;
+  color: #8892b0;
+  margin-top: 20rpx;
+}
+
+/* 卡通角色列表 */
+.cartoon-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24rpx;
+  padding: 0 20rpx;
+}
+
+.cartoon-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx;
+  border-radius: 20rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2rpx solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.cartoon-item.selected {
+  background: rgba(102, 126, 234, 0.2);
+  border-color: #667eea;
+  transform: scale(1.05);
+}
+
+.cartoon-preview {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 16rpx;
+  background: rgba(255, 255, 255, 0.1);
+  margin-bottom: 16rpx;
+}
+
+.cartoon-name {
+  font-size: 26rpx;
+  color: #ccd6f6;
+  text-align: center;
+}
+
+.cartoon-item.selected .cartoon-name {
+  color: #667eea;
+  font-weight: bold;
+}
+
+/* 预览和命名 */
+.preview-area {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 50rpx;
+}
+
+.final-preview {
+  width: 400rpx;
+  height: 400rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border: 4rpx solid rgba(255, 255, 255, 0.2);
+}
+
+.name-input-wrapper {
+  position: relative;
+  margin-bottom: 30rpx;
+}
+
+.name-input {
+  width: 100%;
+  height: 100rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20rpx;
+  padding: 0 30rpx;
+  font-size: 32rpx;
+  color: #ffffff;
+  border: 2rpx solid rgba(255, 255, 255, 0.1);
+  box-sizing: border-box;
+}
+
+.name-count {
+  position: absolute;
+  right: 30rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 26rpx;
+  color: #8892b0;
+}
+
+.tips {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 40rpx;
+}
+
+.tips-icon {
+  font-size: 32rpx;
+  color: #8892b0;
+  margin-right: 12rpx;
+  font-style: normal;
+}
+
+.tips-text {
+  font-size: 26rpx;
+  color: #8892b0;
+}
+
+/* 底部操作按钮 */
+.bottom-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24rpx 30rpx;
+  display: flex;
+  gap: 20rpx;
+  background: linear-gradient(180deg, transparent 0%, rgba(26, 26, 46, 0.9) 20%);
+}
+
+.prev-btn, .next-btn {
+  flex: 1;
+  height: 96rpx;
+  border-radius: 48rpx;
+  font-size: 32rpx;
+  border: none;
+}
+
+.prev-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ccd6f6;
+}
+
+.prev-btn::after {
+  border: none;
+}
+
+.next-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.next-btn::after {
+  border: none;
+}
+
+.next-btn[disabled] {
+  opacity: 0.5;
+  background: rgba(255, 255, 255, 0.1);
+}
