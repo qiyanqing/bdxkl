@@ -2,7 +2,7 @@
 const { SKILL_CONFIG, SKILL_CATEGORIES, SHARE_THRESHOLD } = require('../../config/game.config.js')
 const { getCurrentTarget } = require('../../utils/storage.js')
 const { recordAttack, updateTargetStats } = require('../../utils/cloud.js')
-const { vibrate } = require('../../utils/util.js')
+const { vibrate, generateId } = require('../../utils/util.js')
 
 Page({
   data: {
