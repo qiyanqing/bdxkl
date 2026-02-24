@@ -3,11 +3,6 @@ const ENV_CONFIG = require('./config/env.config.js')
 const { getOpenId, getUserInfo, saveUserInfo } = require('./utils/cloud.js')
 
 App({
-  data: {
-    openid: null,
-    userInfo: null
-  },
-
   onLaunch() {
     // 初始化云开发
     if (!wx.cloud) {
@@ -37,7 +32,6 @@ App({
 
       console.log('获取 openid 成功:', openid)
       this.globalData.openid = openid
-      this.setData({ openid })
 
       // 获取用户信息
       let userInfo = await getUserInfo()
@@ -52,8 +46,6 @@ App({
       }
 
       this.globalData.userInfo = userInfo
-      this.setData({ userInfo })
-
       console.log('登录成功:', userInfo)
       wx.hideLoading()
 
