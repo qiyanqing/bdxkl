@@ -1,0 +1,99 @@
+<!--pages/attack/attack.wxml-->
+<view class="container">
+  <!-- 顶部信息栏 -->
+  <view class="top-bar">
+    <view class="target-info">
+      <text class="target-name">{{currentTarget.name}}</text>
+      <text class="attack-count">已攻击 {{sessionStats.totalAttacks}} 次</text>
+    </view>
+    <view class="share-btn" bindtap="goToShare">
+      <image class="share-icon" src="/assets/images/share.png" mode="aspectFit"></image>
+    </view>
+  </view>
+
+  <!-- Spine动画区域 -->
+  <view class="spine-area">
+    <spine-view
+      spineData="{{spineData}}"
+      animation="{{currentAnimation}}"
+      loop="{{animationLoop}}"
+      scale="{{spineScale}}"
+      width="{{spineWidth}}"
+      height="{{spineHeight}}"
+      bind:loaded="onSpineLoaded"
+      bind:complete="onAnimationComplete"
+    />
+    
+    <!-- 伤害飘字容器 -->
+    <view class="damage-container">
+      <view 
+        class="damage-number {{damageItem.isCrit ? 'crit' : ''}}"
+        wx:for="{{damageNumbers}}"
+        wx:key="id"
+        style="left: {{damageItem.x}}px; top: {{damageItem.y}}px; opacity: {{damageItem.opacity}};"
+      >
+        {{damageItem.isCrit ? '暴击!' : '-'}}{{damageItem.damage}}
+      </view>
+    </view>
+  </view>
+
+  <!-- 技能分类标签 -->
+  <view class="skill-tabs">
+    <scroll-view scroll-x class="tab-scroll">
+      <view 
+        class="tab-item {{currentCategory === item.key ? 'active' : ''}}"
+        wx:for="{{skillCategories}}"
+        wx:key="key"
+        bindtap="switchCategory"
+        data-category="{{item.key}}"
+      >
+        <text class="tab-name">{{item.name}}</text>
+        <view class="tab-indicator" wx:if="{{currentCategory === item.key}}"></view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 技能按钮区域 -->
+  <view class="skill-area">
+    <scroll-view scroll-y class="skill-scroll">
+      <view class="skill-grid">
+        <view 
+          class="skill-button {{item.isInCd ? 'cd' : ''}}"
+          wx:for="{{currentSkills}}"
+          wx:key="id"
+          bindtap="useSkill"
+          data-skill="{{item}}"
+        >
+          <image class="skill-icon" src="{{item.icon}}" mode="aspectFit"></image>
+          <text class="skill-name">{{item.name}}</text>
+          <text class="skill-damage">-{{item.damage}}</text>
+          
+          <!-- CD遮罩 -->
+          <view class="cd-mask" wx:if="{{item.isInCd}}">
+            <view class="cd-overlay" style="height: {{item.cdPercent}}%;"></view>
+            <text class="cd-text">{{item.cdRemaining}}s</text>
+          </view>
+          
+          <!-- 冷却中标签 -->
+          <view class="cd-label" wx:if="{{item.isInCd}}">冷却</view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 分享提示弹窗 -->
+  <view class="share-modal" wx:if="{{showShareModal}}">
+    <view class="modal-mask" bindtap="closeShareModal"></view>
+    <view class="modal-content">
+      <view class="modal-title">恭喜达成里程碑！</view>
+      <view class="modal-body">
+        <image class="milestone-icon" src="/assets/images/trophy.png" mode="aspectFit"></image>
+        <text class="milestone-text">{{milestoneText}}</text>
+      </view>
+      <view class="modal-actions">
+        <button class="modal-btn secondary" bindtap="closeShareModal">继续攻击</button>
+        <button class="modal-btn primary" bindtap="shareNow">立即分享</button>
+      </view>
+    </view>
+  </view>
+</view>

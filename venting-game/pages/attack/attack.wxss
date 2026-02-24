@@ -1,0 +1,345 @@
+/* pages/attack/attack.wxss */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* 顶部信息栏 */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 30rpx;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.target-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.target-name {
+  font-size: 36rpx;
+  color: #ffffff;
+  font-weight: bold;
+  margin-bottom: 8rpx;
+}
+
+.attack-count {
+  font-size: 24rpx;
+  color: #8892b0;
+}
+
+.share-btn {
+  width: 70rpx;
+  height: 70rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+.share-icon {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+/* Spine动画区域 */
+.spine-area {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.damage-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.damage-number {
+  position: absolute;
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #ff6b6b;
+  text-shadow: 0 0 10rpx rgba(255, 107, 107, 0.5);
+  animation: damageFloat 1s ease-out forwards;
+}
+
+.damage-number.crit {
+  font-size: 64rpx;
+  color: #ffd700;
+  text-shadow: 0 0 20rpx rgba(255, 215, 0, 0.8);
+}
+
+@keyframes damageFloat {
+  0% {
+    transform: translateY(0) scale(0.5);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-50rpx) scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-150rpx) scale(1);
+    opacity: 0;
+  }
+}
+
+/* 技能分类标签 */
+.skill-tabs {
+  height: 90rpx;
+  background: rgba(0, 0, 0, 0.3);
+  border-top: 2rpx solid rgba(255, 255, 255, 0.1);
+}
+
+.tab-scroll {
+  height: 100%;
+  white-space: nowrap;
+}
+
+.tab-item {
+  display: inline-block;
+  height: 100%;
+  padding: 0 30rpx;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.tab-name {
+  font-size: 28rpx;
+  color: #8892b0;
+  transition: color 0.3s;
+}
+
+.tab-item.active .tab-name {
+  color: #667eea;
+  font-weight: bold;
+}
+
+.tab-indicator {
+  position: absolute;
+  bottom: 0;
+  width: 40rpx;
+  height: 4rpx;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  border-radius: 2rpx;
+}
+
+/* 技能按钮区域 */
+.skill-area {
+  height: 380rpx;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 2rpx solid rgba(255, 255, 255, 0.1);
+}
+
+.skill-scroll {
+  height: 100%;
+  padding: 20rpx 30rpx;
+}
+
+.skill-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20rpx;
+}
+
+.skill-button {
+  position: relative;
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+  border-radius: 20rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.skill-button:active {
+  transform: scale(0.95);
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.4) 0%, rgba(118, 75, 162, 0.4) 100%);
+}
+
+.skill-button.cd {
+  opacity: 0.5;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.skill-icon {
+  width: 70rpx;
+  height: 70rpx;
+  margin-bottom: 12rpx;
+}
+
+.skill-name {
+  font-size: 24rpx;
+  color: #ccd6f6;
+  margin-bottom: 8rpx;
+}
+
+.skill-damage {
+  font-size: 28rpx;
+  color: #ff6b6b;
+  font-weight: bold;
+}
+
+/* CD遮罩 */
+.cd-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20rpx;
+  overflow: hidden;
+}
+
+.cd-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.5);
+  transition: height 0.1s linear;
+}
+
+.cd-text {
+  position: relative;
+  z-index: 1;
+  font-size: 32rpx;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.cd-label {
+  position: absolute;
+  top: 10rpx;
+  right: 10rpx;
+  background: rgba(255, 107, 107, 0.8);
+  color: #ffffff;
+  font-size: 20rpx;
+  padding: 4rpx 10rpx;
+  border-radius: 8rpx;
+}
+
+/* 分享提示弹窗 */
+.share-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+  position: relative;
+  width: 600rpx;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 30rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.1);
+  padding: 50rpx 40rpx;
+  animation: modalPop 0.3s ease;
+}
+
+@keyframes modalPop {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.modal-title {
+  font-size: 40rpx;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 40rpx;
+  font-weight: bold;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 50rpx;
+}
+
+.milestone-icon {
+  width: 150rpx;
+  height: 150rpx;
+  margin-bottom: 30rpx;
+}
+
+.milestone-text {
+  font-size: 32rpx;
+  color: #ccd6f6;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.modal-btn {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 40rpx;
+  font-size: 30rpx;
+  border: none;
+}
+
+.modal-btn::after {
+  border: none;
+}
+
+.modal-btn.secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ccd6f6;
+}
+
+.modal-btn.primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  font-weight: bold;
+}

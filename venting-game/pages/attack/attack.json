@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "解压中",
+  "navigationBarBackgroundColor": "#1a1a2e",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#1a1a2e",
+  "usingComponents": {
+    "spine-view": "/components/spine-view/spine-view"
+  }
+}
