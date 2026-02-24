@@ -51,6 +51,16 @@
   height: 100rpx;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* emoji 文本样式 */
+.target-avatar[text] {
+  font-size: 60rpx;
+  line-height: 100rpx;
+  text-align: center;
 }
 
 .target-info {
@@ -96,10 +106,12 @@
 }
 
 .empty-icon {
-  width: 200rpx;
+  font-size: 150rpx;
+  line-height: 200rpx;
   height: 200rpx;
   margin-bottom: 40rpx;
   opacity: 0.5;
+  text-align: center;
 }
 
 .empty-text {

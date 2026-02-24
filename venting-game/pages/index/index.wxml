@@ -18,7 +18,9 @@
         bindlongpress="showMenu"
         data-id="{{item.id}}"
       >
-        <image class="target-avatar" src="{{item.imageUrl}}" mode="aspectFill"></image>
+        <!-- 如果是 emoji 则显示文本，否则显示图片 -->
+        <text class="target-avatar" wx:if="{{item.imageUrl.length <= 10}}">{{item.imageUrl}}</text>
+        <image class="target-avatar" src="{{item.imageUrl}}" mode="aspectFill" wx:else></image>
         <view class="target-info">
           <text class="target-name">{{item.name}}</text>
           <text class="target-stats">被攻击 {{item.lifetimeStats.totalAttacks}} 次</text>

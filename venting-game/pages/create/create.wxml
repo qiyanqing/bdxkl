@@ -80,16 +80,16 @@
 
   <!-- 步骤3b: 选择卡通角色 -->
   <view class="step-content" wx:if="{{step === 3 && type === 'cartoon'}}">
-    <view class="step-title">选择卡通角色</view>
+    <view class="step-title">选择发泄对象</view>
     <view class="cartoon-list">
-      <view 
+      <view
         class="cartoon-item {{selectedCartoonId === item.id ? 'selected' : ''}}"
         wx:for="{{cartoonList}}"
         wx:key="id"
         bindtap="selectCartoon"
         data-id="{{item.id}}"
       >
-        <image class="cartoon-preview" src="{{item.preview}}" mode="aspectFill"></image>
+        <text class="cartoon-preview">{{item.emoji}}</text>
         <text class="cartoon-name">{{item.name}}</text>
       </view>
     </view>
@@ -99,7 +99,9 @@
   <view class="step-content" wx:if="{{step === 4}}">
     <view class="step-title">确认并命名</view>
     <view class="preview-area">
-      <image class="final-preview" src="{{finalImageUrl}}" mode="aspectFill"></image>
+      <!-- 如果是 emoji 则显示文本，否则显示图片 -->
+      <text class="final-preview" wx:if="{{finalImageUrl.length <= 10}}">{{finalImageUrl}}</text>
+      <image class="final-preview" src="{{finalImageUrl}}" mode="aspectFill" wx:else></image>
     </view>
     <view class="name-input-wrapper">
       <input 

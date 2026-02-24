@@ -141,17 +141,22 @@ const SHARE_THRESHOLD = {
 
 /**
  * 卡通角色配置
+ * 发泄主题角色
  */
 const CARTOON_CHARS = {
   male: [
-    { id: 'm1', name: '帅气小哥', preview: '/assets/cartoon/m1.png' },
-    { id: 'm2', name: '憨厚大叔', preview: '/assets/cartoon/m2.png' },
-    { id: 'm3', name: '霸道总裁', preview: '/assets/cartoon/m3.png' }
+    { id: 'm1', name: '油腻大叔', emoji: '👨‍🦲', preview: '👨‍🦲' },
+    { id: 'm2', name: '极品同事', emoji: '👔', preview: '👔' },
+    { id: 'm3', name: '啰嗦上司', emoji: '🤵', preview: '🤵' },
+    { id: 'm4', name: '杠精大哥', emoji: '😤', preview: '😤' },
+    { id: 'm5', name: '催婚亲戚', emoji: '👵', preview: '👵' }
   ],
   female: [
-    { id: 'f1', name: '可爱少女', preview: '/assets/cartoon/f1.png' },
-    { id: 'f2', name: '温柔姐姐', preview: '/assets/cartoon/f2.png' },
-    { id: 'f3', name: '高冷女神', preview: '/assets/cartoon/f3.png' }
+    { id: 'f1', name: '八爪鱼', emoji: '👩', preview: '👩' },
+    { id: 'f2', name: '麻烦精', emoji: '💁‍♀️', preview: '💁‍♀️' },
+    { id: 'f3', name: '催婚阿姨', emoji: '👩‍🦳', preview: '👩‍🦳' },
+    { id: 'f4', name: '键盘侠', emoji: '👩‍💻', preview: '👩‍💻' },
+    { id: 'f5', name: '甩锅王', emoji: '🙅‍♀️', preview: '🙅‍♀️' }
   ]
 }
 

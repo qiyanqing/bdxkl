@@ -35,7 +35,7 @@ Page({
     this.setData({
       gender,
       cartoonList: CARTOON_CHARS[gender],
-      canNext: true
+      canNext: false  // 选择性别后不能直接下一步，需要选择类型
     })
   },
 
@@ -206,15 +206,18 @@ Page({
     // 从步骤3进入步骤4时，设置最终预览图
     if (this.data.step === 3) {
       let finalImageUrl = ''
+      let finalEmoji = ''
       try {
         if (this.data.type === 'photo') {
           finalImageUrl = this.data.processedImageUrl || this.data.uploadedImageUrl
         } else {
           const cartoon = this.data.cartoonList.find(c => c.id === this.data.selectedCartoonId)
-          finalImageUrl = cartoon ? cartoon.preview : ''
+          finalEmoji = cartoon ? cartoon.emoji : ''
+          // 使用 emoji 作为 imageUrl
+          finalImageUrl = finalEmoji
         }
 
-        this.setData({ finalImageUrl, canNext: false })
+        this.setData({ finalImageUrl, finalEmoji, canNext: false })
       } catch (err) {
         console.error('设置预览图失败:', err)
         wx.showToast({

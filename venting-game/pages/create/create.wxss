@@ -95,7 +95,8 @@
 }
 
 .gender-icon {
-  width: 120rpx;
+  font-size: 120rpx;
+  line-height: 120rpx;
   height: 120rpx;
   margin-bottom: 20rpx;
 }
@@ -135,7 +136,8 @@
 }
 
 .source-icon {
-  width: 100rpx;
+  font-size: 100rpx;
+  line-height: 100rpx;
   height: 100rpx;
   margin-bottom: 20rpx;
 }
@@ -179,7 +181,8 @@
 }
 
 .upload-icon {
-  width: 120rpx;
+  font-size: 120rpx;
+  line-height: 120rpx;
   height: 120rpx;
   margin-bottom: 30rpx;
   opacity: 0.5;
@@ -229,7 +232,8 @@
 }
 
 .loading-icon {
-  width: 60rpx;
+  font-size: 60rpx;
+  line-height: 60rpx;
   height: 60rpx;
 }
 
@@ -265,11 +269,17 @@
 }
 
 .cartoon-preview {
+  font-size: 100rpx;
+  line-height: 160rpx;
   width: 160rpx;
   height: 160rpx;
   border-radius: 16rpx;
   background: rgba(255, 255, 255, 0.1);
   margin-bottom: 16rpx;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .cartoon-name {
@@ -296,6 +306,16 @@
   border-radius: 24rpx;
   background: rgba(255, 255, 255, 0.1);
   border: 4rpx solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* emoji 预览文本样式 */
+.final-preview[text] {
+  font-size: 200rpx;
+  line-height: 400rpx;
+  text-align: center;
 }
 
 .name-input-wrapper {
