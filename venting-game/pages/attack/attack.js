@@ -12,13 +12,8 @@ Page({
       attacks: {}
     },
 
-    // Spine相关
-    spineData: null,
-    currentAnimation: 'idle',
-    animationLoop: true,
-    spineScale: 1,
-    spineWidth: 300,
-    spineHeight: 400,
+    // 攻击动画状态
+    isAttacking: false,
 
     // 伤害飘字
     damageNumbers: [],
@@ -106,44 +101,6 @@ Page({
   },
 
   /**
-   * Spine加载完成
-   */
-  onSpineLoaded(e) {
-    console.log('Spine动画加载完成', e)
-  },
-
-  /**
-   * 动画播放完成
-   */
-  onAnimationComplete(e) {
-    console.log('动画播放完成', e)
-    // 非循环动画播放完成后，回到待机状态
-    this.setData({
-      currentAnimation: 'idle',
-      animationLoop: true
-    })
-  },
-
-  /**
-   * 加载Spine动画数据
-   */
-  loadSpineData(target) {
-    // TODO: 根据目标加载对应的Spine动画数据
-    const spineData = {
-      // 骨骼数据
-      skeletonJson: {},
-      // 图集数据
-      atlasText: '',
-      // 纹理路径
-      texturePath: '',
-      // 皮肤名称
-      skin: target.gender === 'male' ? 'male' : 'female'
-    }
-
-    this.setData({ spineData })
-  },
-
-  /**
    * 切换技能分类
    */
   switchCategory(e) {
@@ -187,11 +144,19 @@ Page({
       return
     }
 
+    // 触发攻击动画
+    this.setData({ isAttacking: true })
+    // 动画结束后恢复
+    const animTimeout = setTimeout(() => {
+      this.setData({ isAttacking: false })
+    }, 300)
+    this.data.animationTimeouts.push(animTimeout)
+
     // 触发震动反馈
     this.triggerVibrate(skill.damage)
 
-    // 更新动画
-    this.playHitAnimation(skill.damage)
+    // 更新动画（已不需要，用 isAttacking 替代）
+    // this.playHitAnimation(skill.damage)
 
     // 显示伤害飘字
     this.showDamageNumber(skill.damage, skill.category)
@@ -214,34 +179,6 @@ Page({
     } else {
       vibrate('short')
     }
-  },
-
-  /**
-   * 播放受击动画
-   */
-  playHitAnimation(damage) {
-    let animation = 'hit_light'
-
-    if (damage >= 70) {
-      animation = 'hit_heavy'
-    } else if (damage >= 40) {
-      animation = 'hit_medium'
-    }
-
-    this.setData({
-      currentAnimation: animation,
-      animationLoop: false
-    })
-
-    // 2秒后自动回到待机状态，保存timeout引用用于清理
-    const timeout = setTimeout(() => {
-      this.setData({
-        currentAnimation: 'idle',
-        animationLoop: true
-      })
-    }, 2000)
-
-    this.data.animationTimeouts.push(timeout)
   },
 
   /**

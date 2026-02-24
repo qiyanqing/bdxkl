@@ -11,22 +11,23 @@
     </view>
   </view>
 
-  <!-- Spine动画区域 -->
+  <!-- 形象显示区域 -->
   <view class="spine-area">
-    <spine-view
-      spineData="{{spineData}}"
-      animation="{{currentAnimation}}"
-      loop="{{animationLoop}}"
-      scale="{{spineScale}}"
-      width="{{spineWidth}}"
-      height="{{spineHeight}}"
-      bind:loaded="onSpineLoaded"
-      bind:complete="onAnimationComplete"
-    />
-    
+    <!-- 如果是 emoji 则显示文本，否则显示图片 -->
+    <text
+      class="target-emoji {{isAttacking ? 'attacking' : ''}}"
+      wx:if="{{currentTarget.imageUrl.length <= 10}}"
+    >{{currentTarget.imageUrl}}</text>
+    <image
+      class="target-image {{isAttacking ? 'attacking' : ''}}"
+      src="{{currentTarget.imageUrl}}"
+      mode="aspectFit"
+      wx:else
+    ></image>
+
     <!-- 伤害飘字容器 -->
     <view class="damage-container">
-      <view 
+      <view
         class="damage-number {{damageItem.isCrit ? 'crit' : ''}}"
         wx:for="{{damageNumbers}}"
         wx:key="id"
