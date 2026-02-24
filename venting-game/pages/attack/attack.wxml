@@ -4,7 +4,9 @@
   <view class="top-bar">
     <view class="target-info">
       <text class="target-name">{{currentTarget.name}}</text>
-      <text class="attack-count">已攻击 {{sessionStats.totalAttacks}} 次</text>
+      <text class="attack-count">
+        本次 {{sessionStats.totalAttacks}} | 累计 {{currentTarget.lifetimeStats.totalAttacks || 0}}
+      </text>
     </view>
     <view class="share-btn" bindtap="goToShare">
       <text class="share-icon">📤</text>

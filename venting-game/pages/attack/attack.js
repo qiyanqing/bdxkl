@@ -1,7 +1,7 @@
 // pages/attack/attack.js
 const { SKILL_CONFIG, SKILL_CATEGORIES, SHARE_THRESHOLD } = require('../../config/game.config.js')
 const { getCurrentTarget } = require('../../utils/storage.js')
-const { recordAttack, updateTargetStats } = require('../../utils/cloud.js')
+const { getTargetById, recordAttack, updateTargetStats } = require('../../utils/cloud.js')
 const { vibrate, generateId } = require('../../utils/util.js')
 
 Page({
@@ -44,7 +44,7 @@ Page({
     milestoneText: ''
   },
 
-  onLoad() {
+  async onLoad() {
     // 加载当前目标
     const target = getCurrentTarget()
     if (!target) {
@@ -58,22 +58,90 @@ Page({
       return
     }
 
-    // 初始化会话统计（新会话从0开始）
-    const sessionStats = {
-      totalAttacks: 0,
-      attacks: {}
+    try {
+      wx.showLoading({ title: '加载中...' })
+
+      // 从数据库获取目标的最新数据（包含最新的攻击统计）
+      const latestTarget = await getTargetById(target._id)
+
+      if (latestTarget) {
+        // 设置页面标题为 "暴打 + 形象名称"
+        wx.setNavigationBarTitle({
+          title: `暴打${latestTarget.name}`
+        })
+
+        // 初始化会话统计（新会话从0开始）
+        const sessionStats = {
+          totalAttacks: 0,
+          attacks: {}
+        }
+
+        // 确保 lifetimeStats 存在
+        if (!latestTarget.lifetimeStats) {
+          latestTarget.lifetimeStats = {
+            totalAttacks: 0,
+            attacks: {}
+          }
+        }
+
+        this.setData({
+          currentTarget: latestTarget,
+          sessionStats
+        })
+      } else {
+        // 数据库中没有该目标，使用本地数据
+        wx.setNavigationBarTitle({
+          title: `暴打${target.name}`
+        })
+
+        const sessionStats = {
+          totalAttacks: 0,
+          attacks: {}
+        }
+
+        this.setData({
+          currentTarget: {
+            ...target,
+            lifetimeStats: target.lifetimeStats || {
+              totalAttacks: 0,
+              attacks: {}
+            }
+          },
+          sessionStats
+        })
+      }
+
+      // 加载技能列表
+      this.loadSkills('physical')
+
+      wx.hideLoading()
+    } catch (err) {
+      console.error('加载目标失败:', err)
+      wx.hideLoading()
+
+      // 出错时使用本地数据
+      wx.setNavigationBarTitle({
+        title: `暴打${target.name}`
+      })
+
+      const sessionStats = {
+        totalAttacks: 0,
+        attacks: {}
+      }
+
+      this.setData({
+        currentTarget: {
+          ...target,
+          lifetimeStats: target.lifetimeStats || {
+            totalAttacks: 0,
+            attacks: {}
+          }
+        },
+        sessionStats
+      })
+
+      this.loadSkills('physical')
     }
-
-    this.setData({
-      currentTarget: target,
-      sessionStats
-    })
-
-    // 加载技能列表
-    this.loadSkills('physical')
-
-    // TODO: 加载Spine动画数据
-    // this.loadSpineData(target)
   },
 
   onShow() {

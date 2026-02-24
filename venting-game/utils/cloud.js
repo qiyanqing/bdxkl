@@ -99,6 +99,20 @@ const getMyTargets = async () => {
 }
 
 /**
+ * 根据ID获取单个目标的最新数据（从数据库）
+ */
+const getTargetById = async (targetId) => {
+  try {
+    const db = wx.cloud.database()
+    const res = await db.collection('targets').doc(targetId).get()
+    return res.data
+  } catch (err) {
+    console.error('获取目标详情失败:', err)
+    return null
+  }
+}
+
+/**
  * 创建发泄目标
  * _openid 会自动添加为当前用户的 openid
  */
@@ -243,6 +257,7 @@ module.exports = {
   getUserInfo,
   saveUserInfo,
   getMyTargets,
+  getTargetById,
   createTarget,
   updateTarget,
   deleteTarget,
