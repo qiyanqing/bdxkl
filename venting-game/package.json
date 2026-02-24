@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@esotericsoftware/spine-canvas": "^4.2.106"
+  }
+}
