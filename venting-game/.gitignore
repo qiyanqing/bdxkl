@@ -1,29 +1,34 @@
-# Dependencies
+# 微信小程序
+.miniprogram-nuxt/
+.project.config.json.local
+
+# 依赖
 node_modules/
 
-# WeChat Mini Program
-.miniprogram-cache/
-project.private.config.json
-
-# IDE
-.idea/
-.vscode/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
+# 日志
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
-# Build
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 临时文件
+*.tmp
+*.temp
+.cache/
+
+# 云函数部署临时文件
+cloudfunctions/*/node_modules/
+cloudfunctions/*/.env
+cloudfunctions/*/.env.local
+
+# 构建产物
 dist/
 build/
