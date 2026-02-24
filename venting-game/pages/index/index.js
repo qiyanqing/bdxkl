@@ -1,12 +1,14 @@
 // pages/index/index.js
-const { getMyTargets, saveMyTargets, saveCurrentTarget } = require('../../utils/storage.js')
+const { getMyTargets, updateTarget, deleteTarget } = require('../../utils/cloud.js')
+const { saveCurrentTarget } = require('../../utils/storage.js')
 const { vibrate } = require('../../utils/util.js')
 
 Page({
   data: {
     targets: [],
     actionSheetHidden: true,
-    selectedTargetId: ''
+    selectedTargetId: '',
+    isLoading: false
   },
 
   onLoad() {
@@ -19,11 +21,25 @@ Page({
   },
 
   /**
-   * 加载形象列表
+   * 加载形象列表（从云数据库）
    */
-  loadTargets() {
-    const targets = getMyTargets()
-    this.setData({ targets })
+  async loadTargets() {
+    if (this.data.isLoading) return
+
+    this.setData({ isLoading: true })
+
+    try {
+      const targets = await getMyTargets()
+      this.setData({ targets })
+    } catch (err) {
+      console.error('加载失败:', err)
+      wx.showToast({
+        title: '加载失败',
+        icon: 'none'
+      })
+    } finally {
+      this.setData({ isLoading: false })
+    }
   },
 
   /**
@@ -64,12 +80,12 @@ Page({
   },
 
   /**
-   * 编辑形象名称 - 修复数据一致性问题，使用深拷贝
+   * 编辑形象名称
    */
   editTarget(e) {
     const targetId = e.currentTarget.dataset.id
     const targets = this.data.targets
-    const targetIndex = targets.findIndex(t => t.id === targetId)
+    const targetIndex = targets.findIndex(t => t._id === targetId)
     const target = targets[targetIndex]
 
     if (target && targetIndex > -1) {
@@ -78,22 +94,34 @@ Page({
         editable: true,
         placeholderText: '请输入新名称',
         content: target.name,
-        success: (res) => {
+        success: async (res) => {
           if (res.confirm && res.content) {
             const newName = res.content.trim()
             if (newName) {
-              // 创建新对象而不是直接修改原对象
-              const updatedTargets = [...targets]
-              updatedTargets[targetIndex] = {
-                ...target,
-                name: newName
+              try {
+                wx.showLoading({ title: '保存中...' })
+                await updateTarget(targetId, { name: newName })
+
+                // 更新本地数据
+                const updatedTargets = [...targets]
+                updatedTargets[targetIndex] = {
+                  ...target,
+                  name: newName
+                }
+                this.setData({ targets: updatedTargets })
+
+                wx.hideLoading()
+                wx.showToast({
+                  title: '修改成功',
+                  icon: 'success'
+                })
+              } catch (err) {
+                wx.hideLoading()
+                wx.showToast({
+                  title: '修改失败',
+                  icon: 'none'
+                })
               }
-              saveMyTargets(updatedTargets)
-              this.setData({ targets: updatedTargets })
-              wx.showToast({
-                title: '修改成功',
-                icon: 'success'
-              })
             }
           }
         }
@@ -104,22 +132,35 @@ Page({
   /**
    * 删除形象
    */
-  deleteTarget(e) {
+  deleteTargetConfirm(e) {
     const targetId = e.currentTarget.dataset.id
 
     wx.showModal({
       title: '确认删除',
       content: '删除后该形象的攻击数据也将被清除，确定要删除吗？',
       confirmColor: '#ff6b6b',
-      success: (res) => {
+      success: async (res) => {
         if (res.confirm) {
-          const targets = this.data.targets.filter(t => t.id !== targetId)
-          saveMyTargets(targets)
-          this.setData({ targets })
-          wx.showToast({
-            title: '删除成功',
-            icon: 'success'
-          })
+          try {
+            wx.showLoading({ title: '删除中...' })
+            await deleteTarget(targetId)
+
+            // 从本地数据中移除
+            const targets = this.data.targets.filter(t => t._id !== targetId)
+            this.setData({ targets })
+
+            wx.hideLoading()
+            wx.showToast({
+              title: '删除成功',
+              icon: 'success'
+            })
+          } catch (err) {
+            wx.hideLoading()
+            wx.showToast({
+              title: '删除失败',
+              icon: 'none'
+            })
+          }
         }
       }
     })

@@ -1,7 +1,7 @@
 // pages/create/create.js
 const { CARTOON_CHARS } = require('../../config/game.config.js')
-const { saveMyTargets, getMyTargets } = require('../../utils/storage.js')
-const { generateId, vibrate } = require('../../utils/util.js')
+const { createTarget } = require('../../utils/cloud.js')
+const { vibrate } = require('../../utils/util.js')
 
 Page({
   data: {
@@ -295,9 +295,9 @@ Page({
   },
 
   /**
-   * 创建目标
+   * 创建目标（保存到云数据库）
    */
-  createTarget() {
+  async createTarget() {
     try {
       const { gender, type, targetName, finalImageUrl, selectedCartoonId } = this.data
 
@@ -318,15 +318,15 @@ Page({
         return
       }
 
+      wx.showLoading({ title: '创建中...' })
+
       // 构建新的目标对象
       const newTarget = {
-        id: generateId(),
         name: targetName.trim(),
         type,
         imageUrl: finalImageUrl,
         cartoonId: type === 'cartoon' ? selectedCartoonId : '',
         gender,
-        createdAt: Date.now(),
         lifetimeStats: {
           totalAttacks: 0,
           attacks: {}
@@ -337,11 +337,10 @@ Page({
         }
       }
 
-      // 保存到本地
-      const targets = getMyTargets()
-      targets.push(newTarget)
-      saveMyTargets(targets)
+      // 保存到云数据库
+      const result = await createTarget(newTarget)
 
+      wx.hideLoading()
       wx.showToast({
         title: '创建成功',
         icon: 'success'
@@ -353,6 +352,7 @@ Page({
       }, 1500)
     } catch (err) {
       console.error('创建目标失败:', err)
+      wx.hideLoading()
       wx.showToast({
         title: '创建失败',
         icon: 'none'

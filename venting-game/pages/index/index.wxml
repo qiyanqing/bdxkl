@@ -54,6 +54,6 @@
   bindchange="actionSheetChange"
 >
   <action-sheet-item bindtap="editTarget" data-id="{{selectedTargetId}}">编辑名称</action-sheet-item>
-  <action-sheet-item bindtap="deleteTarget" data-id="{{selectedTargetId}}" class="delete-item">删除形象</action-sheet-item>
+  <action-sheet-item bindtap="deleteTargetConfirm" data-id="{{selectedTargetId}}" class="delete-item">删除形象</action-sheet-item>
   <action-sheet-cancel>取消</action-sheet-cancel>
 </action-sheet>
