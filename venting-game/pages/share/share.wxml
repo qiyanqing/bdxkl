@@ -37,11 +37,11 @@
   <!-- 操作按钮 -->
   <view class="action-area">
     <button class="action-btn primary" bindtap="saveToAlbum" disabled="{{isGenerating}}">
-      <image class="btn-icon" src="/assets/images/save.png" mode="aspectFit"></image>
+      <text class="btn-icon">💾</text>
       <text>保存到相册</text>
     </button>
     <button class="action-btn secondary" open-type="share">
-      <image class="btn-icon" src="/assets/images/wechat.png" mode="aspectFit"></image>
+      <text class="btn-icon">💬</text>
       <text>分享给好友</text>
     </button>
     <button class="action-btn tertiary" bindtap="goBack">

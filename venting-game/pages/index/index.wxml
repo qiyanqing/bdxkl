@@ -2,7 +2,7 @@
 <view class="container">
   <!-- 顶部标题 -->
   <view class="header">
-    <text class="title">我的出气筒</text>
+    <text class="title">暴打小卡拉</text>
     <text class="subtitle">创建虚拟形象，释放你的压力</text>
   </view>
 
@@ -31,7 +31,7 @@
 
     <!-- 空状态 -->
     <view class="empty-state" wx:else>
-      <image class="empty-icon" src="/assets/images/empty.png" mode="aspectFit"></image>
+      <text class="empty-icon">😊</text>
       <text class="empty-text">还没有创建出气筒形象</text>
       <text class="empty-hint">点击下方按钮创建你的第一个形象吧</text>
     </view>

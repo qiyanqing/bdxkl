@@ -20,7 +20,7 @@
         bindtap="selectGender"
         data-gender="male"
       >
-        <image class="gender-icon" src="/assets/images/male.png" mode="aspectFit"></image>
+        <text class="gender-icon">👨</text>
         <text class="gender-name">男性</text>
       </view>
       <view 
@@ -28,7 +28,7 @@
         bindtap="selectGender"
         data-gender="female"
       >
-        <image class="gender-icon" src="/assets/images/female.png" mode="aspectFit"></image>
+        <text class="gender-icon">👩</text>
         <text class="gender-name">女性</text>
       </view>
     </view>
@@ -39,12 +39,12 @@
     <view class="step-title">选择形象来源</view>
     <view class="source-options">
       <view class="source-option" bindtap="chooseType" data-type="photo">
-        <image class="source-icon" src="/assets/images/camera.png" mode="aspectFit"></image>
+        <text class="source-icon">📷</text>
         <text class="source-name">上传照片</text>
         <text class="source-desc">使用真实照片生成形象</text>
       </view>
       <view class="source-option" bindtap="chooseType" data-type="cartoon">
-        <image class="source-icon" src="/assets/images/cartoon.png" mode="aspectFit"></image>
+        <text class="source-icon">🎭</text>
         <text class="source-name">选择卡通</text>
         <text class="source-desc">使用预制的卡通角色</text>
       </view>
@@ -63,7 +63,7 @@
           wx:if="{{uploadedImageUrl}}"
         ></image>
         <view class="upload-placeholder" wx:else>
-          <image class="upload-icon" src="/assets/images/upload.png" mode="aspectFit"></image>
+          <text class="upload-icon">📤</text>
           <text class="upload-text">点击上传照片</text>
           <text class="upload-hint">建议使用正面清晰人像</text>
         </view>
@@ -73,7 +73,7 @@
       </view>
     </view>
     <view class="processing-tip" wx:if="{{isProcessing}}">
-      <image class="loading-icon" src="/assets/images/loading.gif" mode="aspectFit"></image>
+      <text class="loading-icon">⏳</text>
       <text class="processing-text">正在处理照片...</text>
     </view>
   </view>
