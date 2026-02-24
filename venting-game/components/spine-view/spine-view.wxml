@@ -1,0 +1,15 @@
+<!--components/spine-view/spine-view.wxml-->
+<view class="spine-container" style="width: {{width}}px; height: {{height}}px;">
+  <canvas 
+    id="spine-canvas" 
+    type="2d" 
+    class="spine-canvas"
+    style="width: {{width}}px; height: {{height}}px;"
+  ></canvas>
+  
+  <!-- 加载中占位 -->
+  <view class="loading-placeholder" wx:if="{{!isLoaded}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+</view>
