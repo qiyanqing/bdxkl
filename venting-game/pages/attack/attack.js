@@ -1,7 +1,8 @@
 // pages/attack/attack.js
 const { SKILL_CONFIG, SKILL_CATEGORIES, SHARE_THRESHOLD } = require('../../config/game.config.js')
-const { getCurrentTarget, saveCurrentTarget, getSessionStats, updateSessionStats, getMyTargets, saveMyTargets } = require('../../utils/storage.js')
-const { vibrate, generateId } = require('../../utils/util.js')
+const { getCurrentTarget } = require('../../utils/storage.js')
+const { recordAttack, updateTargetStats } = require('../../utils/cloud.js')
+const { vibrate } = require('../../utils/util.js')
 
 Page({
   data: {
@@ -62,8 +63,11 @@ Page({
       return
     }
 
-    // 初始化会话统计
-    const sessionStats = getSessionStats()
+    // 初始化会话统计（新会话从0开始）
+    const sessionStats = {
+      totalAttacks: 0,
+      attacks: {}
+    }
 
     this.setData({
       currentTarget: target,
@@ -78,9 +82,7 @@ Page({
   },
 
   onShow() {
-    // 每次显示时刷新统计
-    const sessionStats = getSessionStats()
-    this.setData({ sessionStats })
+    // 每次显示时不需要刷新统计，使用本地会话数据即可
   },
 
   /**
@@ -274,39 +276,49 @@ Page({
   },
 
   /**
-   * 更新统计数据
+   * 更新统计数据（使用云数据库）
    */
-  updateStats(skillId, damage) {
-    // 更新会话统计
-    const sessionStats = { ...this.data.sessionStats }
-    sessionStats.totalAttacks += 1
-    sessionStats.attacks[skillId] = (sessionStats.attacks[skillId] || 0) + 1
+  async updateStats(skillId, damage) {
+    try {
+      // 1. 记录攻击到云数据库（_openid 会自动添加）
+      await recordAttack({
+        targetId: this.data.currentTarget._id,
+        skillId,
+        damage,
+        isCrit: damage > 50 // 伤害超过50算暴击
+      })
 
-    updateSessionStats(sessionStats)
-    this.setData({ sessionStats })
+      // 2. 更新会话统计（本地显示用）
+      const sessionStats = { ...this.data.sessionStats }
+      sessionStats.totalAttacks += 1
+      sessionStats.attacks[skillId] = (sessionStats.attacks[skillId] || 0) + 1
+      this.setData({ sessionStats })
 
-    // 更新目标终身统计 - 使用深拷贝避免直接修改原对象
-    const targets = getMyTargets()
-    const targetIndex = targets.findIndex(t => t.id === this.data.currentTarget.id)
-    if (targetIndex > -1) {
-      // 创建新对象而不是直接修改
-      targets[targetIndex] = {
-        ...targets[targetIndex],
-        lifetimeStats: {
-          ...targets[targetIndex].lifetimeStats,
-          totalAttacks: targets[targetIndex].lifetimeStats.totalAttacks + 1,
-          attacks: {
-            ...targets[targetIndex].lifetimeStats.attacks,
-            [skillId]: (targets[targetIndex].lifetimeStats.attacks[skillId] || 0) + 1
-          }
+      // 3. 更新目标的终身统计到云数据库
+      const target = this.data.currentTarget
+      const newStats = {
+        totalAttacks: (target.lifetimeStats?.totalAttacks || 0) + 1,
+        attacks: {
+          ...target.lifetimeStats?.attacks,
+          [skillId]: (target.lifetimeStats?.attacks?.[skillId] || 0) + 1
         }
       }
-      saveMyTargets(targets)
-      saveCurrentTarget(targets[targetIndex])
-    }
 
-    // 检查是否触发分享
-    this.checkShareTrigger(skillId)
+      await updateTargetStats(target._id, newStats)
+
+      // 4. 更新本地显示的数据
+      const updatedTarget = {
+        ...target,
+        lifetimeStats: newStats
+      }
+      this.setData({ currentTarget: updatedTarget })
+
+      // 检查是否触发分享
+      this.checkShareTrigger(skillId)
+
+    } catch (err) {
+      console.error('更新统计数据失败:', err)
+    }
   },
 
   /**

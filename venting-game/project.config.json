@@ -1,5 +1,7 @@
 {
   "description": "暴打小卡拉 - 情绪发泄小游戏",
+  "cloudbaseRoot": "./cloudfunctions/",
+  "cloudfunctionRoot": "./cloudfunctions/",
   "packOptions": {
     "ignore": [
       {

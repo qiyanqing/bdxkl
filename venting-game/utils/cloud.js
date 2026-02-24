@@ -1,5 +1,6 @@
 /**
  * 云开发工具函数
+ * 微信云数据库会自动添加 _openid 字段关联当前登录用户
  */
 
 /**
@@ -18,12 +19,17 @@ const getOpenId = async () => {
 }
 
 /**
- * 获取用户信息
+ * 获取当前登录用户信息
+ * 使用 where({ _openid: db.serverDate() }) 自动匹配当前用户
  */
 const getUserInfo = async () => {
   try {
     const db = wx.cloud.database()
+    const _ = db.command
+
+    // 使用 _openid 查询当前用户（数据库自动匹配）
     const res = await db.collection('users').limit(1).get()
+
     if (res.data.length > 0) {
       return res.data[0]
     }
@@ -36,18 +42,17 @@ const getUserInfo = async () => {
 
 /**
  * 创建/更新用户信息
+ * add() 操作会自动添加 _openid 字段
  */
 const saveUserInfo = async (userInfo) => {
   try {
     const db = wx.cloud.database()
-    const _ = db.command
 
-    // 检查用户是否存在
+    // 检查当前用户是否已存在
     const existing = await getUserInfo()
-    const now = new Date()
 
     if (existing) {
-      // 更新用户
+      // 更新用户（只能更新自己的数据）
       await db.collection('users').doc(existing._id).update({
         data: {
           ...userInfo,
@@ -56,7 +61,7 @@ const saveUserInfo = async (userInfo) => {
       })
       return { ...existing, ...userInfo }
     } else {
-      // 创建用户
+      // 创建用户（_openid 会自动添加）
       const res = await db.collection('users').add({
         data: {
           ...userInfo,
@@ -73,12 +78,19 @@ const saveUserInfo = async (userInfo) => {
 }
 
 /**
- * 获取用户的所有发泄目标
+ * 获取当前用户的所有发泄目标
+ * 数据库会自动只返回 _openid 匹配当前用户的数据
  */
 const getMyTargets = async () => {
   try {
     const db = wx.cloud.database()
-    const res = await db.collection('targets').orderBy('createdAt', 'desc').get()
+
+    // 直接查询即可，数据库权限设置会确保只返回当前用户的数据
+    const res = await db.collection('targets')
+      .orderBy('createdAt', 'desc')
+      .get()
+
+    console.log('获取发泄目标:', res.data.length, '条')
     return res.data
   } catch (err) {
     console.error('获取发泄目标失败:', err)
@@ -88,16 +100,21 @@ const getMyTargets = async () => {
 
 /**
  * 创建发泄目标
+ * _openid 会自动添加为当前用户的 openid
  */
 const createTarget = async (target) => {
   try {
     const db = wx.cloud.database()
+
     const res = await db.collection('targets').add({
       data: {
         ...target,
         createdAt: db.serverDate()
+        // _openid 会自动添加
       }
     })
+
+    console.log('创建发泄目标成功:', res._id)
     return { _id: res._id, ...target }
   } catch (err) {
     console.error('创建发泄目标失败:', err)
@@ -107,13 +124,17 @@ const createTarget = async (target) => {
 
 /**
  * 更新发泄目标
+ * 只能更新 _openid 等于当前用户的数据
  */
 const updateTarget = async (targetId, updateData) => {
   try {
     const db = wx.cloud.database()
+
     await db.collection('targets').doc(targetId).update({
       data: updateData
     })
+
+    console.log('更新发泄目标成功:', targetId)
     return true
   } catch (err) {
     console.error('更新发泄目标失败:', err)
@@ -123,11 +144,15 @@ const updateTarget = async (targetId, updateData) => {
 
 /**
  * 删除发泄目标
+ * 只能删除 _openid 等于当前用户的数据
  */
 const deleteTarget = async (targetId) => {
   try {
     const db = wx.cloud.database()
+
     await db.collection('targets').doc(targetId).remove()
+
+    console.log('删除发泄目标成功:', targetId)
     return true
   } catch (err) {
     console.error('删除发泄目标失败:', err)
@@ -137,16 +162,20 @@ const deleteTarget = async (targetId) => {
 
 /**
  * 记录攻击
+ * _openid 会自动添加为当前用户的 openid
  */
 const recordAttack = async (attackData) => {
   try {
     const db = wx.cloud.database()
+
     const res = await db.collection('attack_records').add({
       data: {
         ...attackData,
         createdAt: db.serverDate()
+        // _openid 会自动添加
       }
     })
+
     return res._id
   } catch (err) {
     console.error('记录攻击失败:', err)
@@ -156,13 +185,13 @@ const recordAttack = async (attackData) => {
 
 /**
  * 获取攻击统计
+ * 只统计当前用户对指定目标的攻击记录
  */
 const getAttackStats = async (targetId) => {
   try {
     const db = wx.cloud.database()
-    const _ = db.command
 
-    // 获取总攻击次数
+    // 获取总攻击次数（只统计当前用户的记录）
     const countRes = await db.collection('attack_records')
       .where({ targetId })
       .count()
@@ -188,6 +217,27 @@ const getAttackStats = async (targetId) => {
   }
 }
 
+/**
+ * 更新目标攻击统计（直接更新 targets 集合）
+ */
+const updateTargetStats = async (targetId, stats) => {
+  try {
+    const db = wx.cloud.database()
+
+    await db.collection('targets').doc(targetId).update({
+      data: {
+        'lifetimeStats.totalAttacks': stats.totalAttacks,
+        'lifetimeStats.attacks': stats.attacks
+      }
+    })
+
+    return true
+  } catch (err) {
+    console.error('更新目标统计失败:', err)
+    throw err
+  }
+}
+
 module.exports = {
   getOpenId,
   getUserInfo,
@@ -197,5 +247,6 @@ module.exports = {
   updateTarget,
   deleteTarget,
   recordAttack,
-  getAttackStats
+  getAttackStats,
+  updateTargetStats
 }
