@@ -1,3 +1,6 @@
+// app.js
+const ENV_CONFIG = require('./config/env.config.js')
+
 App({
   onLaunch() {
     // 初始化云开发
@@ -5,7 +8,7 @@ App({
       console.error('请使用 2.2.3 或以上的基础库以使用云能力')
     } else {
       wx.cloud.init({
-        env: 'your-env-id', // TODO: 替换为实际环境ID
+        env: ENV_CONFIG.cloudEnvId,
         traceUser: true
       })
     }
@@ -20,6 +23,8 @@ App({
       name: 'login'
     }).then(res => {
       that.globalData.openid = res.result.openid
+    }).catch(err => {
+      console.error('获取openid失败:', err)
     })
   },
 

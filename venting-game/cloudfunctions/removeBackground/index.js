@@ -7,11 +7,11 @@ cloud.init({
 })
 
 // 腾讯云人像分割API配置
-// TODO: 需要到腾讯云控制台申请以下密钥
+// 需要在腾讯云控制台申请以下密钥，并配置为云函数环境变量
 const TENCENT_CLOUD_CONFIG = {
-  // 腾讯云API密钥（需要在腾讯云控制台申请）
-  secretId: process.env.TENCENT_SECRET_ID || 'YOUR_SECRET_ID',
-  secretKey: process.env.TENCENT_SECRET_KEY || 'YOUR_SECRET_KEY',
+  // 腾讯云API密钥（从环境变量读取，无默认值以确保安全）
+  secretId: process.env.TENCENT_SECRET_ID,
+  secretKey: process.env.TENCENT_SECRET_KEY,
   // 人像分割API端点
   endpoint: 'iai.tencentcloudapi.com',
   region: 'ap-guangzhou',
@@ -25,7 +25,15 @@ const TENCENT_CLOUD_CONFIG = {
  */
 exports.main = async (event, context) => {
   const { imageUrl } = event
-  
+
+  // 验证API密钥配置
+  if (!TENCENT_CLOUD_CONFIG.secretId || !TENCENT_CLOUD_CONFIG.secretKey) {
+    return {
+      errCode: -3,
+      errMsg: 'API密钥未配置，请设置环境变量 TENCENT_SECRET_ID 和 TENCENT_SECRET_KEY'
+    }
+  }
+
   if (!imageUrl) {
     return {
       errCode: -1,

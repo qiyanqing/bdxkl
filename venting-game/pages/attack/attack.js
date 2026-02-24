@@ -10,7 +10,7 @@ Page({
       totalAttacks: 0,
       attacks: {}
     },
-    
+
     // Spine相关
     spineData: null,
     currentAnimation: 'idle',
@@ -18,10 +18,10 @@ Page({
     spineScale: 1,
     spineWidth: 300,
     spineHeight: 400,
-    
+
     // 伤害飘字
     damageNumbers: [],
-    
+
     // 技能分类
     skillCategories: [
       { key: 'physical', name: '物理攻击' },
@@ -30,13 +30,19 @@ Page({
       { key: 'speech', name: '言语攻击' }
     ],
     currentCategory: 'physical',
-    
+
     // 当前分类的技能列表
     currentSkills: [],
-    
+
     // 技能CD状态
     skillCdState: {},
-    
+    // CD定时器引用（用于清理）
+    cdTimers: {},
+    // 动画定时器引用
+    animationTimeouts: [],
+    // 伤害飘字定时器引用
+    damageTimers: [],
+
     // 分享弹窗
     showShareModal: false,
     milestoneText: ''
@@ -58,7 +64,7 @@ Page({
 
     // 初始化会话统计
     const sessionStats = getSessionStats()
-    
+
     this.setData({
       currentTarget: target,
       sessionStats
@@ -66,7 +72,7 @@ Page({
 
     // 加载技能列表
     this.loadSkills('physical')
-    
+
     // TODO: 加载Spine动画数据
     // this.loadSpineData(target)
   },
@@ -75,6 +81,26 @@ Page({
     // 每次显示时刷新统计
     const sessionStats = getSessionStats()
     this.setData({ sessionStats })
+  },
+
+  /**
+   * 页面卸载时清理所有定时器
+   */
+  onUnload() {
+    // 清理所有CD定时器
+    Object.values(this.data.cdTimers).forEach(timer => {
+      clearInterval(timer)
+    })
+
+    // 清理所有动画定时器
+    this.data.animationTimeouts.forEach(timeout => {
+      clearTimeout(timeout)
+    })
+
+    // 清理所有伤害飘字定时器
+    this.data.damageTimers.forEach(timeout => {
+      clearTimeout(timeout)
+    })
   },
 
   /**
@@ -111,7 +137,7 @@ Page({
       // 皮肤名称
       skin: target.gender === 'male' ? 'male' : 'female'
     }
-    
+
     this.setData({ spineData })
   },
 
@@ -121,7 +147,7 @@ Page({
   switchCategory(e) {
     const category = e.currentTarget.dataset.category
     vibrate('light')
-    
+
     this.setData({ currentCategory: category })
     this.loadSkills(category)
   },
@@ -140,7 +166,7 @@ Page({
         cdPercent: 0
       }
     })
-    
+
     this.setData({ currentSkills: skills })
   },
 
@@ -149,7 +175,7 @@ Page({
    */
   useSkill(e) {
     const skill = e.currentTarget.dataset.skill
-    
+
     // 检查CD
     if (skill.isInCd) {
       wx.showToast({
@@ -158,19 +184,19 @@ Page({
       })
       return
     }
-    
+
     // 触发震动反馈
     this.triggerVibrate(skill.damage)
-    
+
     // 更新动画
     this.playHitAnimation(skill.damage)
-    
+
     // 显示伤害飘字
     this.showDamageNumber(skill.damage, skill.category)
-    
+
     // 更新统计数据
     this.updateStats(skill.id, skill.damage)
-    
+
     // 启动技能CD
     this.startSkillCd(skill.id, skill.cd)
   },
@@ -193,25 +219,27 @@ Page({
    */
   playHitAnimation(damage) {
     let animation = 'hit_light'
-    
+
     if (damage >= 70) {
       animation = 'hit_heavy'
     } else if (damage >= 40) {
       animation = 'hit_medium'
     }
-    
+
     this.setData({
       currentAnimation: animation,
       animationLoop: false
     })
-    
-    // 2秒后自动回到待机状态
-    setTimeout(() => {
+
+    // 2秒后自动回到待机状态，保存timeout引用用于清理
+    const timeout = setTimeout(() => {
       this.setData({
         currentAnimation: 'idle',
         animationLoop: true
       })
     }, 2000)
+
+    this.data.animationTimeouts.push(timeout)
   },
 
   /**
@@ -220,7 +248,7 @@ Page({
   showDamageNumber(damage, category) {
     const isCrit = Math.random() < 0.15 // 15%暴击率
     const finalDamage = isCrit ? Math.floor(damage * 1.5) : damage
-    
+
     const damageItem = {
       id: generateId(),
       damage: finalDamage,
@@ -229,18 +257,20 @@ Page({
       opacity: 1,
       isCrit
     }
-    
+
     this.data.damageNumbers.push(damageItem)
     this.setData({ damageNumbers: this.data.damageNumbers })
-    
-    // 1秒后移除飘字
-    setTimeout(() => {
+
+    // 1秒后移除飘字，保存timeout引用
+    const timeout = setTimeout(() => {
       const index = this.data.damageNumbers.findIndex(d => d.id === damageItem.id)
       if (index > -1) {
         this.data.damageNumbers.splice(index, 1)
         this.setData({ damageNumbers: this.data.damageNumbers })
       }
     }, 1000)
+
+    this.data.damageTimers.push(timeout)
   },
 
   /**
@@ -248,23 +278,33 @@ Page({
    */
   updateStats(skillId, damage) {
     // 更新会话统计
-    const sessionStats = this.data.sessionStats
+    const sessionStats = { ...this.data.sessionStats }
     sessionStats.totalAttacks += 1
     sessionStats.attacks[skillId] = (sessionStats.attacks[skillId] || 0) + 1
-    
+
     updateSessionStats(sessionStats)
     this.setData({ sessionStats })
-    
-    // 更新目标终身统计
+
+    // 更新目标终身统计 - 使用深拷贝避免直接修改原对象
     const targets = getMyTargets()
-    const target = targets.find(t => t.id === this.data.currentTarget.id)
-    if (target) {
-      target.lifetimeStats.totalAttacks += 1
-      target.lifetimeStats.attacks[skillId] = (target.lifetimeStats.attacks[skillId] || 0) + 1
+    const targetIndex = targets.findIndex(t => t.id === this.data.currentTarget.id)
+    if (targetIndex > -1) {
+      // 创建新对象而不是直接修改
+      targets[targetIndex] = {
+        ...targets[targetIndex],
+        lifetimeStats: {
+          ...targets[targetIndex].lifetimeStats,
+          totalAttacks: targets[targetIndex].lifetimeStats.totalAttacks + 1,
+          attacks: {
+            ...targets[targetIndex].lifetimeStats.attacks,
+            [skillId]: (targets[targetIndex].lifetimeStats.attacks[skillId] || 0) + 1
+          }
+        }
+      }
       saveMyTargets(targets)
-      saveCurrentTarget(target)
+      saveCurrentTarget(targets[targetIndex])
     }
-    
+
     // 检查是否触发分享
     this.checkShareTrigger(skillId)
   },
@@ -274,13 +314,13 @@ Page({
    */
   checkShareTrigger(skillId) {
     const sessionStats = this.data.sessionStats
-    
+
     // 检查单技能次数
     if (sessionStats.attacks[skillId] === SHARE_THRESHOLD.perSkill) {
       this.showShareModal(`使用 ${SKILL_CONFIG[skillId].name} 达到 ${SHARE_THRESHOLD.perSkill} 次！`)
       return
     }
-    
+
     // 检查总攻击次数
     if (sessionStats.totalAttacks === SHARE_THRESHOLD.perTotal) {
       this.showShareModal(`总攻击次数达到 ${SHARE_THRESHOLD.perTotal} 次！`)
@@ -293,29 +333,32 @@ Page({
    */
   startSkillCd(skillId, cd) {
     if (cd <= 0) return
-    
+
     const now = Date.now()
     const endTime = now + cd
-    
+
     // 更新CD状态
     this.setData({
       [`skillCdState.${skillId}`]: endTime
     })
-    
+
     // 更新技能列表显示
     this.updateSkillCdDisplay(skillId, cd)
-    
-    // 启动CD计时器
+
+    // 启动CD计时器，保存引用用于清理
     const timer = setInterval(() => {
       const remaining = endTime - Date.now()
-      
+
       if (remaining <= 0) {
         clearInterval(timer)
+        delete this.data.cdTimers[skillId]
         this.updateSkillCdDisplay(skillId, 0)
       } else {
         this.updateSkillCdDisplay(skillId, remaining)
       }
-    }, 100)
+    }, 200) // 增加检查间隔到200ms，减少性能开销
+
+    this.data.cdTimers[skillId] = timer
   },
 
   /**
@@ -326,8 +369,9 @@ Page({
       if (skill.id === skillId) {
         const isInCd = remaining > 0
         const cdRemaining = Math.ceil(remaining / 1000)
-        const cdPercent = isInteger(remaining / 10) ? remaining / 10 : 0
-        
+        // 直接使用Math.floor计算百分比，移除isInteger函数
+        const cdPercent = Math.max(0, Math.min(100, Math.floor(remaining / 10)))
+
         return {
           ...skill,
           isInCd,
@@ -337,7 +381,7 @@ Page({
       }
       return skill
     })
-    
+
     this.setData({ currentSkills: skills })
   },
 
@@ -378,8 +422,3 @@ Page({
     })
   }
 })
-
-// 辅助函数
-function isInteger(value) {
-  return Number.isInteger(value)
-}

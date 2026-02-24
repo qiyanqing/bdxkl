@@ -32,10 +32,10 @@ Page({
   selectTarget(e) {
     const target = e.currentTarget.dataset.target
     saveCurrentTarget(target)
-    
+
     // 震动反馈
     vibrate('light')
-    
+
     wx.navigateTo({
       url: '/pages/attack/attack'
     })
@@ -64,14 +64,15 @@ Page({
   },
 
   /**
-   * 编辑形象名称
+   * 编辑形象名称 - 修复数据一致性问题，使用深拷贝
    */
   editTarget(e) {
     const targetId = e.currentTarget.dataset.id
     const targets = this.data.targets
-    const target = targets.find(t => t.id === targetId)
-    
-    if (target) {
+    const targetIndex = targets.findIndex(t => t.id === targetId)
+    const target = targets[targetIndex]
+
+    if (target && targetIndex > -1) {
       wx.showModal({
         title: '编辑名称',
         editable: true,
@@ -81,9 +82,14 @@ Page({
           if (res.confirm && res.content) {
             const newName = res.content.trim()
             if (newName) {
-              target.name = newName
-              saveMyTargets(targets)
-              this.setData({ targets })
+              // 创建新对象而不是直接修改原对象
+              const updatedTargets = [...targets]
+              updatedTargets[targetIndex] = {
+                ...target,
+                name: newName
+              }
+              saveMyTargets(updatedTargets)
+              this.setData({ targets: updatedTargets })
               wx.showToast({
                 title: '修改成功',
                 icon: 'success'
@@ -100,7 +106,7 @@ Page({
    */
   deleteTarget(e) {
     const targetId = e.currentTarget.dataset.id
-    
+
     wx.showModal({
       title: '确认删除',
       content: '删除后该形象的攻击数据也将被清除，确定要删除吗？',
