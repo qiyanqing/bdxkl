@@ -1,0 +1,57 @@
+<!--pages/index/index.wxml-->
+<view class="container">
+  <!-- 顶部标题 -->
+  <view class="header">
+    <text class="title">我的出气筒</text>
+    <text class="subtitle">创建虚拟形象，释放你的压力</text>
+  </view>
+
+  <!-- 形象列表 -->
+  <view class="target-list">
+    <block wx:if="{{targets.length > 0}}">
+      <view 
+        class="target-card" 
+        wx:for="{{targets}}" 
+        wx:key="id"
+        bindtap="selectTarget"
+        data-target="{{item}}"
+        bindlongpress="showMenu"
+        data-id="{{item.id}}"
+      >
+        <image class="target-avatar" src="{{item.imageUrl}}" mode="aspectFill"></image>
+        <view class="target-info">
+          <text class="target-name">{{item.name}}</text>
+          <text class="target-stats">被攻击 {{item.lifetimeStats.totalAttacks}} 次</text>
+        </view>
+        <view class="target-arrow">
+          <text class="arrow">›</text>
+        </view>
+      </view>
+    </block>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:else>
+      <image class="empty-icon" src="/assets/images/empty.png" mode="aspectFit"></image>
+      <text class="empty-text">还没有创建出气筒形象</text>
+      <text class="empty-hint">点击下方按钮创建你的第一个形象吧</text>
+    </view>
+  </view>
+
+  <!-- 创建按钮 -->
+  <view class="create-btn-wrapper">
+    <button class="create-btn" bindtap="goToCreate">
+      <text class="create-icon">+</text>
+      <text class="create-text">创建新形象</text>
+    </button>
+  </view>
+</view>
+
+<!-- 操作菜单 -->
+<action-sheet
+  hidden="{{actionSheetHidden}}"
+  bindchange="actionSheetChange"
+>
+  <action-sheet-item bindtap="editTarget" data-id="{{selectedTargetId}}">编辑名称</action-sheet-item>
+  <action-sheet-item bindtap="deleteTarget" data-id="{{selectedTargetId}}" class="delete-item">删除形象</action-sheet-item>
+  <action-sheet-cancel>取消</action-sheet-cancel>
+</action-sheet>
