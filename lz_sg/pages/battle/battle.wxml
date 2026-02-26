@@ -1,0 +1,58 @@
+<!--pages/battle/battle.wxml-->
+<view class="battle-container">
+  <!-- 敌方区域 -->
+  <view class="enemy-area">
+    <view class="card {{item.currentHp <= 0 ? 'dead' : ''}}" wx:for="{{enemyHeroes}}" wx:key="id">
+      <text class="name">{{item.name}}</text>
+      <text class="job">{{item.job}}</text>
+      <view class="bars">
+        <view class="hp-bar">
+          <text class="bar-label">HP</text>
+          <view class="bar-bg">
+            <view class="hp-fill" style="width: {{item.currentHp / item.maxHp * 100}}%"></view>
+          </view>
+          <text class="bar-value">{{item.currentHp}}/{{item.maxHp}}</text>
+        </view>
+        <view class="mp-bar">
+          <text class="bar-label">MP</text>
+          <view class="bar-bg">
+            <view class="mp-fill" style="width: {{item.currentMp / item.maxMp * 100}}%"></view>
+          </view>
+          <text class="bar-value">{{item.currentMp}}/{{item.maxMp}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 战斗信息区 -->
+  <view class="battle-info">
+    <text class="turn-info">回合: {{turn}}</text>
+    <text class="action-info">{{currentAction}}</text>
+    <text class="result-info {{resultClass}}" wx:if="{{battleResult}}">{{battleResultText}}</text>
+    <button class="restart-btn" wx:if="{{battleResult}}" bindtap="restartBattle">重新开始</button>
+  </view>
+
+  <!-- 我方区域 -->
+  <view class="my-area">
+    <view class="card {{item.currentHp <= 0 ? 'dead' : ''}}" wx:for="{{myHeroes}}" wx:key="id">
+      <text class="name">{{item.name}}</text>
+      <text class="job">{{item.job}}</text>
+      <view class="bars">
+        <view class="hp-bar">
+          <text class="bar-label">HP</text>
+          <view class="bar-bg">
+            <view class="hp-fill" style="width: {{item.currentHp / item.maxHp * 100}}%"></view>
+          </view>
+          <text class="bar-value">{{item.currentHp}}/{{item.maxHp}}</text>
+        </view>
+        <view class="mp-bar">
+          <text class="bar-label">MP</text>
+          <view class="bar-bg">
+            <view class="mp-fill" style="width: {{item.currentMp / item.maxMp * 100}}%"></view>
+          </view>
+          <text class="bar-value">{{item.currentMp}}/{{item.maxMp}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

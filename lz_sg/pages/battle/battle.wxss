@@ -1,0 +1,153 @@
+/* pages/battle/battle.wxss */
+.battle-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+/* 敌方区域 */
+.enemy-area {
+  display: flex;
+  justify-content: space-around;
+  padding: 20rpx;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* 我方区域 */
+.my-area {
+  display: flex;
+  justify-content: space-around;
+  padding: 20rpx;
+  margin-top: auto;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* 卡牌 */
+.card {
+  width: 200rpx;
+  background: #16213e;
+  border: 3rpx solid #0f3460;
+  border-radius: 15rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15rpx;
+  transition: all 0.3s;
+}
+
+.card.dead {
+  opacity: 0.3;
+  filter: grayscale(100%);
+}
+
+.name {
+  color: #fff;
+  font-size: 28rpx;
+  font-weight: bold;
+  margin-bottom: 5rpx;
+}
+
+.job {
+  color: #95a5a6;
+  font-size: 20rpx;
+  margin-bottom: 10rpx;
+  padding: 2rpx 10rpx;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10rpx;
+}
+
+/* 血条和蓝条 */
+.bars {
+  width: 100%;
+}
+
+.hp-bar, .mp-bar {
+  display: flex;
+  align-items: center;
+  margin: 8rpx 0;
+}
+
+.bar-label {
+  color: #ecf0f1;
+  font-size: 20rpx;
+  width: 40rpx;
+}
+
+.bar-bg {
+  flex: 1;
+  height: 20rpx;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 10rpx;
+  overflow: hidden;
+  margin: 0 10rpx;
+}
+
+.hp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #e74c3c 0%, #c0392b 100%);
+  transition: width 0.3s;
+}
+
+.mp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3498db 0%, #2980b9 100%);
+  transition: width 0.3s;
+}
+
+.bar-value {
+  color: #ecf0f1;
+  font-size: 18rpx;
+  width: 100rpx;
+  text-align: right;
+}
+
+/* 战斗信息区 */
+.battle-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30rpx;
+}
+
+.turn-info {
+  color: #f39c12;
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-bottom: 20rpx;
+}
+
+.action-info {
+  color: #ecf0f1;
+  font-size: 28rpx;
+  text-align: center;
+  line-height: 1.5;
+  min-height: 80rpx;
+}
+
+.result-info {
+  font-size: 48rpx;
+  font-weight: bold;
+  margin-top: 20rpx;
+}
+
+.result-info.win {
+  color: #2ecc71;
+}
+
+.result-info.lose {
+  color: #e74c3c;
+}
+
+.restart-btn {
+  margin-top: 30rpx;
+  width: 300rpx;
+  height: 80rpx;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: #fff;
+  font-size: 32rpx;
+  border-radius: 40rpx;
+  border: none;
+}
