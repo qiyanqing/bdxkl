@@ -1,0 +1,487 @@
+# 三国角色 AI绘画提示词
+# 龙珠风格 × 三国题材
+# 图片规格：512×768 (2:3竖版)
+
+---
+
+## 1. 关羽（Guan Yu - 关羽）
+
+### Midjourney 提示词
+```
+niji 6 masterpiece Dragon Ball Z art style, Akira Toriyama style.
+
+关羽 Guan Yu from Romance of the Three Kingdoms, supreme warrior general,
+
+FACE: Dragon Ball Z anime character face (Trunks/Gohan style),
+masculine jawline, sharp determined eyes, thick eyebrows,
+long black beard (flowing down to chest), red facial complexion (signature trait),
+
+BODY: Dragon Ball Z muscular anatomy, defined muscles but not overly bulky,
+powerful broad shoulders, heroic standing pose, right hand holding Green Dragon Crescent Blade (guandao) outward,
+left hand holding beard, confident heroic posture,
+
+CLOTHING: Traditional Three Kingdoms period green general's armor with golden scale patterns,
+flowing yellow cape behind back, ornate Chinese dragon patterns on armor,
+Chinese military arm guards, historically accurate Three Kingdoms attire,
+
+WEAPON: Green Dragon Crescent Blade (青龙偃月刀), ornate Chinese guandao with dragon engraving on blade,
+polearm weapon, DBZ-style metallic shine and energy aura,
+
+BACKGROUND: Red gradient background with subtle Chinese traditional patterns,
+glowing golden aura around character,
+
+STYLE: Thick black manga outlines (3-4px), cel shading, high saturation colors,
+vibrant palette, anime/manga coloring, Dragon Ball Z character art style,
+
+KEYWORDS: 三国关羽, 武圣, 偃月刀, 绿袍, 长须, 红脸, 义薄云天,
+Dragon Ball style, muscular warrior, general, legendary hero,
+
+--ar 2:3 --q 2 --style expressive
+```
+
+### Stable Diffusion 提示词
+```
+Positive:
+(masterpiece, best quality:1.2),
+Dragon Ball Z art style, Akira Toriyama style,
+
+关羽 (Guan Yu) from Romance of the Three Kingdoms,
+DBZ anime face shape, sharp jaw, spiky black hair,
+long flowing black beard, red facial complexion,
+Dragon Ball Z muscle anatomy, athletic powerful build,
+heroic standing pose, holding Green Dragon Crescent Blade outward,
+
+traditional Chinese green armor with golden dragon patterns,
+flowing yellow cape behind back, Three Kingdoms general attire,
+ornate Chinese guandao with dragon engraving,
+
+red gradient background with subtle Chinese patterns,
+glowing golden aura,
+
+thick black outlines (3-4px), cel shading, high saturation,
+vibrant colors, anime coloring, clean white background,
+
+512×768 resolution, 2:3 aspect ratio,
+
+keywords: 关羽, guanyu, 三国, romance of three kingdoms, warrior general,
+green dragon crescent blade, guandao, 青龙偃月刀, 绿袍战甲,
+dragon ball z style, anime style, muscular, heroic, legendary
+
+Negative:
+low quality, blurry, realistic, photograph,
+Western comic style, Marvel/DC style,
+3D render, CGI, modern clothing,
+(female, feminine, delicate)
+```
+
+---
+
+## 2. 张飞（Zhang Fei - 张飞）
+
+### Midjourney 提示词
+```
+niji 6 masterpiece Dragon Ball Z art style.
+
+张飞 Zhang Fei from Romance of the Three Kingdoms, berserker tank,
+
+FACE: Dragon Ball Z anime face, intimidating fierce expression,
+round eyes with golden rings (tiger eyes), wild messy black curly beard,
+dark complexion, angry shouting pose,露出獠牙 roaring battle cry,
+
+BODY: DBZ massive muscular build, extremely broad shoulders and thick arms,
+powerful bulky frame, aggressive combat stance, both hands holding Serpent Spear,
+muscles bulging, raw power emanating from body,
+
+CLOTHING: Heavy black iron armor with spikes and studs,
+traditional Chinese general armor, dark colored with metallic shine,
+tied sash around waist, fur shoulder pads,
+
+WEAPON: Serpent Spear (丈八蛇矛), long spear with serpent decoration,
+coiled snake around spearhead, intimidating polearm weapon,
+DBZ-style energy aura surrounding weapon,
+
+BACKGROUND: Dark background with lightning effects,
+fiery orange-red gradient, smoke effects,
+
+STYLE: DBZ character art, thick outlines, cel shading,
+intense dramatic lighting, high contrast,
+
+KEYWORDS: 三国张飞, 猛将, 丈八蛇矛, 黑甲, 虎须环眼,
+当阳桥上吼断水倒流, Dragon Ball style, berserker, tank, powerhouse
+
+--ar 2:3 --q 2 --style expressive --chaos 15
+```
+
+### Stable Diffusion 提示词
+```
+Positive:
+(masterpiece, best quality:1.2),
+Dragon Ball Z art style,
+
+张飞 (Zhang Fei) from Romance of the Three Kingdoms,
+DBZ anime face, fierce round eyes with golden rings,
+wild messy black curly beard, dark complexion,
+angry shouting expression, exposing fangs,
+
+extremely muscular DBZ body, massive shoulders, bulky frame,
+aggressive combat stance, holding Serpent Spear with both hands,
+
+heavy black iron armor with spikes and studs,
+dark Chinese general armor, metallic shine,
+tied sash, fur shoulder pads,
+
+Serpent Spear (丈八蛇矛), coiled snake decoration,
+dark background with lightning, fiery orange-red gradient,
+smoke effects,
+
+thick outlines, cel shading, high contrast, dramatic lighting,
+
+keywords: 张飞, zhangfei, 三国, romance of three kingdoms,
+berserker, tank, 丈八蛇矛, snake spear, 虎须环眼, 猛将,
+dragon ball z style, muscular, intimidating, powerful
+
+Negative:
+(low quality, blurry, realistic, photograph),
+(peaceful, calm, gentle, pretty)
+```
+
+---
+
+## 3. 黄忠（Huang Zhong - 黄忠）
+
+### Midjourney 提示词
+```
+niji 6 masterpiece Dragon Ball Z art style.
+
+黄忠 Huang Zhong from Romance of the Three Kingdoms, elderly master archer,
+
+FACE: Dragon Ball Z anime face, wise experienced elderly warrior,
+long flowing white beard (chest-length), weathered but strong face,
+sharp focused eyes, calm concentrated expression, noble appearance,
+
+BODY: Dragon Ball Z lean muscular build, athletic and agile,
+not bulky like bodybuilder, wiry strength, alert archer pose,
+drawing bow with proper form, arms pulled back,
+
+CLOTHING: Light leather armor in brown and gold colors,
+traditional Chinese aged general attire, practical mobility-focused armor,
+long sleeves with golden bracers,
+
+WEAPON: Bow and arrow, ornate Chinese bow,
+arrow nocked and ready to release, bowstring taut,
+additional arrows in quiver on back,
+
+BACKGROUND: Sunset gradient background (orange and purple),
+warm golden hour lighting, silhouette of mountains in distance,
+
+STYLE: DBZ character art, thick outlines, cel shading,
+warm color palette, heroic veteran warrior aesthetic,
+
+KEYWORDS: 三国黄忠, 老将军, 神射手, 弓箭, 白须, 百步穿杨,
+定军山老将, Dragon Ball style, elderly master archer, veteran
+
+--ar 2:3 --q 2
+```
+
+### Stable Diffusion 提示词
+```
+Positive:
+(masterpiece, best quality:1.2),
+Dragon Ball Z art style,
+
+黄忠 (Huang Zhong) from Romance of the Three Kingdoms,
+DBZ anime face, elderly warrior, long white beard,
+wise experienced face, sharp focused eyes,
+calm concentrated expression,
+
+lean athletic DBZ body, not bulky, wiry strength,
+archer pose, drawing bow, arms pulled back,
+
+light brown and gold leather armor,
+Chinese general attire, practical mobility armor,
+long sleeves with golden bracers,
+
+ornate Chinese bow with arrow nocked,
+bowstring taut, ready to release,
+quiver on back with arrows,
+
+sunset gradient background (orange and purple),
+golden hour lighting, mountain silhouettes in distance,
+
+thick outlines, cel shading, warm color palette,
+
+keywords: 黄忠, huangzhong, 三国, romance of three kingdoms,
+elderly archer, veteran general, 弓箭手, 百步穿杨,
+dragon ball z style, elderly master, sharpshooter, 定军山
+
+Negative:
+(low quality, blurry, realistic, photograph),
+(young, teenage, bodybuilder, bulky)
+```
+
+---
+
+## 4. 吕布（Lü Bu - 吕布）
+
+### Midjourney 提示词
+```
+niji 6 masterpiece Dragon Ball Z art style.
+
+吕布 Lü Bu from Romance of the Three Kingdoms, ultimate warrior god,
+
+FACE: Dragon Ball Z anime face, handsome arrogant masculine face,
+long black hair with red pheasant feather headpiece (雉鸡翎),
+confident smirk, intense piercing eyes, aura of invincibility,
+expression of supreme power and pride,
+
+BODY: Dragon Ball Z perfect muscular physique, V-shaped upper body,
+defined abs, powerful arms, heroic standing pose,
+hand resting on hip, other hand holding Sky Piercer Halberd casually,
+shoulders back, chest puffed out,
+
+CLOTHING: Ornate red and golden Chinese general armor,
+intricate dragon patterns on armor, shining golden pauldrons,
+flowing red cape behind back, ornate Chinese designs,
+luxurious regal general attire,
+
+WEAPON: Sky Piercer Halberd (方天画戟), ornate Chinese halberd,
+two-sided polearm with golden dragon engravings,
+painted red shaft, glowing energy aura around weapon,
+
+BACKGROUND: Dark purple gradient background, lightning storm effects,
+dark clouds, red lightning bolts, ominous atmosphere,
+crown or halo effect above head,
+
+STYLE: DBZ character art, thick outlines, cel shading,
+bold red and gold color scheme, dramatic lighting,
+powerful aura, anime villain anti-hero aesthetic,
+
+KEYWORDS: 三国吕布, 天下第一, 方天画戟, 雉鸡翎, 人中吕布,
+人中吕布马中赤兔, Dragon Ball style, ultimate warrior, powerful,
+overwhelming strength, god of war
+
+--ar 2:3 --q 2 --style expressive --chaos 20
+```
+
+### Stable Diffusion �示词
+```
+Positive:
+(masterpiece, best quality:1.2),
+Dragon Ball Z art style,
+
+吕布 (Lü Bu) from Romance of the Three Kingdoms,
+DBZ anime face, handsome arrogant,
+long black hair with red pheasant feather headpiece,
+confident smirk, intense piercing eyes,
+
+perfect DBZ muscular physique, V-shaped torso,
+defined abs, powerful arms, heroic stance,
+
+ornate red and golden Chinese armor,
+intricate dragon patterns, shining golden pauldrons,
+flowing red cape behind, regal general attire,
+
+Sky Piercer Halberd (方天画戟), ornate halberd,
+two-sided polearm with golden engravings,
+glowing energy aura around weapon,
+
+dark purple gradient background, lightning storm,
+red lightning bolts, ominous atmosphere,
+crown or halo above head,
+
+thick outlines, cel shading, bold red and gold colors,
+dramatic lighting, powerful aura, anti-hero aesthetic,
+
+keywords: 吕布, lü bu, 三国, romance of three kingdoms,
+ultimate warrior, 方天画戟, fangtian huaji, 雉鸡翎,
+人中吕布, 最强战士, god of war, overpowering,
+dragon ball z style, powerful, invincible
+
+Negative:
+(low quality, blurry, realistic, photograph),
+(humble, weak, frightened, timid)
+```
+
+---
+
+## 5. 貂蝉（Diao Chan - 貂蝉）
+
+### Midjourney 提示词
+```
+niji 6 masterpiece Dragon Ball Z art style.
+
+貂蝉 Diao Chan from Romance of the Three Kingdoms, ultimate beauty,
+
+FACE: Dragon Ball Z anime female face, stunningly beautiful,
+elegant refined features, large expressive eyes, long flowing black hair,
+ornate hairpins and accessories, gentle warm smile,
+alluring but dignified beauty,
+
+BODY: Slender elegant feminine figure, graceful curves,
+DBZ anime female proportions (not overly stylized),
+beautiful delicate hands, holding folding fan,
+graceful standing pose, flowing movement,
+
+CLOTHING: Traditional Chinese pink and white flowing dress,
+Han Dynasty style elegant gown with golden embroidery,
+translucent silk fabric, soft pink and white color palette,
+ornate hair accessories, golden hairpins, jade jewelry,
+flowing long sleeves, elegant traditional Chinese attire,
+
+PROPS: Folding fan (扇子) or Guqin (古琴),
+delicate ornate fan with traditional Chinese paintings,
+or Chinese zither (guqin) with elegant carvings,
+
+BACKGROUND: Soft pink and white gradient background with flower petals,
+cherry blossom petals floating, ethereal soft lighting,
+romantic atmosphere, dreamlike quality,
+
+STYLE: DBZ character art, thick outlines, cel shading,
+soft pastel colors, graceful elegant lines,
+ethereal beauty, gentle lighting,
+
+KEYWORDS: 三国貂蝉, 四大美女, 闭月羞花, 绝世美女,
+倾国倾城, 古琴, 扇子, 粉色衣裙, 龙珠风格,
+Dragon Ball style, beautiful, elegant, enchantress,
+ethereal beauty, divine appearance
+
+--ar 2:3 --q 2 --style expressive --chaos 5
+```
+
+### Stable Diffusion 提示词
+```
+Positive:
+(masterpiece, best quality:1.2),
+Dragon Ball Z art style,
+
+貂蝉 (Diao Chan) from Romance of the Three Kingdoms,
+DBZ anime female face, stunningly beautiful,
+elegant refined features, large expressive eyes,
+long flowing black hair with ornate hairpins,
+
+slender elegant feminine figure, graceful curves,
+DBZ anime female proportions,
+beautiful hands, holding folding fan,
+
+traditional Chinese pink and white flowing dress,
+Han Dynasty elegant gown, golden embroidery,
+translucent silk fabric, soft pink white palette,
+ornate hair accessories, golden hairpins, jade jewelry,
+
+folding fan with traditional paintings,
+or guqin (Chinese zither),
+
+soft pink white gradient background,
+floating cherry blossom petals, ethereal lighting,
+romantic atmosphere,
+
+thick outlines, cel shading, soft pastel colors,
+graceful elegant lines, ethereal beauty,
+
+keywords: 貂蝉, diaochan, 三国, romance of three kingdoms,
+四大美女, 闭月羞花, 绝世美女, 倾国倾城,
+古琴, 扇子, 粉色, 汉服, dragon ball z style,
+beautiful, elegant, enchanting, divine,
+
+Negative:
+(low quality, blurry, realistic, photograph),
+(muscular, bulky, masculine, warrior, fierce)
+```
+
+---
+
+## 通用技术参数
+
+### 图片规格
+- **分辨率**：512×768
+- **比例**：2:3 竖版
+- **DPI**：72
+- **格式**：PNG（保留透明通道）
+
+### Midjourney 参数
+```
+--ar 2:3       # 2:3竖版比例
+--q 2         # 高质量
+--style expressive  # 表现力强
+--chaos 10-20  # 适度随机性
+```
+
+### Stable Diffusion 参数
+```
+Resolution: 512×768
+CFG Scale: 7-8
+Steps: 30-40
+Sampler: DPM++ 2M Karras 或 Euler a
+```
+
+---
+
+## 构图要求
+
+### 重点区域（上70%）
+- 头部：清晰可见，龙珠风格脸型
+- 上半身：完整展示
+- 武器：清晰可见
+- 服饰：细节丰富
+
+### 次要区域（下30%）
+- 腰部/腿部：可被UI遮挡
+- 背景：简单渐变
+
+---
+
+## 风格一致性
+
+### 所有角色统一标准
+1. **脸部**：龙珠Z/龙珠超风格（Trunks/Gohan型）
+2. **发型**：龙珠风格的竖直/上翘头发
+3. **眼睛**：龙珠风格的锐利眼神+粗眉毛
+4. **肌肉**：龙珠肌肉线条（男性），优雅曲线（女性貂蝉）
+5. **轮廓线**：3-4px粗黑色线条
+6. **上色**：赛璐璐阴影+高饱和度
+7. **姿势**：动态战斗姿势，充满力量感
+8. **构图**：头部+上半身+武器占上70%
+
+### 三国特征保留
+- 关羽：红脸+长须+青龙偃月刀
+- 张飞：虎须环眼+丈八蛇矛+重甲
+- 黄忠：白须+弓箭+轻甲
+- 赵云：白马银甲+龙胆亮银枪
+- 吕布：雉鸡翎+方天画戟+华服
+- 貂蝉：粉裙+古琴/扇子+美女发型
+
+---
+
+## 提示词使用技巧
+
+### 生成多张图片对比
+```bash
+# 使用 --n 参数一次生成4张
+niji 6 [提示词] --n 4 --ar 2:3
+```
+
+### 调整随机性
+```bash
+# 增加随机性（更变化）
+--chaos 20
+
+# 减少随机性（更稳定）
+--chaos 5
+```
+
+### 调整风格强度
+```bash
+# 更忠实于龙珠风格
+--niji 6
+
+# 略微融合其他风格
+--niji 5
+```
+
+---
+
+生成后记得：
+1. 检查脸部是否符合龙珠风格
+2. 检查三国特征是否保留
+3. 检查武器是否清晰可见
+4. 选择最佳效果保存
