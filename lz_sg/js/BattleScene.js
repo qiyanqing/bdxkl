@@ -30,20 +30,20 @@ export class BattleScene {
     this.speedMultiplier = 1;        // 倍速 1/2/3
     this.isBattling = false;         // 是否正在进行战斗循环
 
-    // 按钮区域（位于我方阵容上方）
-    const buttonY = this.height - 180; // 我方卡牌上方
+    // 按钮区域（位于我方阵容上方，圆形按钮）
+    const buttonY = this.height - 145; // 我方卡牌上方
+    const buttonSize = 36; // 圆形按钮直径
+
     this.pauseBtn = {
-      x: this.width - 70,
+      x: this.width - 30,
       y: buttonY,
-      width: 60,
-      height: 40
+      radius: buttonSize / 2
     };
 
     this.speedBtn = {
-      x: this.width - 140,
+      x: this.width - 80,
       y: buttonY,
-      width: 60,
-      height: 40
+      radius: buttonSize / 2
     };
 
     // 重新开始按钮
@@ -216,16 +216,16 @@ export class BattleScene {
   }
 
   onTouch(x, y) {
-    // 检查是否点击暂停按钮
-    if (x >= this.pauseBtn.x && x <= this.pauseBtn.x + this.pauseBtn.width &&
-        y >= this.pauseBtn.y && y <= this.pauseBtn.y + this.pauseBtn.height) {
+    // 检查是否点击暂停按钮（圆形）
+    const pauseDist = Math.sqrt(Math.pow(x - this.pauseBtn.x, 2) + Math.pow(y - this.pauseBtn.y, 2));
+    if (pauseDist <= this.pauseBtn.radius) {
       this.togglePause();
       return;
     }
 
-    // 检查是否点击倍速按钮
-    if (x >= this.speedBtn.x && x <= this.speedBtn.x + this.speedBtn.width &&
-        y >= this.speedBtn.y && y <= this.speedBtn.y + this.speedBtn.height) {
+    // 检查是否点击倍速按钮（圆形）
+    const speedDist = Math.sqrt(Math.pow(x - this.speedBtn.x, 2) + Math.pow(y - this.speedBtn.y, 2));
+    if (speedDist <= this.speedBtn.radius) {
       this.toggleSpeed();
       return;
     }
@@ -302,39 +302,50 @@ export class BattleScene {
 
   drawControlButtons(ctx) {
     // 倍速按钮
-    this.drawButton(ctx, this.speedBtn, `${this.speedMultiplier}x`, '#9B59B6');
+    this.drawCircleButton(ctx, this.speedBtn, `${this.speedMultiplier}x`, '#9B59B6');
 
     // 暂停/继续按钮
     const pauseText = this.isPaused ? '▶' : '⏸';
     const pauseColor = this.isPaused ? '#2ECC71' : '#E74C3C';
-    this.drawButton(ctx, this.pauseBtn, pauseText, pauseColor);
+    this.drawCircleButton(ctx, this.pauseBtn, pauseText, pauseColor);
   }
 
-  drawButton(ctx, btn, text, color) {
+  drawCircleButton(ctx, btn, text, color) {
     ctx.save();
 
-    // 按钮背景
-    const gradient = ctx.createLinearGradient(btn.x, btn.y, btn.x, btn.y + btn.height);
-    gradient.addColorStop(0, color);
-    gradient.addColorStop(1, this.darkenColor(color, 20));
+    // 按钮背景（圆形）
+    const gradient = ctx.createRadialGradient(btn.x, btn.y, 0, btn.x, btn.y, btn.radius);
+    gradient.addColorStop(0, this.lightenColor(color, 20));
+    gradient.addColorStop(1, color);
 
     ctx.fillStyle = gradient;
-    this.drawRoundRect(ctx, btn.x, btn.y, btn.width, btn.height, 8);
+    ctx.beginPath();
+    ctx.arc(btn.x, btn.y, btn.radius, 0, Math.PI * 2);
     ctx.fill();
 
     // 边框
-    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // 文字
+    // 文字/符号
     ctx.fillStyle = '#fff';
-    ctx.font = 'bold 18px Arial';
+    ctx.font = 'bold 14px Arial';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(text, btn.x + btn.width / 2, btn.y + btn.height / 2);
+    ctx.fillText(text, btn.x, btn.y);
 
     ctx.restore();
+  }
+
+  // 颜色变亮
+  lightenColor(hex, percent) {
+    const num = parseInt(hex.replace('#', ''), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = Math.min((num >> 16) + amt, 255);
+    const G = Math.min((num >> 8 & 0x00FF) + amt, 255);
+    const B = Math.min((num & 0x0000FF) + amt, 255);
+    return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
   }
 
   darkenColor(hex, percent) {
