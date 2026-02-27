@@ -30,18 +30,29 @@ export class BattleScene {
     this.speedMultiplier = 1;        // 倍速 1/2/3
     this.isBattling = false;         // 是否正在进行战斗循环
 
-    // 按钮区域（位于我方阵容上方，圆形按钮）
-    const buttonY = this.height - 145; // 我方卡牌上方
-    const buttonSize = 36; // 圆形按钮直径
+    // 按钮区域（位于黄忠卡片上方靠右）
+    const cardWidth = 100;
+    const cardHeight = 120;
+    const gapX = 8;
+    const gapY = 8;
+    const row1Y = this.height - cardHeight * 2 - gapY - 20;
+    const row1StartX = (this.width - (cardWidth * 3 + gapX * 2)) / 2;
 
-    this.pauseBtn = {
-      x: this.width - 30,
+    // 黄忠卡片（第一行最右边）的位置
+    const huangzhongX = row1StartX + 2 * (cardWidth + gapX);
+
+    // 按钮放在黄忠卡片上方靠右
+    const buttonY = row1Y - 30; // 卡片上方30px
+    const buttonSize = 36;
+
+    this.speedBtn = {
+      x: huangzhongX + cardWidth - 30, // 黄忠卡片右侧向内30px
       y: buttonY,
       radius: buttonSize / 2
     };
 
-    this.speedBtn = {
-      x: this.width - 80,
+    this.pauseBtn = {
+      x: huangzhongX + cardWidth - 80, // 倍速按钮左侧50px
       y: buttonY,
       radius: buttonSize / 2
     };
