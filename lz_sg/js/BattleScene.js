@@ -448,31 +448,46 @@ export class BattleScene {
     ctx.fill();
     ctx.stroke();
 
+    // 角色名
     ctx.fillStyle = hero.currentHp <= 0 ? '#666' : '#fff';
-    ctx.font = 'bold 20px Arial';
+    ctx.font = 'bold 16px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText(hero.name, drawX + width / 2, drawY + 30);
+    ctx.fillText(hero.name, drawX + width / 2, drawY + 25);
 
-    ctx.fillStyle = '#95a5a6';
-    ctx.font = '14px Arial';
-    ctx.fillText(hero.job, drawX + width / 2, drawY + 50);
+    // 血条（带数字）
+    this.drawHpBar(ctx, drawX + 8, drawY + 38, width - 16, 14, hero.currentHp, hero.maxHp);
 
-    this.drawBar(ctx, drawX + 10, drawY + 70, width - 20, 15, hero.currentHp, hero.maxHp, '#e74c3c');
-    this.drawBar(ctx, drawX + 10, drawY + 95, width - 20, 15, hero.currentMp, hero.maxMp, '#3498db');
+    // 蓝条（无数字）
+    this.drawMpBar(ctx, drawX + 8, drawY + 58, width - 16, 10, hero.currentMp, hero.maxMp);
   }
 
-  drawBar(ctx, x, y, width, height, current, max, color) {
+  drawHpBar(ctx, x, y, width, height, current, max) {
+    // 背景
     ctx.fillStyle = 'rgba(0,0,0,0.5)';
     ctx.fillRect(x, y, width, height);
 
+    // 血条
     const percent = Math.max(0, current / max);
-    ctx.fillStyle = color;
+    ctx.fillStyle = '#e74c3c';
     ctx.fillRect(x, y, width * percent, height);
 
+    // 数字（显示在血条内）
     ctx.fillStyle = '#fff';
-    ctx.font = '12px Arial';
+    ctx.font = 'bold 10px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText(`${current}/${max}`, x + width / 2, y + height + 15);
+    ctx.textBaseline = 'middle';
+    ctx.fillText(Math.floor(current), x + width / 2, y + height / 2);
+  }
+
+  drawMpBar(ctx, x, y, width, height, current, max) {
+    // 背景
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(x, y, width, height);
+
+    // 蓝条
+    const percent = Math.max(0, current / max);
+    ctx.fillStyle = '#3498db';
+    ctx.fillRect(x, y, width * percent, height);
   }
 
   drawBattleInfo(ctx) {
