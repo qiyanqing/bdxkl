@@ -1,6 +1,7 @@
 // js/BattleScene.js - 战斗场景
 import { Combat } from '../utils/combat.js';
 import { heroes } from '../data/characters.js';
+import { EffectManager } from './effects/EffectManager.js';
 
 export class BattleScene {
   constructor(game) {
@@ -17,7 +18,12 @@ export class BattleScene {
     this.currentAction = '战斗开始！';
     this.battleResult = null;
     this.battleResultText = '';
-    this.isAnimating = false;
+
+    // 特效管理器
+    this.effectManager = new EffectManager(this.ctx);
+
+    // 卡牌受击效果 { id: { flash: 0, shakeX: 0, shakeY: 0 } }
+    this.cardEffects = {};
 
     // 重新开始按钮
     this.restartBtn = {
@@ -57,6 +63,10 @@ export class BattleScene {
     this.currentAction = '战斗开始！';
     this.battleResult = null;
     this.battleResultText = '';
+
+    // 清空特效和卡牌效果
+    this.effectManager.clear();
+    this.cardEffects = {};
 
     // 创建战斗实例
     this.combat = new Combat(this.myHeroes, this.enemyHeroes);
@@ -98,12 +108,72 @@ export class BattleScene {
 
   async onAttack(attacker, target, damage) {
     this.currentAction = `${attacker.name} 攻击 ${target.name}，造成 ${damage} 点伤害`;
+
+    // 计算卡牌中心点
+    const fromX = attacker.x + 100; // 卡牌宽度的一半
+    const fromY = attacker.y + 75;
+    const toX = target.x + 100;
+    const toY = target.y + 75;
+
+    // 根据职业选择特效类型
+    const isMelee = ['warrior', 'tank', 'assassin'].includes(attacker.job);
+
+    if (isMelee) {
+      // 近战：刀光特效
+      this.effectManager.createSlashEffect(fromX, fromY, toX, toY, '#FFD700');
+    } else {
+      // 远程：光束特效
+      const color = attacker.job === 'mage' ? '#3498DB' : '#FFFFFF';
+      this.effectManager.createBeamEffect(fromX, fromY, toX, toY, color);
+    }
+
+    // 触发目标受击效果
+    this.triggerCardEffect(target.id);
+
+    // 伤害飘字
+    setTimeout(() => {
+      this.effectManager.createDamageNumber(toX, toY, damage, false);
+    }, 300);
+
     await this.delay(500);
   }
 
   async onSkill(hero, target, damage) {
     this.currentAction = `${hero.name} 释放 ${hero.skill.name}！造成 ${damage} 点伤害`;
+
+    // 计算卡牌中心点
+    const fromX = hero.x + 100;
+    const fromY = hero.y + 75;
+    const toX = target.x + 100;
+    const toY = target.y + 75;
+
+    // 技能特效（金色，更华丽）
+    const isMelee = ['warrior', 'tank', 'assassin'].includes(hero.job);
+
+    if (isMelee) {
+      this.effectManager.createSlashEffect(fromX, fromY, toX, toY, '#FF6B6B');
+    } else {
+      this.effectManager.createBeamEffect(fromX, fromY, toX, toY, '#FFD700');
+    }
+
+    // 触发目标受击效果
+    this.triggerCardEffect(target.id);
+
+    // 伤害飘字（技能伤害）
+    setTimeout(() => {
+      this.effectManager.createDamageNumber(toX, toY, damage, true);
+    }, 300);
+
     await this.delay(1000);
+  }
+
+  // 触发卡牌受击效果
+  triggerCardEffect(heroId) {
+    this.cardEffects[heroId] = {
+      flash: 5,    // 闪烁帧数
+      shakeX: 8,   // 震动幅度
+      shakeY: 0
+    };
   }
 
   delay(ms) {
@@ -120,7 +190,32 @@ export class BattleScene {
   }
 
   update() {
-    // 更新逻辑
+    // 更新特效
+    this.effectManager.update();
+
+    // 更新卡牌受击效果
+    Object.keys(this.cardEffects).forEach(id => {
+      const effect = this.cardEffects[id];
+
+      if (effect.flash > 0) {
+        effect.flash--;
+      }
+
+      if (effect.shakeX > 0) {
+        effect.shakeX = -effect.shakeX; // 左右震动
+        if (effect.flash === 0) {
+          effect.shakeX = 0;
+        }
+      }
+    });
+
+    // 清理已完成的卡牌效果
+    Object.keys(this.cardEffects).forEach(id => {
+      const effect = this.cardEffects[id];
+      if (effect.flash === 0 && effect.shakeX === 0) {
+        delete this.cardEffects[id];
+      }
+    });
   }
 
   render(ctx) {
@@ -131,11 +226,14 @@ export class BattleScene {
     // 绘制敌方区域
     this.drawEnemyArea(ctx);
 
-    // 绘制战斗信息
-    this.drawBattleInfo(ctx);
-
     // 绘制我方区域
     this.drawMyArea(ctx);
+
+    // 绘制特效（在卡牌之上）
+    this.effectManager.render();
+
+    // 绘制战斗信息
+    this.drawBattleInfo(ctx);
   }
 
   drawEnemyArea(ctx) {
@@ -171,11 +269,25 @@ export class BattleScene {
   }
 
   drawCard(ctx, hero, x, y, width, height) {
+    // 获取卡牌受击效果
+    const effect = this.cardEffects[hero.id] || { flash: 0, shakeX: 0, shakeY: 0 };
+
+    // 应用震动偏移
+    const drawX = x + effect.shakeX;
+    const drawY = y + effect.shakeY;
+
     // 卡牌背景
-    ctx.fillStyle = hero.currentHp <= 0 ? '#333' : '#16213e';
+    let bgColor = hero.currentHp <= 0 ? '#333' : '#16213e';
+
+    // 受击闪烁效果
+    if (effect.flash > 0 && effect.flash % 2 === 0) {
+      bgColor = '#FFFFFF'; // 白屏闪烁
+    }
+
+    ctx.fillStyle = bgColor;
     ctx.strokeStyle = hero.currentHp <= 0 ? '#555' : '#0f3460';
     ctx.lineWidth = 2;
-    this.drawRoundRect(ctx, x, y, width, height, 10);
+    this.drawRoundRect(ctx, drawX, drawY, width, height, 10);
     ctx.fill();
     ctx.stroke();
 
@@ -183,18 +295,18 @@ export class BattleScene {
     ctx.fillStyle = hero.currentHp <= 0 ? '#666' : '#fff';
     ctx.font = 'bold 20px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText(hero.name, x + width / 2, y + 30);
+    ctx.fillText(hero.name, drawX + width / 2, drawY + 30);
 
     // 职业标签
     ctx.fillStyle = '#95a5a6';
     ctx.font = '14px Arial';
-    ctx.fillText(hero.job, x + width / 2, y + 50);
+    ctx.fillText(hero.job, drawX + width / 2, drawY + 50);
 
     // 血条
-    this.drawBar(ctx, x + 10, y + 70, width - 20, 15, hero.currentHp, hero.maxHp, '#e74c3c');
+    this.drawBar(ctx, drawX + 10, drawY + 70, width - 20, 15, hero.currentHp, hero.maxHp, '#e74c3c');
 
     // 蓝条
-    this.drawBar(ctx, x + 10, y + 95, width - 20, 15, hero.currentMp, hero.maxMp, '#3498db');
+    this.drawBar(ctx, drawX + 10, drawY + 95, width - 20, 15, hero.currentMp, hero.maxMp, '#3498db');
   }
 
   drawBar(ctx, x, y, width, height, current, max, color) {
