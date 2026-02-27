@@ -1,0 +1,70 @@
+<!-- address.wxml -->
+<view class="container">
+  <view class="section-title">地址管理</view>
+  
+  <!-- 地址类型切换 -->
+  <view class="type-switch">
+    <view 
+      class="type-item {{currentType === 'community' ? 'active' : ''}}" 
+      data-type="community" 
+      bindtap="onSwitchType"
+    >
+      小区地址
+    </view>
+    <view 
+      class="type-item {{currentType === 'office' ? 'active' : ''}}" 
+      data-type="office" 
+      bindtap="onSwitchType"
+    >
+      公司地址
+    </view>
+  </view>
+  
+  <!-- 地址列表 -->
+  <view class="address-list">
+    <block wx:for="{{filteredAddresses}}" wx:key="_id">
+      <view class="address-item" bindtap="onEditAddress" data-id="{{item._id}}">
+        <view class="address-header">
+          <view class="address-type">{{item.type === 'community' ? '小区地址' : '公司地址'}}</view>
+          <block wx:if="{{!item.isDefault}}">
+            <view class="default-btn" bindtap="onSetDefault" data-id="{{item._id}}" catchtap="{{true}}">
+              设置默认
+            </view>
+          </block>
+          <block wx:else>
+            <view class="default-tag">默认</view>
+          </block>
+        </view>
+        <view class="address-info">
+          <view class="address-detail">{{item.poiName}}{{item.companyName ? ' - ' + item.companyName : ''}}</view>
+        </view>
+        <view class="address-actions">
+          <view class="edit-btn" bindtap="onEditAddress" data-id="{{item._id}}" catchtap="{{true}}">
+            编辑
+          </view>
+          <view class="delete-btn" bindtap="onDeleteAddress" data-id="{{item._id}}" catchtap="{{true}}">
+            删除
+          </view>
+        </view>
+      </view>
+    </block>
+    
+    <!-- 空地址提示 -->
+    <block wx:if="{{filteredAddresses.length === 0}}">
+      <view class="empty-address">
+        <image src="/images/empty.svg" mode="aspectFit" class="empty-icon" />
+        <view class="empty-text">暂无{{currentType === 'community' ? '小区' : '公司'}}地址</view>
+      </view>
+    </block>
+  </view>
+  
+  <!-- 添加地址按钮 - 小区地址只能添加一个，公司地址可以添加多个 -->
+  <view 
+    class="add-btn" 
+    bindtap="onAddAddress"
+    wx:if="{{currentType !== 'community' || !hasCommunityAddress}}"
+  >
+    <image src="/images/add.svg" mode="aspectFit" class="add-icon" />
+    <text>地址管理</text>
+  </view>
+</view>

@@ -1,0 +1,74 @@
+<!-- detail.wxml -->
+<view class="container">
+  <!-- 物品图片 -->
+  <swiper indicator-dots="true" circular="true" autoplay="true" interval="3000" duration="1000">
+    <block wx:for="{{goods.images}}" wx:key="index">
+      <swiper-item>
+        <image src="{{item}}" mode="aspectFill" class="goods-image" />
+      </swiper-item>
+    </block>
+  </swiper>
+
+  <!-- 物品信息 -->
+  <view class="goods-info">
+    <!-- 标题 -->
+    <view class="title-section">
+      <view class="title">{{goods.title}}</view>
+    </view>
+
+    <!-- 物品描述 -->
+    <view class="description-section">
+      <view class="description">{{goods.description}}</view>
+    </view>
+
+    <!-- 标签和统计信息 -->
+    <view class="tags-section">
+      <!-- 标签 -->
+      <view class="tags">
+        <text class="tag scene-tag">{{goods.sceneTag}}</text>
+        <text class="tag distance-tag">{{goods.distanceRange}}</text>
+        <text class="tag condition-tag">{{goods.condition === 'new' ? '全新' : goods.condition === 'likeNew' ? '九成新' : goods.condition === 'good' ? '八成新' : goods.condition === 'fair' ? '七成新' : '六成新以下'}}</text>
+      </view>
+      
+      <!-- 统计信息 -->
+      <view class="stats-section">
+        <text class="stat-item" wx:if="{{goods.viewCount > 0}}">{{goods.viewCount}}人看过</text>
+        <text class="stat-item" wx:if="{{goods.chatCount > 0}}">{{goods.chatCount}}人聊过</text>
+        <text class="stat-item" wx:if="{{goods.collectCount > 0}}">{{goods.collectCount}}人收藏</text>
+      </view>
+    </view>
+
+    <!-- 价格 -->
+    <view class="price-section">
+      <view class="price">{{goods.price === 0 ? '免费' : '¥' + goods.price}}</view>
+    </view>
+
+    <!-- 互换物品 -->
+    <view class="exchange-section" wx:if="{{goods.exchangeItem && goods.exchangeItem.trim()}}">
+      <view class="section-title">期望互换物品</view>
+      <view class="exchange-item">{{goods.exchangeItem}}</view>
+    </view>
+
+    <!-- 发布者信息 -->
+    <view class="publisher-section">
+      <view class="publisher-info">
+        <image src="{{goods.userId.avatar}}" mode="aspectFill" class="avatar" />
+        <view class="publisher-name">{{goods.userId.nickname}}</view>
+      </view>
+      <view class="publish-time">{{formatTime(goods.createdAt)}}</view>
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-bar">
+    <view class="action-btn" bindtap="onCollect">
+      <image src="{{isCollected ? '/images/collected.svg' : '/images/collect.svg'}}" mode="aspectFit" />
+      <text>{{isCollected ? '已收藏' : '收藏'}}</text>
+    </view>
+    <view class="action-btn" bindtap="onChat">
+      <image src="/images/chat.svg" mode="aspectFit" />
+      <text>聊天</text>
+    </view>
+    <button class="contact-btn" bindtap="onContact">立即联系</button>
+  </view>
+</view>

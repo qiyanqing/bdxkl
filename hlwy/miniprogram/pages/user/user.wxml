@@ -1,0 +1,177 @@
+<!-- user.wxml -->
+<!-- 文件路径：pages/user/user.wxml -->
+<!-- 功能描述：个人中心页面，包含登录弹窗 -->
+<view class="container">
+  <!-- 用户信息区域 -->
+  <view class="user-info">
+    <block wx:if="{{isLoggedIn}}">
+      <image src="{{userInfo.avatar || '/images/default-avatar.svg'}}" mode="aspectFill" class="avatar" />
+      <view class="user-detail">
+        <view class="nickname">{{userInfo.nickname || '未设置昵称'}}</view>
+        <view class="points">积分：{{userInfo.points || 0}}</view>
+      </view>
+    </block>
+    <block wx:else>
+      <image src="/images/default-avatar.svg" mode="aspectFill" class="avatar" />
+      <view class="user-detail">
+        <view class="nickname">未登录</view>
+        <view class="points">点击登录查看积分</view>
+      </view>
+      <button class="login-btn" bindtap="showLoginModal">登录</button>
+    </block>
+  </view>
+
+  <!-- 功能菜单 -->
+  <view class="menu-section">
+    <!-- 我的发布 -->
+    <view class="menu-item" bindtap="onMyPublished">
+      <view class="menu-left">
+        <image src="/images/published.svg" mode="aspectFit" class="menu-icon" />
+        <view class="menu-text">我的发布</view>
+      </view>
+      <view class="menu-right">
+        <text class="menu-count">{{publishedCount}}</text>
+        <image src="/images/arrow.svg" mode="aspectFit" class="arrow-icon" />
+      </view>
+    </view>
+
+    <!-- 我的收藏 -->
+    <view class="menu-item" bindtap="onMyCollected">
+      <view class="menu-left">
+        <image src="/images/collect.svg" mode="aspectFit" class="menu-icon" />
+        <view class="menu-text">我的收藏</view>
+      </view>
+      <view class="menu-right">
+        <text class="menu-count">{{collectedCount}}</text>
+        <image src="/images/arrow.svg" mode="aspectFit" class="arrow-icon" />
+      </view>
+    </view>
+
+    <!-- 我的成交 -->
+    <view class="menu-item" bindtap="onMyDealt">
+      <view class="menu-left">
+        <image src="/images/dealt.svg" mode="aspectFit" class="menu-icon" />
+        <view class="menu-text">我的成交</view>
+      </view>
+      <view class="menu-right">
+        <text class="menu-count">{{dealtCount}}</text>
+        <image src="/images/arrow.svg" mode="aspectFit" class="arrow-icon" />
+      </view>
+    </view>
+  </view>
+
+  <!-- 地址管理 -->
+  <view class="address-section" wx:if="{{isLoggedIn}}">
+    <view class="section-title">地址管理</view>
+
+    <!-- 已填写地址的情况 -->
+    <block wx:if="{{addresses && addresses.length > 0}}">
+      <!-- 小区地址 -->
+      <view class="address-item" wx:if="{{communityAddress}}">
+        <view class="address-info">
+          <view class="address-type">小区地址{{communityAddress.isDefault ? '（默认）' : ''}}</view>
+          <view class="address-detail">{{communityAddress.poiName}}</view>
+        </view>
+      </view>
+
+      <!-- 公司地址 -->
+      <view class="address-item" wx:if="{{officeAddress}}">
+        <view class="address-info">
+          <view class="address-type">公司地址{{officeAddress.isDefault ? '（默认）' : ''}}</view>
+          <view class="address-detail">{{officeAddress.poiName}}{{officeAddress.companyName ? ' - ' + officeAddress.companyName : ''}}</view>
+        </view>
+      </view>
+
+      <!-- 管理地址按钮 -->
+      <view class="manage-address-btn" bindtap="onAddAddress">
+        <text>管理地址</text>
+        <image src="/images/arrow.svg" mode="aspectFit" class="arrow-icon" />
+      </view>
+    </block>
+
+    <!-- 未填写地址的情况 -->
+    <block wx:else>
+      <view class="add-address-btn" bindtap="onAddAddress">
+        <image src="/images/add.svg" mode="aspectFit" />
+        <text>地址管理</text>
+      </view>
+    </block>
+  </view>
+
+  <!-- 设置 -->
+  <view class="settings-section">
+    <!-- 积分记录 -->
+    <view class="menu-item" bindtap="onPointsRecord">
+      <view class="menu-left">
+        <image src="/images/points.svg" mode="aspectFit" class="menu-icon" />
+        <view class="menu-text">积分记录</view>
+      </view>
+      <image src="/images/arrow.svg" mode="aspectFit" class="arrow-icon" />
+    </view>
+
+    <!-- 关于我们 -->
+    <view class="menu-item" bindtap="onAboutUs">
+      <view class="menu-left">
+        <image src="/images/about.svg" mode="aspectFit" class="menu-icon" />
+        <view class="menu-text">关于我们</view>
+      </view>
+      <image src="/images/arrow.svg" mode="aspectFit" class="arrow-icon" />
+    </view>
+
+    <!-- 退出登录 -->
+    <block wx:if="{{isLoggedIn}}">
+      <view class="logout-btn" bindtap="onLogout">退出登录</view>
+    </block>
+  </view>
+
+  <!-- 登录弹窗 -->
+  <view class="login-modal-mask" wx:if="{{showLoginModal}}" bindtap="hideLoginModal">
+    <view class="login-modal" catchtap="stopPropagation">
+      <view class="login-modal-header">
+        <text class="login-modal-title">登录好邻物语</text>
+        <text class="login-modal-close" bindtap="hideLoginModal">×</text>
+      </view>
+
+      <!-- 头像选择 -->
+      <view class="avatar-section">
+        <text class="section-label">选择头像</text>
+        <button
+          class="avatar-choose-btn"
+          open-type="chooseAvatar"
+          bind:chooseavatar="onChooseAvatar"
+          wx:if="{{!tempUserInfo.avatarUrl}}"
+        >
+          <image src="/images/default-avatar.svg" class="avatar-preview" />
+          <text class="choose-hint">点击选择头像</text>
+        </button>
+        <view wx:else class="avatar-selected" bindtap="onChangeAvatar">
+          <image src="{{tempUserInfo.avatarUrl}}" class="avatar-preview selected" mode="aspectFill" />
+          <text class="change-hint">点击更换</text>
+        </view>
+      </view>
+
+      <!-- 昵称输入 -->
+      <view class="nickname-section">
+        <text class="section-label">设置昵称</text>
+        <input
+          type="nickname"
+          class="nickname-input"
+          placeholder="请输入昵称"
+          value="{{tempUserInfo.nickname}}"
+          bindinput="onNicknameInput"
+        />
+      </view>
+
+      <!-- 登录按钮 -->
+      <button
+        class="confirm-login-btn"
+        bindtap="doLogin"
+        disabled="{{!tempUserInfo.avatarUrl || !tempUserInfo.nickname}}"
+      >
+        确认登录
+      </button>
+
+      <text class="login-tip">登录后即可发布和浏览闲置物品</text>
+    </view>
+  </view>
+</view>

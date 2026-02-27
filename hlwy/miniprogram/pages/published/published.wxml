@@ -1,0 +1,53 @@
+<!-- published.wxml -->
+<view class="container">
+  <view class="page-header">
+    <view class="header-left" bindtap="onBack">
+      <image src="/images/arrow.svg" mode="aspectFit" class="back-icon" />
+    </view>
+    <view class="header-title">我的发布</view>
+    <view class="header-right"></view>
+  </view>
+  
+  <!-- 筛选栏 -->
+  <view class="filter-bar">
+    <view class="filter-item {{activeFilter === 'all' ? 'active' : ''}}" bindtap="onFilterChange" data-filter="all">全部</view>
+    <view class="filter-item {{activeFilter === 'available' ? 'active' : ''}}" bindtap="onFilterChange" data-filter="available">在架</view>
+    <view class="filter-item {{activeFilter === 'unavailable' ? 'active' : ''}}" bindtap="onFilterChange" data-filter="unavailable">下架</view>
+  </view>
+  
+  <!-- 物品列表 -->
+  <view class="goods-list">
+    <block wx:if="{{goodsList.length > 0}}">
+      <block wx:for="{{goodsList}}" wx:key="_id">
+        <view class="goods-item" bindtap="onGoodsTap" data-id="{{item._id}}">
+          <view class="goods-image">
+            <image src="{{item.images[0]}}" mode="aspectFill" />
+          </view>
+          <view class="goods-info">
+            <view class="goods-title">{{item.title}}</view>
+            <view class="goods-desc">{{item.description}}</view>
+            <view class="goods-tags">
+              <text class="tag distance-tag">{{item.distanceRange}}</text>
+              <text class="tag status-tag">{{item.status === 'available' ? '在架' : '下架'}}</text>
+            </view>
+            <view class="goods-bottom">
+              <text class="goods-price">{{item.price === 0 ? '免费' : '¥' + item.price}}</text>
+              <view class="stats-tags">
+                <text class="stat-item" wx:if="{{item.viewCount > 0}}">{{item.viewCount}}人看过</text>
+                <text class="stat-item" wx:if="{{item.chatCount > 0}}">{{item.chatCount}}人聊过</text>
+                <text class="stat-item" wx:if="{{item.collectCount > 0}}">{{item.collectCount}}人收藏</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </block>
+    </block>
+    <block wx:else>
+      <view class="empty-state">
+        <image src="/images/empty.svg" mode="aspectFit" class="empty-icon" />
+        <view class="empty-text">暂无发布记录</view>
+        <button bindtap="onPublish" class="publish-btn">去发布</button>
+      </view>
+    </block>
+  </view>
+</view>

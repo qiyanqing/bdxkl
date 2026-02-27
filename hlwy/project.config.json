@@ -1,0 +1,71 @@
+{
+  "description": "好邻物语小程序配置文件",
+  "miniprogramRoot": "miniprogram/",
+  "packOptions": {
+    "ignore": [
+      {
+        "value": "node_modules",
+        "type": "folder"
+      }
+    ],
+    "include": []
+  },
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "preloadBackgroundData": false,
+    "minified": true,
+    "newFeature": true,
+    "coverView": true,
+    "nodeModules": false,
+    "autoAudits": false,
+    "showShadowRootInWxmlPanel": true,
+    "uglifyFileName": true,
+    "checkInvalidKey": true,
+    "checkSiteMap": true,
+    "uploadWithSourceMap": true,
+    "compileHotReLoad": false,
+    "lazyloadPlaceholderEnable": false,
+    "useMultiFrameRuntime": true,
+    "useApiHook": true,
+    "useApiHostProcess": true,
+    "showES6CompileOption": false,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    },
+    "enableEngineNative": false,
+    "useIsolateContext": true,
+    "userConfirmedUseMultipleSubpackages": true,
+    "enableShareAppMessage": true,
+    "enableBabelRc": false,
+    "enableNodeModules": false,
+    "packageJsonPath": "",
+    "minifyWXSS": true,
+    "compileWorklet": false,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXML": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "useCompilerPlugins": false,
+    "condition": false,
+    "swc": false,
+    "disableSWC": true
+  },
+  "compileType": "miniprogram",
+  "libVersion": "2.14.1",
+  "appid": "wx65017e50d7ca9ef7",
+  "projectname": "好邻物语",
+  "isGameTourist": false,
+  "condition": {},
+  "cloudfunctionTemplateRoot": "cloudfunctions/",
+  "isCloudProject": true,
+  "cloudfunctionRoot": "cloudfunctions/",
+  "cloudfunctionEnvId": "cloud1-8gu8ciol755aa7bb",
+  "simulatorPluginLibVersion": {},
+  "editorSetting": {}
+}

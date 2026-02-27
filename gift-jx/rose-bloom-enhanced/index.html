@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>玫瑰花仿真盛开 - 写实摄影风格</title>
+    <link rel="stylesheet" href="css/rose-base.css">
+    <link rel="stylesheet" href="css/rose-petal.css">
+    <link rel="stylesheet" href="css/rose-leaf.css">
+</head>
+<body>
+    <div class="scene-container">
+        <!-- 光照系统层 -->
+        <div class="lighting-system">
+            <div class="ambient-light"></div>
+            <div class="directional-light"></div>
+            <div class="shadow-caster"></div>
+        </div>
+
+        <!-- 玫瑰主体 -->
+        <div class="rose-assembly">
+            <!-- 玫瑰花头 -->
+            <div class="rose-head">
+                <!-- 花蕊容器 -->
+                <div class="stamen-cluster" id="stamenCluster"></div>
+
+                <!-- 花萼容器 -->
+                <div class="sepal-cluster" id="sepalCluster"></div>
+
+                <!-- 花瓣容器 - 8层 -->
+                <div class="petal-cluster" id="petalCluster"></div>
+            </div>
+
+            <!-- 花茎 -->
+            <div class="stem-assembly">
+                <div class="stem-main" id="stemMain"></div>
+                <!-- 叶片附着点 -->
+                <div class="leaf-attachment-points" id="leafPoints"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 控制面板 -->
+    <div class="control-panel">
+        <button id="btnRestart" class="control-btn">重新播放</button>
+        <button id="btnToggleLight" class="control-btn">切换光照</button>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+    </div>
+
+    <script src="js/textures.js"></script>
+    <script src="js/lighting.js"></script>
+    <script src="js/core.js"></script>
+</body>
+</html>

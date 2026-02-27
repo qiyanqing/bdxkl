@@ -1,5 +1,5 @@
 // 战斗逻辑核心
-class Combat {
+export class Combat {
   constructor(myHeroes, enemyHeroes) {
     this.myHeroes = myHeroes;      // 我方角色
     this.enemyHeroes = enemyHeroes; // 敌方角色
@@ -120,5 +120,3 @@ class Combat {
     return myAlive > 0 ? 'win' : 'lose';
   }
 }
-
-module.exports = Combat;

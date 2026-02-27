@@ -1,0 +1,65 @@
+<!-- review.wxml -->
+<!-- 文件路径：pages/review/review.wxml -->
+<!-- 功能描述：评价页面结构 -->
+<view class="container">
+  <!-- 商品信息 -->
+  <view class="goods-info" wx:if="{{goods.title}}">
+    <image class="goods-image" src="{{goods.images[0]}}" mode="aspectFill" />
+    <view class="goods-detail">
+      <view class="goods-title">{{goods.title}}</view>
+      <view class="goods-price">{{goods.price === 0 ? '免费' : '¥' + goods.price}}</view>
+    </view>
+  </view>
+
+  <!-- 评分区域 -->
+  <view class="rating-section">
+    <view class="section-title">给「{{toUserName}}」评分</view>
+    <view class="rating-stars">
+      <block wx:for="{{[1,2,3,4,5]}}" wx:key="index">
+        <text class="star {{item <= rating ? 'active' : ''}}" bindtap="onRatingSelect" data-rating="{{item}}">
+          {{item <= rating ? '★' : '☆'}}
+        </text>
+      </block>
+    </view>
+    <view class="rating-text">
+      <block wx:if="{{rating === 5}}">非常满意</block>
+      <block wx:elif="{{rating === 4}}">满意</block>
+      <block wx:elif="{{rating === 3}}">一般</block>
+      <block wx:elif="{{rating === 2}}">不满意</block>
+      <block wx:elif="{{rating === 1}}">非常不满意</block>
+    </view>
+  </view>
+
+  <!-- 标签选择 -->
+  <view class="tags-section">
+    <view class="section-title">选择标签（最多4个）</view>
+    <view class="tags-grid">
+      <block wx:for="{{['沟通顺畅', '回复及时', '商品符合描述', '性价比高', '发货迅速', '态度友好', '诚信可靠', '包装完好']}}" wx:key="index">
+        <view class="tag {{selectedTags.indexOf(item) > -1 ? 'active' : ''}}" bindtap="onTagToggle" data-tag="{{item}}">
+          {{item}}
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 评价内容 -->
+  <view class="content-section">
+    <view class="section-title">写下你的评价</view>
+    <textarea
+      class="content-input"
+      placeholder="分享你的交易体验..."
+      maxlength="200"
+      bindinput="onContentInput"
+      value="{{content}}"
+      show-confirm-bar="{{false}}"
+    />
+    <view class="content-count">{{content.length}}/200</view>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="submit-section">
+    <button class="submit-btn" bindtap="onSubmitReview" disabled="{{submitting}}">
+      {{submitting ? '提交中...' : '提交评价'}}
+    </button>
+  </view>
+</view>

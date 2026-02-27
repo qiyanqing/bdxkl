@@ -1,0 +1,360 @@
+/**
+ * 玫瑰花盛开动画 - 基础样式
+ * 写实摄影风格 2.5D 效果
+ */
+
+/* ==================== 全局样式 ==================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #F5F5F5 0%, #E8E8E8 100%);
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ==================== 3D 场景容器 ==================== */
+.scene-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    perspective: 1500px;
+    perspective-origin: 50% 45%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ==================== 光照系统 ==================== */
+.lighting-system {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 100;
+    transition: opacity 0.5s ease;
+}
+
+.ambient-light {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+}
+
+.directional-light {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    mix-blend-mode: overlay;
+}
+
+.shadow-caster {
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    height: 100px;
+    background: radial-gradient(ellipse, rgba(0, 0, 0, 0.2) 0%, transparent 70%);
+    filter: blur(20px);
+}
+
+/* ==================== 玫瑰主体 ==================== */
+.rose-assembly {
+    position: relative;
+    width: 500px;
+    height: 700px;
+    transform-style: preserve-3d;
+    /* 2.5D 视角：俯视偏侧 */
+    transform: rotateX(30deg) rotateY(12deg);
+    animation: gentleFloat 12s ease-in-out infinite;
+}
+
+.rose-head {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    transform-style: preserve-3d;
+    width: 100%;
+    height: 300px;
+    z-index: 100;
+}
+
+/* ==================== 花蕊系统 ==================== */
+.stamen-cluster {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%) translateZ(80px);
+    transform-style: preserve-3d;
+    width: 40px;
+    height: 40px;
+    z-index: 2000;
+}
+
+.stamen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: var(--height, 28px);
+    margin-left: -2.5px;
+    margin-top: calc(var(--height, 28px) * -0.5);
+    background: linear-gradient(to top, #8B4513 0%, #D2691E 50%, #FFD700 100%);
+    border-radius: 3px;
+    transform-origin: bottom center;
+    transform: rotate(var(--angle, 0deg)) translateY(var(--spread, 0px)) scale(0.5);
+    opacity: 0;
+    will-change: transform, opacity;
+}
+
+.stamen::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(circle, #FFD700 0%, #FFA500 70%, #FF8C00 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(255, 215, 0, 0.6);
+}
+
+/* 花蕊展开动画 */
+@keyframes stamenUnfold {
+    0% {
+        opacity: 0;
+        transform: rotate(var(--angle, 0deg)) translateY(var(--spread, 0px)) scale(0.5);
+    }
+    30% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+        transform: rotate(var(--angle, 0deg)) translateY(calc(var(--spread, 0px) * -1)) scale(1);
+    }
+}
+
+/* ==================== 花萼系统 ==================== */
+.sepal-cluster {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%) translateZ(-20px);
+    width: 120px;
+    height: 80px;
+    transform-style: preserve-3d;
+    z-index: 60;
+}
+
+.sepal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 65px;
+    height: 75px;
+    margin-left: -32.5px;
+    margin-top: -37.5px;
+    background: linear-gradient(135deg, #2D5D2A 0%, #3D7A38 30%, #2D5D2A 60%, #1D4D1A 100%);
+    border-radius: 50% 50% 30% 30%;
+    transform-origin: center bottom;
+    transform: rotateY(var(--angle, 0deg)) translateY(0) rotateX(80deg) scale(0.3);
+    opacity: 0;
+    will-change: transform, opacity;
+    box-shadow:
+        inset 2px 2px 12px rgba(0, 0, 0, 0.3),
+        inset -2px -2px 8px rgba(255, 255, 255, 0.1),
+        0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.sepal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 3px,
+        rgba(0, 0, 0, 0.06) 3px,
+        rgba(0, 0, 0, 0.06) 6px
+    );
+}
+
+/* 花萼展开动画 */
+@keyframes sepalUnfold {
+    0% {
+        opacity: 0;
+        transform: rotateY(var(--angle, 0deg)) translateY(0) rotateX(80deg) scale(0.3);
+    }
+    100% {
+        opacity: 1;
+        transform: rotateY(var(--angle, 0deg)) translateY(-15px) rotateX(55deg) scale(var(--scale, 1));
+    }
+}
+
+/* ==================== 花茎系统 ==================== */
+.stem-assembly {
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    transform: translateX(-50%);
+    transform-style: preserve-3d;
+    width: 40px;
+    height: 450px;
+    z-index: 10;
+}
+
+.stem-main {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%) translateZ(-100px);
+    width: 22px;
+    height: 0;
+    background: linear-gradient(
+        90deg,
+        #3A6D37 0%,
+        #5A9157 20%,
+        #6BA867 40%,
+        #7AB877 50%,
+        #6BA867 60%,
+        #5A9157 80%,
+        #3A6D37 100%
+    );
+    border-radius: 11px;
+    transform-origin: top center;
+    will-change: height;
+    box-shadow:
+        inset 3px 0 8px rgba(0, 0, 0, 0.15),
+        inset -3px 0 8px rgba(0, 0, 0, 0.15);
+}
+
+.stem-main::before,
+.stem-main::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.18),
+        rgba(0, 0, 0, 0.08)
+    );
+    border-radius: 2px;
+}
+
+.stem-main::before { left: 4px; }
+.stem-main::after { right: 4px; }
+
+.leaf-attachment-points {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    pointer-events: none;
+    z-index: 15;
+}
+
+/* ==================== 控制面板 ==================== */
+.control-panel {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+}
+
+.control-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #C73E1D 0%, #E8806F 100%);
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(199, 62, 29, 0.3);
+}
+
+.control-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(199, 62, 29, 0.4);
+}
+
+.control-btn:active {
+    transform: translateY(0);
+}
+
+.progress-bar {
+    width: 200px;
+    height: 6px;
+    background: #E8E8E8;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #C73E1D, #E8806F);
+    border-radius: 3px;
+    transition: width 0.1s linear;
+}
+
+/* ==================== 浮动动画 ==================== */
+@keyframes gentleFloat {
+    0%, 100% {
+        transform: rotateX(30deg) rotateY(12deg) translateY(0px);
+    }
+    50% {
+        transform: rotateX(30deg) rotateY(12deg) translateY(-15px);
+    }
+}
+
+/* ==================== 响应式 ==================== */
+@media (max-width: 768px) {
+    .rose-assembly {
+        transform: scale(0.8) rotateX(30deg) rotateY(12deg);
+    }
+    .control-panel {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .rose-assembly {
+        transform: scale(0.6) rotateX(30deg) rotateY(12deg);
+    }
+}

@@ -1,0 +1,17 @@
+{
+  "miniprogramRoot": "./",
+  "cloudfunctionRoot": "cloudfunctions/",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "newFeature": true
+  },
+  "appid": "touristappid",
+  "projectname": "lz_sg",
+  "libVersion": "2.28.0",
+  "compileType": "game",
+  "condition": {}
+}

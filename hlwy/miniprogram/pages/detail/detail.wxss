@@ -1,0 +1,357 @@
+/* detail.wxss */
+/* 文件路径：pages/detail/detail.wxss */
+/* 功能描述：商品详情页样式，温暖邻里风格设计 */
+/* 创建日期：2026-01-28 */
+/* 版本：3.0.0 */
+
+/* ==================== 设计变量 ==================== */
+page {
+  --primary-color: #07c160;
+  --primary-light: #d9f7be;
+  --primary-gradient: linear-gradient(135deg, #07c160 0%, #52c41a 100%);
+  --text-primary: #1a1a1a;
+  --text-secondary: #666666;
+  --text-tertiary: #999999;
+  --bg-page: #f7f8f7;
+  --bg-card: #ffffff;
+  --shadow-sm: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8rpx 24rpx rgba(7, 193, 96, 0.08);
+  --shadow-lg: 0 12rpx 32rpx rgba(7, 193, 96, 0.12);
+  --radius-sm: 12rpx;
+  --radius-md: 16rpx;
+  --radius-lg: 24rpx;
+  --radius-xl: 32rpx;
+}
+
+.container {
+  background: linear-gradient(180deg, #f0fdf4 0%, #f7f8f7 100%);
+  min-height: 100vh;
+  padding-bottom: 140rpx;
+}
+
+/* ==================== 商品图片轮播（优化视觉） ==================== */
+.goods-image {
+  width: 100%;
+  height: 650rpx;
+  background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%);
+  position: relative;
+}
+
+.goods-image::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80rpx;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.05), transparent);
+  pointer-events: none;
+}
+
+/* ==================== 商品信息卡片 ==================== */
+.goods-info {
+  background: var(--bg-card);
+  padding: 32rpx;
+  margin: -40rpx 24rpx 20rpx;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  z-index: 10;
+}
+
+/* ==================== 标题区域 ==================== */
+.title-section {
+  margin-bottom: 20rpx;
+}
+
+.title {
+  font-size: 38rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.4;
+  letter-spacing: -0.5rpx;
+}
+
+/* ==================== 价格区域（优化视觉） ==================== */
+.price-section {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 24rpx;
+  padding: 20rpx 24rpx;
+  background: linear-gradient(135deg, #fff5f5 0%, #fff 100%);
+  border-radius: var(--radius-lg);
+  border-left: 6rpx solid #ff4d4f;
+}
+
+.price {
+  font-size: 52rpx;
+  font-weight: 800;
+  color: #ff4d4f;
+  letter-spacing: -1rpx;
+}
+
+.price::before {
+  content: '¥';
+  font-size: 32rpx;
+  margin-right: 4rpx;
+}
+
+.free-badge {
+  margin-left: 16rpx;
+  padding: 8rpx 20rpx;
+  background: linear-gradient(135deg, #07c160 0%, #52c41a 100%);
+  color: #fff;
+  font-size: 24rpx;
+  font-weight: 600;
+  border-radius: var(--radius-xl);
+}
+
+/* ==================== 标签区域（优化视觉） ==================== */
+.tags-section {
+  margin-bottom: 24rpx;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.tag {
+  font-size: 24rpx;
+  padding: 10rpx 20rpx;
+  border-radius: var(--radius-xl);
+  font-weight: 500;
+}
+
+.scene-tag {
+  background: linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%);
+  color: #1890ff;
+}
+
+.distance-tag {
+  background: linear-gradient(135deg, #f0fdf4 0%, #d9f7be 100%);
+  color: var(--primary-color);
+}
+
+.condition-tag {
+  background: linear-gradient(135deg, #fffbe6 0%, #fff1b8 100%);
+  color: #faad14;
+}
+
+.category-tag {
+  background: linear-gradient(135deg, #f9f0ff 0%, #efdbff 100%);
+  color: #722ed1;
+}
+
+/* ==================== 描述区域 ==================== */
+.description-section {
+  margin-bottom: 24rpx;
+  padding-bottom: 24rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.description {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+/* ==================== 统计信息 ==================== */
+.stats-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.stat-item {
+  font-size: 24rpx;
+  color: var(--text-tertiary);
+  padding: 8rpx 16rpx;
+  background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%);
+  border-radius: var(--radius-sm);
+}
+
+/* ==================== 发布者信息卡片（优化视觉） ==================== */
+.publisher-card {
+  background: var(--bg-card);
+  padding: 28rpx;
+  margin: 0 24rpx 20rpx;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+}
+
+.publisher-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.publisher-info {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.avatar-wrapper {
+  position: relative;
+  margin-right: 20rpx;
+}
+
+.avatar {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  border: 4rpx solid var(--primary-light);
+  padding: 4rpx;
+  background: #fff;
+}
+
+.avatar-wrapper::after {
+  content: '';
+  position: absolute;
+  top: -4rpx;
+  right: -4rpx;
+  width: 24rpx;
+  height: 24rpx;
+  background: var(--primary-gradient);
+  border-radius: 50%;
+  border: 4rpx solid #fff;
+}
+
+.publisher-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.publisher-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.publish-time {
+  font-size: 24rpx;
+  color: var(--text-tertiary);
+}
+
+.credit-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6rpx 12rpx;
+  background: var(--primary-light);
+  color: var(--primary-color);
+  font-size: 22rpx;
+  border-radius: var(--radius-sm);
+  margin-top: 6rpx;
+}
+
+.credit-badge::before {
+  content: '⭐';
+  margin-right: 4rpx;
+}
+
+.chat-btn {
+  padding: 16rpx 32rpx;
+  background: var(--primary-gradient);
+  color: #fff;
+  font-size: 26rpx;
+  font-weight: 500;
+  border-radius: var(--radius-xl);
+  border: none;
+  box-shadow: 0 4rpx 12rpx rgba(7, 193, 96, 0.3);
+}
+
+/* ==================== 底部操作栏（优化视觉） ==================== */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 120rpx;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20rpx);
+  display: flex;
+  align-items: center;
+  padding: 0 32rpx;
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.06);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  z-index: 100;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 24rpx;
+  margin-right: 24rpx;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+.action-btn:active {
+  transform: scale(0.9);
+}
+
+.action-btn-icon {
+  width: 52rpx;
+  height: 52rpx;
+  background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8rpx;
+  font-size: 28rpx;
+}
+
+.action-btn text {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+}
+
+.badge {
+  position: absolute;
+  top: -4rpx;
+  right: -4rpx;
+  min-width: 32rpx;
+  height: 32rpx;
+  padding: 0 8rpx;
+  background: #ff4d4f;
+  color: #fff;
+  font-size: 20rpx;
+  font-weight: 600;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4rpx solid #fff;
+}
+
+.contact-btn {
+  flex: 1;
+  height: 88rpx;
+  background: var(--primary-gradient);
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 600;
+  border-radius: var(--radius-xl);
+  margin-left: auto;
+  border: none;
+  box-shadow: 0 8rpx 16rpx rgba(7, 193, 96, 0.3);
+  transition: all 0.3s ease;
+}
+
+.contact-btn::after {
+  border: none;
+}
+
+.contact-btn:active {
+  transform: scale(0.97);
+  box-shadow: 0 4rpx 8rpx rgba(7, 193, 96, 0.3);
+}

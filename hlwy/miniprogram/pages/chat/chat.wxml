@@ -1,0 +1,41 @@
+<!-- chat.wxml -->
+<view class="container">
+  <!-- 聊天记录区域 -->
+  <scroll-view scroll-y="true" class="chat-list" bindscrolltolower="loadMoreMessages">
+    <block wx:for="{{chatHistory}}" wx:key="_id">
+      <!-- 对方消息 -->
+      <view class="message-item" wx:if="{{item.fromUserId._id !== userId}}">
+        <view class="message-avatar">
+          <image src="{{userAvatar}}" mode="aspectFill" />
+        </view>
+        <view class="message-content">
+          <view class="message-text">{{item.content}}</view>
+          <view class="message-time">{{formatTime(item.createdAt)}}</view>
+        </view>
+      </view>
+      <!-- 自己的消息 -->
+      <view class="message-item right" wx:else>
+        <view class="message-content">
+          <view class="message-text">{{item.content}}</view>
+          <view class="message-time">{{formatTime(item.createdAt)}}</view>
+        </view>
+        <view class="message-avatar">
+          <image src="{{myAvatar}}" mode="aspectFill" />
+        </view>
+      </view>
+    </block>
+  </scroll-view>
+
+  <!-- 输入区域 -->
+  <view class="input-area">
+    <view class="input-wrapper">
+      <input placeholder="输入消息..." class="input" bindinput="onInput" value="{{inputValue}}" />
+      <view class="action-buttons">
+        <image src="/images/image.png" mode="aspectFit" class="action-btn" bindtap="onChooseImage" />
+      </view>
+    </view>
+    <button class="send-btn" bindtap="onSendMessage" disabled="{{!inputValue.trim()}}">
+      发送
+    </button>
+  </view>
+</view>

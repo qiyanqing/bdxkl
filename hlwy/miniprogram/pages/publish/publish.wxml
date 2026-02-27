@@ -1,0 +1,94 @@
+<!-- publish.wxml -->
+<view class="container">
+  <!-- 图片上传区域 -->
+  <view class="upload-section">
+    <view class="section-title">物品图片（最多3张）</view>
+    <view class="image-list">
+      <block wx:for="{{images}}" wx:key="index">
+        <view class="image-item">
+          <image src="{{item}}" mode="aspectFill" />
+          <view class="delete-btn" bindtap="onDeleteImage" data-index="{{index}}">
+            <image src="/images/delete.svg" mode="aspectFit" />
+          </view>
+        </view>
+      </block>
+      <block wx:if="{{images.length < 3}}">
+        <view class="upload-btn" bindtap="onChooseImage">
+          <image src="/images/add.svg" mode="aspectFit" />
+          <text>添加图片</text>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 标题输入 -->
+  <view class="input-section">
+    <view class="section-title">物品标题</view>
+    <input placeholder="请输入物品标题（最多100字）" class="input" bindinput="onTitleInput" maxlength="100" />
+  </view>
+
+  <!-- 分类选择 -->
+  <view class="input-section">
+    <view class="section-title">物品分类</view>
+    <picker bindchange="onCategoryChange" value="{{categoryIndex}}" range="{{categories}}">
+      <view class="picker">
+        {{categories[categoryIndex] || '请选择分类'}}
+      </view>
+    </picker>
+  </view>
+
+  <!-- 新旧程度 -->
+  <view class="input-section">
+    <view class="section-title">新旧程度</view>
+    <picker bindchange="onConditionChange" value="{{conditionIndex}}" range="{{conditions}}">
+      <view class="picker">
+        {{conditions[conditionIndex] || '请选择新旧程度'}}
+      </view>
+    </picker>
+  </view>
+
+  <!-- 场景选择 -->
+  <view class="input-section">
+    <view class="section-title">展示范围</view>
+    <view class="radio-group">
+      <label class="radio-item">
+        <radio value="community" checked="{{addressType === 'community'}}" bindchange="onAddressTypeChange" />
+        <text>仅小区</text>
+      </label>
+      <label class="radio-item">
+        <radio value="office" checked="{{addressType === 'office'}}" bindchange="onAddressTypeChange" />
+        <text>仅公司</text>
+      </label>
+      <label class="radio-item">
+        <radio value="both" checked="{{addressType === 'both'}}" bindchange="onAddressTypeChange" />
+        <text>双地址</text>
+      </label>
+    </view>
+  </view>
+
+  <!-- 期望出售价格 -->
+  <view class="input-section">
+    <view class="section-title">期望出售价格</view>
+    <view class="price-group">
+      <input type="number" placeholder="0" class="price-input" bindinput="onPriceInput" />
+      <text class="price-unit">元</text>
+    </view>
+  </view>
+
+  <!-- 互换物品 -->
+  <view class="input-section">
+    <view class="section-title">期望互换物品（选填）</view>
+    <input placeholder="如果接受互换，可填写期望互换的物品" class="input" bindinput="onExchangeItemInput" maxlength="100" />
+  </view>
+
+  <!-- 物品描述 -->
+  <view class="input-section">
+    <view class="section-title">物品描述</view>
+    <textarea placeholder="请详细描述物品状况（最多500字）" class="textarea" bindinput="onDescriptionInput" maxlength="500" />
+  </view>
+
+  <!-- 发布按钮 -->
+  <button class="publish-btn" bindtap="onPublish" disabled="{{isPublishing}}">
+    {{isPublishing ? '发布中...' : '发布'}}
+  </button>
+</view>

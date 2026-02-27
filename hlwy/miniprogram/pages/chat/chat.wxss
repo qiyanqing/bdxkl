@@ -1,0 +1,140 @@
+/* chat.wxss */
+.container {
+  background-color: #f8f8f8;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 聊天记录区域 */
+.chat-list {
+  flex: 1;
+  padding: 20rpx;
+  overflow-y: auto;
+}
+
+/* 消息项 */
+.message-item {
+  display: flex;
+  margin-bottom: 20rpx;
+  align-items: flex-end;
+}
+
+.message-item.right {
+  flex-direction: row-reverse;
+}
+
+/* 头像 */
+.message-avatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 16rpx;
+}
+
+.message-avatar image {
+  width: 100%;
+  height: 100%;
+}
+
+/* 消息内容 */
+.message-content {
+  max-width: 500rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 消息文本 */
+.message-text {
+  padding: 16rpx 20rpx;
+  border-radius: 16rpx;
+  font-size: 32rpx;
+  line-height: 1.5;
+  word-wrap: break-word;
+  margin-bottom: 8rpx;
+}
+
+.message-item .message-text {
+  background-color: #fff;
+  color: #333;
+}
+
+.message-item.right .message-text {
+  background-color: #07c160;
+  color: #fff;
+}
+
+/* 消息时间 */
+.message-time {
+  font-size: 24rpx;
+  color: #999;
+  text-align: center;
+}
+
+/* 输入区域 */
+.input-area {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 20rpx;
+  background-color: #fff;
+  border-top: 1rpx solid #eee;
+  padding-bottom: calc(16rpx + env(safe-area-inset-bottom, 0));
+}
+
+/* 输入框容器 */
+.input-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background-color: #f8f8f8;
+  border-radius: 40rpx;
+  padding: 0 20rpx;
+  margin-right: 16rpx;
+}
+
+/* 输入框 */
+.input {
+  flex: 1;
+  height: 80rpx;
+  font-size: 32rpx;
+  color: #333;
+  background-color: transparent;
+}
+
+/* 操作按钮 */
+.action-buttons {
+  display: flex;
+  align-items: center;
+}
+
+.action-btn {
+  width: 48rpx;
+  height: 48rpx;
+  margin-left: 16rpx;
+}
+
+/* 发送按钮 */
+.send-btn {
+  width: 120rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  background-color: #07c160;
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 500;
+  border-radius: 40rpx;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.send-btn::after {
+  border: none;
+}
+
+.send-btn:disabled {
+  background-color: #e0e0e0;
+  color: #999;
+}

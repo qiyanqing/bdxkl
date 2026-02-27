@@ -1,0 +1,207 @@
+/* address.wxss */
+
+/* 容器样式 */
+.container {
+  padding: 0;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+/* 标题样式 */
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  padding: 24rpx;
+  background-color: #fff;
+  border-bottom: 1rpx solid #e0e0e0;
+}
+
+/* 地址类型切换 */
+.type-switch {
+  display: flex;
+  background-color: #fff;
+  border-bottom: 1rpx solid #e0e0e0;
+}
+
+.type-item {
+  flex: 1;
+  text-align: center;
+  padding: 24rpx 0;
+  font-size: 30rpx;
+  color: #666;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.type-item.active {
+  color: #07c160;
+  font-weight: 500;
+}
+
+.type-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60rpx;
+  height: 4rpx;
+  background-color: #07c160;
+  border-radius: 2rpx;
+}
+
+/* 地址列表 */
+.address-list {
+  padding: 16rpx;
+  min-height: calc(100vh - 240rpx);
+}
+
+/* 地址项 */
+.address-item {
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.address-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.address-type {
+  font-size: 28rpx;
+  color: #666;
+  background-color: #f0f0f0;
+  padding: 4rpx 16rpx;
+  border-radius: 16rpx;
+}
+
+.default-btn {
+  font-size: 26rpx;
+  color: #07c160;
+  padding: 4rpx 16rpx;
+  border: 1rpx solid #07c160;
+  border-radius: 16rpx;
+  transition: all 0.3s;
+}
+
+.default-btn:active {
+  background-color: #f0fff4;
+}
+
+.default-tag {
+  font-size: 26rpx;
+  color: #fff;
+  background-color: #07c160;
+  padding: 4rpx 16rpx;
+  border-radius: 16rpx;
+}
+
+.address-info {
+  margin-bottom: 16rpx;
+}
+
+.address-detail {
+  font-size: 30rpx;
+  color: #333;
+  line-height: 1.5;
+  margin-bottom: 8rpx;
+}
+
+.address-coords {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.address-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 24rpx;
+}
+
+.edit-btn,
+.delete-btn {
+  font-size: 28rpx;
+  padding: 8rpx 24rpx;
+  border-radius: 20rpx;
+  transition: all 0.3s;
+}
+
+.edit-btn {
+  color: #1890ff;
+  border: 1rpx solid #1890ff;
+}
+
+.edit-btn:active {
+  background-color: #e6f7ff;
+}
+
+.delete-btn {
+  color: #ff4d4f;
+  border: 1rpx solid #ff4d4f;
+}
+
+.delete-btn:active {
+  background-color: #fff2f0;
+}
+
+/* 空地址提示 */
+.empty-address {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+  text-align: center;
+}
+
+.empty-icon {
+  width: 160rpx;
+  height: 160rpx;
+  margin-bottom: 32rpx;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 添加地址按钮 */
+.add-btn {
+  position: fixed;
+  bottom: 32rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 600rpx;
+  height: 88rpx;
+  background-color: #07c160;
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 500;
+  border-radius: 44rpx;
+  box-shadow: 0 4rpx 16rpx rgba(7, 193, 96, 0.3);
+  transition: all 0.3s;
+}
+
+.add-btn:active {
+  background-color: #06ad56;
+  box-shadow: 0 2rpx 8rpx rgba(7, 193, 96, 0.2);
+  transform: translateX(-50%) scale(0.98);
+}
+
+.add-icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 12rpx;
+  fill: #fff;
+}

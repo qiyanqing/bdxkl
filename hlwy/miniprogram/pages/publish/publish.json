@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "发布闲置",
+  "navigationBarBackgroundColor": "#fff",
+  "navigationBarTextStyle": "black",
+  "enablePullDownRefresh": false,
+  "usingComponents": {}
+}

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>玫瑰花盛开动画 - 2.5D立体视角</title>
+    <style>
+        /* ==================== 全局样式 ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #F5F5F5 0%, #E8E8E8 100%);
+            overflow: hidden;
+        }
+
+        /* ==================== 2.5D视角修改处 ==================== */
+        /* 3D透视容器，构建立体空间 */
+        .scene-container {
+            perspective: 1200px;
+            perspective-origin: 50% 50%;
+        }
+
+        .rose-container {
+            position: relative;
+            width: 400px;
+            height: 600px;
+            transform-style: preserve-3d;
+            /* 2.5D俯视偏侧视角 */
+            transform: rotateX(35deg) rotateY(15deg);
+            animation: gentleFloat 10s ease-in-out infinite;
+        }
+
+        .rose-head {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            transform-style: preserve-3d;
+            width: 100%;
+            height: 250px;
+        }
+
+        /* ==================== 花蕊添加处 ==================== */
+        .stamen-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50%);
+            transform-style: preserve-3d;
+            width: 30px;
+            height: 30px;
+            z-index: 100;
+        }
+
+        .stamen {
+            position: absolute;
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(to top, #8B4513 0%, #D2691E 50%, #FFD700 100%);
+            border-radius: 2px;
+            transform-origin: bottom center;
+            will-change: transform, opacity;
+            opacity: 0;
+        }
+
+        .stamen::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, #FFD700 0%, #FFA500 70%, #FF8C00 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 4px rgba(255,215,0,0.5);
+        }
+
+        /* ==================== 花茎 ==================== */
+        .stem {
+            position: absolute;
+            top: 180px;
+            left: 50%;
+            transform: translateX(-50%) translateZ(-50px);
+            width: 18px;
+            height: 0;
+            background: linear-gradient(90deg, #3A6D37 0%, #5A9157 30%, #6BA867 50%, #5A9157 70%, #3A6D37 100%);
+            border-radius: 9px;
+            transform-origin: top center;
+            transform-style: preserve-3d;
+            will-change: height, transform;
+            animation: stemGrow 4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .stem::before, .stem::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.15), rgba(0,0,0,0.08));
+            border-radius: 2px;
+        }
+        .stem::before { left: 3px; }
+        .stem::after { right: 3px; }
+
+        /* ==================== 花萼 ==================== */
+        .sepal-container {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%) translateZ(-30px);
+            width: 100px;
+            height: 60px;
+            transform-style: preserve-3d;
+        }
+
+        .sepal {
+            position: absolute;
+            width: 55px;
+            height: 60px;
+            background: linear-gradient(135deg, #2D5D2A 0%, #3D7A38 30%, #2D5D2A 60%, #1D4D1A 100%);
+            border-radius: 50% 50% 25% 25%;
+            transform-origin: center bottom;
+            transform-style: preserve-3d;
+            will-change: transform, opacity;
+            opacity: 0;
+            box-shadow: inset 2px 2px 10px rgba(0,0,0,0.25), inset -2px -2px 10px rgba(255,255,255,0.08);
+        }
+
+        .sepal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: inherit;
+            background: repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 6px);
+        }
+
+        /* ==================== 花瓣基础样式 ==================== */
+        .petal {
+            position: absolute;
+            transform-style: preserve-3d;
+            transform-origin: center bottom;
+            will-change: transform, opacity;
+            backface-visibility: visible;
+            border-radius: 50% 50% 45% 45% / 55% 55% 45% 45%;
+            /* 硬件加速 */
+            transform: translateZ(0);
+        }
+
+        /* 花瓣纹理 - 细化叶脉效果 */
+        .petal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: inherit;
+            background:
+                /* 主叶脉 */
+                linear-gradient(90deg, transparent 45%, rgba(180,100,100,0.1) 50%, transparent 55%),
+                /* 细微叶脉 */
+                repeating-linear-gradient(60deg, transparent, transparent 4px, rgba(180,100,100,0.04) 4px, rgba(180,100,100,0.04) 5px),
+                /* 左上光源强化 - 向光面更亮 */
+                linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.1) 30%, transparent 50%, rgba(0,0,0,0.05) 100%);
+            pointer-events: none;
+        }
+
+        .petal::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: inherit;
+            box-shadow:
+                inset 0 -10px 25px rgba(0,0,0,0.12),
+                inset 0 10px 18px rgba(255,255,255,0.12),
+                /* 背光面阴影 */
+                -2px 2px 8px rgba(0,0,0,0.15),
+                0 3px 10px rgba(0,0,0,0.1);
+            pointer-events: none;
+        }
+
+        /* ==================== 花瓣层级样式 ==================== */
+        .petal-layer-1 { width: 45px; height: 55px; background: linear-gradient(to bottom, #A02010 0%, #C73E1D 30%, #D05035 50%, #C73E1D 70%, #A02010 100%); left: 50%; bottom: 80px; margin-left: -22.5px; opacity: 0; }
+        .petal-layer-2 { width: 55px; height: 65px; background: linear-gradient(to bottom, #C73E1D 0%, #D85545 30%, #E8705A 50%, #D85545 70%, #C73E1D 100%); left: 50%; bottom: 70px; margin-left: -27.5px; opacity: 0; }
+        .petal-layer-3 { width: 65px; height: 75px; background: linear-gradient(to bottom, #D85545 0%, #E8806F 30%, #F09080 50%, #E8806F 70%, #D85545 100%); left: 50%; bottom: 60px; margin-left: -32.5px; opacity: 0; }
+        .petal-layer-4 { width: 75px; height: 85px; background: linear-gradient(to bottom, #E8806F 0%, #F09585 30%, #F8AFA6 50%, #F09585 70%, #E8806F 100%); left: 50%; bottom: 50px; margin-left: -37.5px; opacity: 0; }
+        .petal-layer-5 { width: 85px; height: 95px; background: linear-gradient(to bottom, #F09585 0%, #F8B0A0 30%, #FCC0B5 50%, #F8B0A0 70%, #F09585 100%); left: 50%; bottom: 40px; margin-left: -42.5px; opacity: 0; }
+        .petal-layer-6 { width: 95px; height: 105px; background: linear-gradient(to bottom, #F8AFA6 0%, #FCC8C0 30%, #FDD8D2 50%, #FCC8C0 70%, #F8AFA6 100%); left: 50%; bottom: 30px; margin-left: -47.5px; opacity: 0; }
+
+        .lighting {
+            position: absolute;
+            top: -50px;
+            left: -50%;
+            width: 100%;
+            height: 150%;
+            background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.1) 25%, transparent 50%);
+            pointer-events: none;
+            z-index: 200;
+        }
+
+        @keyframes gentleFloat {
+            0%, 100% { transform: rotateX(35deg) rotateY(15deg) translateY(0px); }
+            50% { transform: rotateX(35deg) rotateY(15deg) translateY(-12px); }
+        }
+
+        @keyframes stemGrow {
+            0% { height: 0; }
+            100% { height: 380px; }
+        }
+
+        @media (max-width: 768px) { .scene-container { transform: scale(0.85); } }
+        @media (max-width: 480px) { .scene-container { transform: scale(0.65); } }
+    </style>
+</head>
+<body>
+    <div class="scene-container">
+        <div class="rose-container">
+            <div class="lighting"></div>
+
+            <div class="rose-head">
+                <!-- 花蕊添加处 - 花蕊结构 -->
+                <div class="stamen-container">
+                    <div class="stamen"></div>
+                    <div class="stamen"></div>
+                    <div class="stamen"></div>
+                    <div class="stamen"></div>
+                    <div class="stamen"></div>
+                    <div class="stamen"></div>
+                    <div class="stamen"></div>
+                    <div class="stamen"></div>
+                    <div class="stamen"></div>
+                    <div class="stamen"></div>
+                    <div class="stamen"></div>
+                    <div class="stamen"></div>
+                </div>
+
+                <!-- 花萼 (5片) -->
+                <div class="sepal-container">
+                    <div class="sepal"></div>
+                    <div class="sepal"></div>
+                    <div class="sepal"></div>
+                    <div class="sepal"></div>
+                    <div class="sepal"></div>
+                </div>
+
+                <!-- 第1层 - 花心 (6片) -->
+                <div class="petal petal-layer-1"></div>
+                <div class="petal petal-layer-1"></div>
+                <div class="petal petal-layer-1"></div>
+                <div class="petal petal-layer-1"></div>
+                <div class="petal petal-layer-1"></div>
+                <div class="petal petal-layer-1"></div>
+
+                <!-- 第2层 - 内层 (8片) -->
+                <div class="petal petal-layer-2"></div>
+                <div class="petal petal-layer-2"></div>
+                <div class="petal petal-layer-2"></div>
+                <div class="petal petal-layer-2"></div>
+                <div class="petal petal-layer-2"></div>
+                <div class="petal petal-layer-2"></div>
+                <div class="petal petal-layer-2"></div>
+                <div class="petal petal-layer-2"></div>
+
+                <!-- 第3层 - 中内层 (10片) -->
+                <div class="petal petal-layer-3"></div>
+                <div class="petal petal-layer-3"></div>
+                <div class="petal petal-layer-3"></div>
+                <div class="petal petal-layer-3"></div>
+                <div class="petal petal-layer-3"></div>
+                <div class="petal petal-layer-3"></div>
+                <div class="petal petal-layer-3"></div>
+                <div class="petal petal-layer-3"></div>
+                <div class="petal petal-layer-3"></div>
+                <div class="petal petal-layer-3"></div>
+
+                <!-- 第4层 - 中层 (12片) -->
+                <div class="petal petal-layer-4"></div>
+                <div class="petal petal-layer-4"></div>
+                <div class="petal petal-layer-4"></div>
+                <div class="petal petal-layer-4"></div>
+                <div class="petal petal-layer-4"></div>
+                <div class="petal petal-layer-4"></div>
+                <div class="petal petal-layer-4"></div>
+                <div class="petal petal-layer-4"></div>
+                <div class="petal petal-layer-4"></div>
+                <div class="petal petal-layer-4"></div>
+                <div class="petal petal-layer-4"></div>
+                <div class="petal petal-layer-4"></div>
+
+                <!-- 第5层 - 中外层 (10片) -->
+                <div class="petal petal-layer-5"></div>
+                <div class="petal petal-layer-5"></div>
+                <div class="petal petal-layer-5"></div>
+                <div class="petal petal-layer-5"></div>
+                <div class="petal petal-layer-5"></div>
+                <div class="petal petal-layer-5"></div>
+                <div class="petal petal-layer-5"></div>
+                <div class="petal petal-layer-5"></div>
+                <div class="petal petal-layer-5"></div>
+                <div class="petal petal-layer-5"></div>
+
+                <!-- 第6层 - 外层 (10片) -->
+                <div class="petal petal-layer-6"></div>
+                <div class="petal petal-layer-6"></div>
+                <div class="petal petal-layer-6"></div>
+                <div class="petal petal-layer-6"></div>
+                <div class="petal petal-layer-6"></div>
+                <div class="petal petal-layer-6"></div>
+                <div class="petal petal-layer-6"></div>
+                <div class="petal petal-layer-6"></div>
+                <div class="petal petal-layer-6"></div>
+                <div class="petal petal-layer-6"></div>
+            </div>
+
+            <div class="stem"></div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 花瓣盛开动画重构处 ====================
+
+        const layers = [
+            { class: 'petal-layer-1', count: 6, angleStep: 60, duration: 3, baseDelay: 0 },
+            { class: 'petal-layer-2', count: 8, angleStep: 45, duration: 4, baseDelay: 0.2 },
+            { class: 'petal-layer-3', count: 10, angleStep: 36, duration: 5, baseDelay: 0.4 },
+            { class: 'petal-layer-4', count: 12, angleStep: 30, duration: 6, baseDelay: 0.6 },
+            { class: 'petal-layer-5', count: 10, angleStep: 36, duration: 7, baseDelay: 0.8 },
+            { class: 'petal-layer-6', count: 10, angleStep: 36, duration: 8, baseDelay: 1 }
+        ];
+
+        const styleSheet = document.createElement('style');
+        let css = '';
+
+        layers.forEach((layer, layerIndex) => {
+            const petalElements = document.querySelectorAll(`.${layer.class}`);
+
+            petalElements.forEach((petal, index) => {
+                // 径向分布：圆周排列
+                const baseAngle = index * layer.angleStep;
+
+                // 景深优化：内层靠前（正值），外层靠后（负值）
+                const startZ = 40 - (layerIndex * 18);
+                const endZ = startZ + 8;
+
+                // 外层先展开，内层延迟1s
+                const isOuter = layerIndex <= 2;
+                const delayAdjust = isOuter ? 0 : 1;
+                const delay = layer.baseDelay + (index * 0.06) + delayAdjust;
+
+                // 初始状态：紧致花苞
+                const startRotateX = 80;
+                const startTranslateY = 0;
+                const startScale = 0.25;
+
+                // 结束状态：完全盛开
+                let endRotateX, endTranslateY, endRotateY;
+
+                if (isOuter) {
+                    // 外层：大幅展开，近水平
+                    endRotateX = 10 + layerIndex * 2;
+                    endTranslateY = -40 - layerIndex * 5;
+                    // 随机±12度外翻
+                    endRotateY = baseAngle + (Math.random() * 24 - 12);
+                } else {
+                    // 内层：紧凑包裹花蕊
+                    endRotateX = 28 - (layerIndex - 3) * 3;
+                    endTranslateY = -20 - (layerIndex - 3) * 5;
+                    endRotateY = baseAngle;
+                }
+
+                const animName = `petalL${layerIndex + 1}P${index + 1}`;
+
+                css += `
+                    @keyframes ${animName} {
+                        0% {
+                            opacity: 0;
+                            transform: translateZ(${startZ}px) rotateX(${startRotateX}deg) rotateY(${baseAngle}deg) translateY(${startTranslateY}px) scale(${startScale});
+                        }
+                        15% {
+                            opacity: 1;
+                        }
+                        100% {
+                            opacity: 1;
+                            transform: translateZ(${endZ}px) rotateX(${endRotateX}deg) rotateY(${endRotateY}deg) translateY(${endTranslateY}px) scale(1);
+                        }
+                    }
+                `;
+
+                // 弹性缓动
+                petal.style.animation = `${animName} ${layer.duration}s cubic-bezier(0.34, 1.56, 0.64, 1) forwards ${delay}s`;
+            });
+        });
+
+        // 花蕊动画：随花瓣展开同步放大
+        const stamenElements = document.querySelectorAll('.stamen');
+        stamenElements.forEach((stamen, index) => {
+            const angle = index * 30;
+            const spread = 5 + Math.random() * 8;
+            const animName = `stamen${index}`;
+
+            css += `
+                @keyframes ${animName} {
+                    0% {
+                        opacity: 0;
+                        transform: rotate(${angle}deg) translateY(0) scale(0.5);
+                    }
+                    50% {
+                        opacity: 0;
+                    }
+                    100% {
+                        opacity: 1;
+                        transform: rotate(${angle}deg) translateY(-5px) scale(1.1);
+                    }
+                }
+            `;
+
+            stamen.style.animation = `${animName} 4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards ${1 + index * 0.05}s`;
+        });
+
+        // 花萼动画：向外张开20度
+        const sepalElements = document.querySelectorAll('.sepal');
+        sepalElements.forEach((sepal, index) => {
+            const angle = index * 72;
+            const delay = 0.1 + index * 0.08;
+            const animName = `sepal${index}`;
+
+            css += `
+                @keyframes ${animName} {
+                    0% {
+                        opacity: 0;
+                        transform: rotateY(${angle}deg) translateY(0) rotateX(75deg) scale(0.3);
+                    }
+                    100% {
+                        opacity: 1;
+                        transform: rotateY(${angle}deg) translateY(-12px) rotateX(55deg) scale(1);
+                    }
+                }
+            `;
+
+            sepal.style.animation = `${animName} 4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards ${delay}s`;
+        });
+
+        styleSheet.textContent = css;
+        document.head.appendChild(styleSheet);
+
+        console.log('玫瑰花盛开动画已加载 - 2.5D立体视角');
+        console.log('总花瓣数:', layers.reduce((sum, l) => sum + l.count, 0));
+        console.log('花蕊数:', stamenElements.length);
+        console.log('关键特性:');
+        console.log('  - 2.5D视角: rotateX(35deg) + rotateY(15deg)');
+        console.log('  - 景深分层: translateZ范围-50px到+40px');
+        console.log('  - 展开幅度: 外层rotateX 10-20°（近水平）');
+        console.log('  - 花蕊: 12根，随花瓣同步展开');
+    </script>
+</body>
+</html>

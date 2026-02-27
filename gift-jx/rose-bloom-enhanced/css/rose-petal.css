@@ -1,0 +1,208 @@
+/**
+ * 花瓣样式和动画
+ * 重新设计以解决穿模和堆叠问题
+ */
+
+/* ==================== 花瓣容器 ==================== */
+.petal-cluster {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    transform-style: preserve-3d;
+    width: 0;
+    height: 0;
+    z-index: 200;
+}
+
+/* ==================== 花瓣基础样式 ==================== */
+.petal {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform-style: preserve-3d;
+    transform-origin: center bottom;
+    backface-visibility: visible;
+    border-radius: 50% 50% 45% 45% / 55% 55% 45% 45%;
+    will-change: transform, opacity;
+    opacity: 0;
+    box-shadow:
+        inset 0 -12px 30px rgba(0, 0, 0, 0.15),
+        inset 0 12px 20px rgba(255, 255, 255, 0.12),
+        0 3px 12px rgba(0, 0, 0, 0.18);
+    margin-left: calc(var(--petal-width) * -0.5);
+    margin-top: calc(var(--petal-height) * -1);
+}
+
+/* 花瓣顶部高光层 */
+.petal::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.2) 0%,
+        rgba(255, 255, 255, 0.08) 25%,
+        transparent 50%,
+        rgba(0, 0, 0, 0.05) 100%
+    );
+    pointer-events: none;
+}
+
+/* ==================== 第1层 - 最内层（花心） ==================== */
+@keyframes petalBloom1 {
+    0% {
+        opacity: 0;
+        transform: translateZ(60px) rotateX(85deg) rotateY(var(--base-angle)) translateY(0) scale(0.15);
+    }
+    20% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 1;
+        transform: translateZ(60px) rotateX(55deg) rotateY(calc(var(--base-angle) + var(--random-offset))) translateY(-8px) scale(1);
+    }
+}
+
+/* ==================== 第2层 ==================== */
+@keyframes petalBloom2 {
+    0% {
+        opacity: 0;
+        transform: translateZ(50px) rotateX(85deg) rotateY(var(--base-angle)) translateY(0) scale(0.15);
+    }
+    20% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 1;
+        transform: translateZ(50px) rotateX(50deg) rotateY(calc(var(--base-angle) + var(--random-offset))) translateY(-10px) scale(1);
+    }
+}
+
+/* ==================== 第3层 ==================== */
+@keyframes petalBloom3 {
+    0% {
+        opacity: 0;
+        transform: translateZ(40px) rotateX(85deg) rotateY(var(--base-angle)) translateY(0) scale(0.15);
+    }
+    20% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 1;
+        transform: translateZ(40px) rotateX(45deg) rotateY(calc(var(--base-angle) + var(--random-offset))) translateY(-12px) scale(1);
+    }
+}
+
+/* ==================== 第4层 ==================== */
+@keyframes petalBloom4 {
+    0% {
+        opacity: 0;
+        transform: translateZ(30px) rotateX(85deg) rotateY(var(--base-angle)) translateY(0) scale(0.15);
+    }
+    20% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 1;
+        transform: translateZ(30px) rotateX(40deg) rotateY(calc(var(--base-angle) + var(--random-offset))) translateY(-15px) scale(1);
+    }
+}
+
+/* ==================== 第5层 ==================== */
+@keyframes petalBloom5 {
+    0% {
+        opacity: 0;
+        transform: translateZ(20px) rotateX(85deg) rotateY(var(--base-angle)) translateY(0) scale(0.15);
+    }
+    20% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 1;
+        transform: translateZ(20px) rotateX(35deg) rotateY(calc(var(--base-angle) + var(--random-offset))) translateY(-18px) scale(1);
+    }
+}
+
+/* ==================== 第6层 ==================== */
+@keyframes petalBloom6 {
+    0% {
+        opacity: 0;
+        transform: translateZ(10px) rotateX(85deg) rotateY(var(--base-angle)) translateY(0) scale(0.15);
+    }
+    20% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 1;
+        transform: translateZ(10px) rotateX(30deg) rotateY(calc(var(--base-angle) + var(--random-offset))) translateY(-20px) scale(1);
+    }
+}
+
+/* ==================== 第7层 ==================== */
+@keyframes petalBloom7 {
+    0% {
+        opacity: 0;
+        transform: translateZ(0px) rotateX(85deg) rotateY(var(--base-angle)) translateY(0) scale(0.15);
+    }
+    20% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 1;
+        transform: translateZ(0px) rotateX(25deg) rotateY(calc(var(--base-angle) + var(--random-offset))) translateY(-22px) scale(1);
+    }
+}
+
+/* ==================== 第8层 - 最外层 ==================== */
+@keyframes petalBloom8 {
+    0% {
+        opacity: 0;
+        transform: translateZ(-10px) rotateX(85deg) rotateY(var(--base-angle)) translateY(0) scale(0.15);
+    }
+    20% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 1;
+        transform: translateZ(-10px) rotateX(20deg) rotateY(calc(var(--base-angle) + var(--random-offset))) translateY(-25px) scale(1);
+    }
+}
+
+/* ==================== 花瓣微光效果 ==================== */
+.petal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    border-radius: 50% 50% 0 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.15) 0%,
+        rgba(255, 255, 255, 0.05) 50%,
+        transparent 100%
+    );
+    pointer-events: none;
+}
+
+/* ==================== 花瓣边缘细节 ==================== */
+.petal {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* ==================== 花瓣重叠深度效果 ==================== */
+/* 内层花瓣有更高 z-index，外层较低 */
+.petal.layer-1 { z-index: 950; }
+.petal.layer-2 { z-index: 940; }
+.petal.layer-3 { z-index: 930; }
+.petal.layer-4 { z-index: 920; }
+.petal.layer-5 { z-index: 910; }
+.petal.layer-6 { z-index: 900; }
+.petal.layer-7 { z-index: 890; }
+.petal.layer-8 { z-index: 880; }

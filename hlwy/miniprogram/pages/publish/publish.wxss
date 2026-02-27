@@ -1,0 +1,341 @@
+/* publish.wxss */
+/* 文件路径：pages/publish/publish.wxss */
+/* 功能描述：发布页面样式，温暖邻里风格设计 */
+/* 创建日期：2026-01-28 */
+/* 版本：3.0.0 */
+
+/* ==================== 设计变量 ==================== */
+page {
+  --primary-color: #07c160;
+  --primary-light: #d9f7be;
+  --primary-gradient: linear-gradient(135deg, #07c160 0%, #52c41a 100%);
+  --text-primary: #1a1a1a;
+  --text-secondary: #666666;
+  --text-tertiary: #999999;
+  --bg-page: #f7f8f7;
+  --bg-card: #ffffff;
+  --shadow-sm: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8rpx 24rpx rgba(7, 193, 96, 0.08);
+  --shadow-lg: 0 12rpx 32rpx rgba(7, 193, 96, 0.12);
+  --radius-sm: 12rpx;
+  --radius-md: 16rpx;
+  --radius-lg: 24rpx;
+  --radius-xl: 32rpx;
+}
+
+.container {
+  padding: 24rpx;
+  background: linear-gradient(180deg, #f0fdf4 0%, #f7f8f7 100%);
+  min-height: 100vh;
+  padding-bottom: 160rpx;
+}
+
+/* ==================== 通用标题 ==================== */
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 20rpx;
+  padding-left: 8rpx;
+  border-left: 6rpx solid var(--primary-color);
+}
+
+/* ==================== 输入区域卡片 ==================== */
+.input-section {
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+  box-shadow: var(--shadow-sm);
+}
+
+.input {
+  width: 100%;
+  height: 88rpx;
+  padding: 0 24rpx;
+  border: 2rpx solid #f0f0f0;
+  border-radius: var(--radius-lg);
+  font-size: 30rpx;
+  color: var(--text-primary);
+  background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%);
+  transition: all 0.3s ease;
+}
+
+.input:focus {
+  background: #fff;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4rpx var(--primary-light);
+}
+
+.picker {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  padding: 0 24rpx;
+  border: 2rpx solid #f0f0f0;
+  border-radius: var(--radius-lg);
+  font-size: 30rpx;
+  color: var(--text-primary);
+  background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.picker::after {
+  content: '▼';
+  position: absolute;
+  right: 24rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20rpx;
+  color: var(--text-tertiary);
+}
+
+/* ==================== 图片上传区域（优化视觉） ==================== */
+.upload-section {
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+  box-shadow: var(--shadow-sm);
+}
+
+.upload-hint {
+  font-size: 24rpx;
+  color: var(--text-tertiary);
+  margin-bottom: 16rpx;
+}
+
+.image-list {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -8rpx;
+}
+
+.image-item {
+  position: relative;
+  width: 216rpx;
+  height: 216rpx;
+  margin: 8rpx;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%);
+  box-shadow: var(--shadow-sm);
+}
+
+.image-item image {
+  width: 100%;
+  height: 100%;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  width: 48rpx;
+  height: 48rpx;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8rpx);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.delete-btn:active {
+  transform: scale(0.9);
+}
+
+.upload-btn {
+  width: 216rpx;
+  height: 216rpx;
+  margin: 8rpx;
+  border: 3rpx dashed #ddd;
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%);
+  transition: all 0.3s ease;
+}
+
+.upload-btn:active {
+  border-color: var(--primary-color);
+  background: var(--primary-light);
+}
+
+.upload-btn-icon {
+  width: 64rpx;
+  height: 64rpx;
+  margin-bottom: 12rpx;
+  opacity: 0.5;
+}
+
+.upload-btn text {
+  font-size: 24rpx;
+  color: var(--text-tertiary);
+}
+
+/* ==================== 单选框组（优化视觉） ==================== */
+.radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.radio-item {
+  padding: 16rpx 28rpx;
+  background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%);
+  border: 2rpx solid transparent;
+  border-radius: var(--radius-xl);
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.radio-item:active {
+  transform: scale(0.95);
+}
+
+.radio-item.checked {
+  background: var(--primary-light);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+/* ==================== 价格设置（优化视觉） ==================== */
+.price-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.price-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 200rpx;
+}
+
+.price-input {
+  width: 100%;
+  height: 88rpx;
+  padding: 0 24rpx 0 60rpx;
+  border: 2rpx solid #f0f0f0;
+  border-radius: var(--radius-lg);
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%);
+  transition: all 0.3s ease;
+}
+
+.price-input::before {
+  content: '¥';
+  position: absolute;
+  left: 24rpx;
+  font-size: 32rpx;
+  color: var(--text-secondary);
+}
+
+.price-input:focus {
+  background: #fff;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4rpx var(--primary-light);
+}
+
+.free-checkbox {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 24rpx;
+  background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%);
+  border-radius: var(--radius-lg);
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.free-checkbox.checked {
+  background: var(--primary-light);
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+/* ==================== 描述输入（优化视觉） ==================== */
+.textarea-wrapper {
+  position: relative;
+}
+
+.textarea {
+  width: 100%;
+  height: 220rpx;
+  padding: 20rpx 24rpx;
+  border: 2rpx solid #f0f0f0;
+  border-radius: var(--radius-lg);
+  font-size: 28rpx;
+  color: var(--text-primary);
+  background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%);
+  resize: none;
+  transition: all 0.3s ease;
+  line-height: 1.6;
+}
+
+.textarea:focus {
+  background: #fff;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4rpx var(--primary-light);
+}
+
+.textarea-count {
+  position: absolute;
+  bottom: 12rpx;
+  right: 16rpx;
+  font-size: 22rpx;
+  color: var(--text-tertiary);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 4rpx 12rpx;
+  border-radius: var(--radius-sm);
+}
+
+/* ==================== 发布按钮（优化视觉） ==================== */
+.publish-btn-wrapper {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24rpx;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20rpx);
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.06);
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom, 0));
+  z-index: 100;
+}
+
+.publish-btn {
+  width: 100%;
+  height: 96rpx;
+  line-height: 96rpx;
+  background: var(--primary-gradient);
+  color: #fff;
+  font-size: 34rpx;
+  font-weight: 600;
+  border-radius: var(--radius-xl);
+  border: none;
+  box-shadow: 0 8rpx 24rpx rgba(7, 193, 96, 0.4);
+  transition: all 0.3s ease;
+  letter-spacing: 2rpx;
+}
+
+.publish-btn::after {
+  border: none;
+}
+
+.publish-btn:active {
+  transform: scale(0.97);
+  box-shadow: 0 4rpx 12rpx rgba(7, 193, 96, 0.4);
+}

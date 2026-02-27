@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git worktree:*)",
+      "Bash(npm install:*)",
+      "Bash(npm search:*)",
+      "Bash(npm view:*)",
+      "Bash(git init:*)",
+      "Bash(git restore:*)",
+      "Bash(tree:*)",
+      "Bash(find:*)",
+      "Bash(git push:*)",
+      "Bash(git remote add origin:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(ssh:*)",
+      "Bash(ls:*)",
+      "Bash(累计 Y\"\n   - 本次：当前登录会话的攻击次数\n   - 累计：该形象的累计攻击次数（从数据库读取）\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n\\)\")"
+    ]
+  }
+}

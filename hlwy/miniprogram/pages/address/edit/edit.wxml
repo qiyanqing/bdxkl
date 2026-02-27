@@ -1,0 +1,50 @@
+<!-- edit.wxml -->
+<view class="container">
+  <!-- 地址类型显示 -->
+  <view class="section">
+    <view class="section-title">地址类型</view>
+    <view class="address-type-display">
+      {{address.type === 'community' ? '小区地址' : '公司地址'}}
+    </view>
+  </view>
+  
+  <!-- 地址选择 -->
+  <view class="section">
+    <view class="section-title">选择地址</view>
+    <button 
+      class="location-btn" 
+      bindtap="onGetCurrentLocation"
+      type="primary"
+      size="mini"
+      plain="true"
+    >
+      <image src="/images/search.svg" mode="aspectFit" class="btn-icon" />
+      获取当前定位并选择地址
+    </button>
+    <view class="location-tip">
+      <text class="tip-text">* 系统将获取您的真实定位，请选择{{address.type === 'community' ? '小区类型' : '公司类型'}}的地址（如：XX{{address.type === 'community' ? '小区' : '大厦'}}、XX{{address.type === 'community' ? '花园' : '中心'}}等）</text>
+    </view>
+  </view>
+  
+
+  
+  <!-- 选择的地址信息 -->
+  <view class="section" wx:if="{{address.poiName}}">
+    <view class="section-title">已选择地址</view>
+    <view class="selected-address">
+      <view class="address-name">{{address.poiName}}</view>
+    </view>
+  </view>
+  
+  <!-- 设置默认地址 -->
+  <view class="section">
+    <view class="section-title">默认地址</view>
+    <switch 
+      checked="{{address.isDefault}}" 
+      bindchange="onToggleDefault"
+    />
+  </view>
+  
+  <!-- 保存按钮 -->
+  <view class="save-btn" bindtap="onSave">保存地址</view>
+</view>
