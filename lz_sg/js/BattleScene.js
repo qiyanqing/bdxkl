@@ -106,6 +106,9 @@ export class BattleScene {
     this.cardEffects = {};
     this.attackEffects = {};
 
+    // 预加载角色立绘
+    this.loadCharacterImages();
+
     // 创建战斗实例
     this.combat = new Combat(this.myHeroes, this.enemyHeroes);
 
@@ -116,10 +119,28 @@ export class BattleScene {
     // 初始化战斗
     this.combat.init();
 
-    // 开始战斗
-    setTimeout(() => {
-      this.startBattle();
-    }, 1000);
+    // 开始战斗（默认暂停，需要点击按钮开始）
+    // setTimeout(() => {
+    //   this.startBattle();
+    // }, 1000);
+  }
+
+  // 预加载角色立绘
+  loadCharacterImages() {
+    this.characterImages = {};
+
+    heroes.forEach(hero => {
+      const img = wx.createImage();
+      img.src = hero.image;
+      img.onload = () => {
+        this.characterImages[hero.id] = img;
+        console.log(`立绘加载成功: ${hero.name}`);
+      };
+      img.onerror = () => {
+        console.warn(`立绘加载失败: ${hero.name}, 使用占位图`);
+        this.characterImages[hero.id] = null;
+      };
+    });
   }
 
   async startBattle() {
@@ -544,14 +565,69 @@ export class BattleScene {
 
     // 角色名
     ctx.fillStyle = hero.currentHp <= 0 ? '#666' : '#fff';
-    ctx.font = 'bold 16px Arial';
+    ctx.font = 'bold 14px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText(hero.name, drawX + width / 2, drawY + 25);
+    ctx.fillText(hero.name, drawX + width / 2, drawY + 15);
+
+    // 绘制立绘（或占位图）
+    this.drawPortrait(ctx, hero, drawX, drawY + 25, width, height - 45);
 
     // 血条和蓝条放在卡片最下方
     const barY = drawY + height - 28; // 距离底部28px
     this.drawHpBar(ctx, drawX + 6, barY, width - 12, 12, hero.currentHp, hero.maxHp);
     this.drawMpBar(ctx, drawX + 6, barY + 14, width - 12, 8, hero.currentMp, hero.maxMp);
+  }
+
+  // 绘制立绘（或占位图）
+  drawPortrait(ctx, hero, x, y, width, height) {
+    const portraitImg = this.characterImages ? this.characterImages[hero.id] : null;
+
+    if (portraitImg && portraitImg.complete && portraitImg.width > 0) {
+      // 有立绘图片：绘制图片（裁剪到上半部分）
+      const imgWidth = width;
+      const imgHeight = height;
+      const imgX = x;
+      const imgY = y;
+
+      ctx.save();
+      // 裁剪区域（圆角矩形）
+      this.drawRoundRect(ctx, imgX, imgY, imgWidth, imgHeight, 8);
+      ctx.clip();
+
+      // 绘制图片（保持比例，覆盖整个区域）
+      ctx.drawImage(portraitImg, imgX, imgY, imgWidth, imgHeight);
+
+      ctx.restore();
+    } else {
+      // 无立绘：显示占位图（色块+首字）
+      this.drawPlaceholderPortrait(ctx, hero, x, y, width, height);
+    }
+  }
+
+  // 绘制占位图（临时方案）
+  drawPlaceholderPortrait(ctx, hero, x, y, width, height) {
+    // 获取角色首字
+    const firstChar = hero.name.charAt(0);
+
+    // 根据稀有度选择颜色
+    let bgColor;
+    switch (hero.rarity) {
+      case 'gold': bgColor = '#FFD700'; break;
+      case 'purple': bgColor = '#9B59B6'; break;
+      case 'blue': bgColor = '#3498DB'; break;
+      default: bgColor = '#95a5a6';
+    }
+
+    // 绘制色块背景
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(x + 4, y, width - 8, height - 45);
+
+    // 绘制首字
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 36px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(firstChar, x + width / 2, y + (height - 45) / 2);
   }
 
   // 缓动函数（平滑动画）
