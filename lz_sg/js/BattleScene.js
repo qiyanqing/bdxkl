@@ -25,6 +25,26 @@ export class BattleScene {
     // 卡牌受击效果 { id: { flash: 0, shakeX: 0, shakeY: 0 } }
     this.cardEffects = {};
 
+    // 战斗控制
+    this.isPaused = false;           // 暂停状态
+    this.speedMultiplier = 1;        // 倍速 1/2/3
+    this.isBattling = false;         // 是否正在进行战斗循环
+
+    // 按钮区域
+    this.pauseBtn = {
+      x: this.width - 70,
+      y: 10,
+      width: 60,
+      height: 40
+    };
+
+    this.speedBtn = {
+      x: this.width - 140,
+      y: 10,
+      width: 60,
+      height: 40
+    };
+
     // 重新开始按钮
     this.restartBtn = {
       x: this.width / 2 - 80,
@@ -63,6 +83,8 @@ export class BattleScene {
     this.currentAction = '战斗开始！';
     this.battleResult = null;
     this.battleResultText = '';
+    this.isPaused = false;
+    this.isBattling = false;
 
     // 清空特效和卡牌效果
     this.effectManager.clear();
@@ -85,8 +107,16 @@ export class BattleScene {
   }
 
   async startBattle() {
+    // 检查是否暂停或战斗结束
     if (this.battleResult) return;
 
+    // 如果暂停，等待恢复
+    if (this.isPaused) {
+      this.isBattling = false;
+      return;
+    }
+
+    this.isBattling = true;
     const result = await this.combat.executeTurn();
 
     if (result) {
@@ -94,15 +124,25 @@ export class BattleScene {
       return;
     }
 
+    // 根据倍速调整延迟
+    const delay = 1500 / this.speedMultiplier;
     setTimeout(() => {
       this.startBattle();
-    }, 1500);
+    }, delay);
+  }
+
+  // 恢复战斗（从暂停状态）
+  resumeBattle() {
+    if (!this.isBattling && !this.battleResult) {
+      this.startBattle();
+    }
   }
 
   handleBattleEnd(result) {
     this.battleResult = result;
     this.battleResultText = result === 'win' ? '战斗胜利！' : '战斗失败！';
     this.currentAction = this.battleResultText;
+    this.isBattling = false;
     console.log('战斗结束:', this.battleResultText);
   }
 
@@ -110,7 +150,7 @@ export class BattleScene {
     this.currentAction = `${attacker.name} 攻击 ${target.name}，造成 ${damage} 点伤害`;
 
     // 计算卡牌中心点
-    const fromX = attacker.x + 100; // 卡牌宽度的一半
+    const fromX = attacker.x + 100;
     const fromY = attacker.y + 75;
     const toX = target.x + 100;
     const toY = target.y + 75;
@@ -119,35 +159,30 @@ export class BattleScene {
     const isMelee = ['warrior', 'tank', 'assassin'].includes(attacker.job);
 
     if (isMelee) {
-      // 近战：刀光特效
       this.effectManager.createSlashEffect(fromX, fromY, toX, toY, '#FFD700');
     } else {
-      // 远程：光束特效
       const color = attacker.job === 'mage' ? '#3498DB' : '#FFFFFF';
       this.effectManager.createBeamEffect(fromX, fromY, toX, toY, color);
     }
 
-    // 触发目标受击效果
     this.triggerCardEffect(target.id);
 
-    // 伤害飘字
     setTimeout(() => {
       this.effectManager.createDamageNumber(toX, toY, damage, false);
-    }, 300);
+    }, 300 / this.speedMultiplier);
 
-    await this.delay(500);
+    // 根据倍速调整延迟
+    await this.delay(500 / this.speedMultiplier);
   }
 
   async onSkill(hero, target, damage) {
     this.currentAction = `${hero.name} 释放 ${hero.skill.name}！造成 ${damage} 点伤害`;
 
-    // 计算卡牌中心点
     const fromX = hero.x + 100;
     const fromY = hero.y + 75;
     const toX = target.x + 100;
     const toY = target.y + 75;
 
-    // 技能特效（金色，更华丽）
     const isMelee = ['warrior', 'tank', 'assassin'].includes(hero.job);
 
     if (isMelee) {
@@ -156,22 +191,20 @@ export class BattleScene {
       this.effectManager.createBeamEffect(fromX, fromY, toX, toY, '#FFD700');
     }
 
-    // 触发目标受击效果
     this.triggerCardEffect(target.id);
 
-    // 伤害飘字（技能伤害）
     setTimeout(() => {
       this.effectManager.createDamageNumber(toX, toY, damage, true);
-    }, 300);
+    }, 300 / this.speedMultiplier);
 
-    await this.delay(1000);
+    // 根据倍速调整延迟
+    await this.delay(1000 / this.speedMultiplier);
   }
 
-  // 触发卡牌受击效果
   triggerCardEffect(heroId) {
     this.cardEffects[heroId] = {
-      flash: 5,    // 闪烁帧数
-      shakeX: 8,   // 震动幅度
+      flash: 5,
+      shakeX: 8,
       shakeY: 0
     };
   }
@@ -181,12 +214,45 @@ export class BattleScene {
   }
 
   onTouch(x, y) {
+    // 检查是否点击暂停按钮
+    if (x >= this.pauseBtn.x && x <= this.pauseBtn.x + this.pauseBtn.width &&
+        y >= this.pauseBtn.y && y <= this.pauseBtn.y + this.pauseBtn.height) {
+      this.togglePause();
+      return;
+    }
+
+    // 检查是否点击倍速按钮
+    if (x >= this.speedBtn.x && x <= this.speedBtn.x + this.speedBtn.width &&
+        y >= this.speedBtn.y && y <= this.speedBtn.y + this.speedBtn.height) {
+      this.toggleSpeed();
+      return;
+    }
+
     // 检查是否点击重新开始按钮
     if (this.battleResult &&
         x >= this.restartBtn.x && x <= this.restartBtn.x + this.restartBtn.width &&
         y >= this.restartBtn.y && y <= this.restartBtn.y + this.restartBtn.height) {
       this.initBattle();
     }
+  }
+
+  togglePause() {
+    this.isPaused = !this.isPaused;
+    console.log('战斗暂停:', this.isPaused);
+
+    if (!this.isPaused) {
+      // 恢复战斗
+      this.currentAction = '战斗继续！';
+      this.resumeBattle();
+    } else {
+      this.currentAction = '战斗暂停';
+    }
+  }
+
+  toggleSpeed() {
+    this.speedMultiplier = this.speedMultiplier === 1 ? 2 : (this.speedMultiplier === 2 ? 3 : 1);
+    console.log('战斗倍速:', this.speedMultiplier + 'x');
+    this.currentAction = `战斗速度: ${this.speedMultiplier}x`;
   }
 
   update() {
@@ -202,7 +268,7 @@ export class BattleScene {
       }
 
       if (effect.shakeX > 0) {
-        effect.shakeX = -effect.shakeX; // 左右震动
+        effect.shakeX = -effect.shakeX;
         if (effect.flash === 0) {
           effect.shakeX = 0;
         }
@@ -219,21 +285,63 @@ export class BattleScene {
   }
 
   render(ctx) {
-    // 清空画布
     ctx.fillStyle = '#1a1a2e';
     ctx.fillRect(0, 0, this.width, this.height);
 
-    // 绘制敌方区域
     this.drawEnemyArea(ctx);
-
-    // 绘制我方区域
     this.drawMyArea(ctx);
-
-    // 绘制特效（在卡牌之上）
     this.effectManager.render();
 
-    // 绘制战斗信息
+    // 绘制控制按钮
+    this.drawControlButtons(ctx);
+
     this.drawBattleInfo(ctx);
+  }
+
+  drawControlButtons(ctx) {
+    // 倍速按钮
+    this.drawButton(ctx, this.speedBtn, `${this.speedMultiplier}x`, '#9B59B6');
+
+    // 暂停/继续按钮
+    const pauseText = this.isPaused ? '▶' : '⏸';
+    const pauseColor = this.isPaused ? '#2ECC71' : '#E74C3C';
+    this.drawButton(ctx, this.pauseBtn, pauseText, pauseColor);
+  }
+
+  drawButton(ctx, btn, text, color) {
+    ctx.save();
+
+    // 按钮背景
+    const gradient = ctx.createLinearGradient(btn.x, btn.y, btn.x, btn.y + btn.height);
+    gradient.addColorStop(0, color);
+    gradient.addColorStop(1, this.darkenColor(color, 20));
+
+    ctx.fillStyle = gradient;
+    this.drawRoundRect(ctx, btn.x, btn.y, btn.width, btn.height, 8);
+    ctx.fill();
+
+    // 边框
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // 文字
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 18px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, btn.x + btn.width / 2, btn.y + btn.height / 2);
+
+    ctx.restore();
+  }
+
+  darkenColor(hex, percent) {
+    const num = parseInt(hex.replace('#', ''), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = Math.max((num >> 16) - amt, 0);
+    const G = Math.max((num >> 8 & 0x00FF) - amt, 0);
+    const B = Math.max((num & 0x0000FF) - amt, 0);
+    return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
   }
 
   drawEnemyArea(ctx) {
@@ -269,19 +377,14 @@ export class BattleScene {
   }
 
   drawCard(ctx, hero, x, y, width, height) {
-    // 获取卡牌受击效果
     const effect = this.cardEffects[hero.id] || { flash: 0, shakeX: 0, shakeY: 0 };
-
-    // 应用震动偏移
     const drawX = x + effect.shakeX;
     const drawY = y + effect.shakeY;
 
-    // 卡牌背景
     let bgColor = hero.currentHp <= 0 ? '#333' : '#16213e';
 
-    // 受击闪烁效果
     if (effect.flash > 0 && effect.flash % 2 === 0) {
-      bgColor = '#FFFFFF'; // 白屏闪烁
+      bgColor = '#FFFFFF';
     }
 
     ctx.fillStyle = bgColor;
@@ -291,35 +394,27 @@ export class BattleScene {
     ctx.fill();
     ctx.stroke();
 
-    // 角色名
     ctx.fillStyle = hero.currentHp <= 0 ? '#666' : '#fff';
     ctx.font = 'bold 20px Arial';
     ctx.textAlign = 'center';
     ctx.fillText(hero.name, drawX + width / 2, drawY + 30);
 
-    // 职业标签
     ctx.fillStyle = '#95a5a6';
     ctx.font = '14px Arial';
     ctx.fillText(hero.job, drawX + width / 2, drawY + 50);
 
-    // 血条
     this.drawBar(ctx, drawX + 10, drawY + 70, width - 20, 15, hero.currentHp, hero.maxHp, '#e74c3c');
-
-    // 蓝条
     this.drawBar(ctx, drawX + 10, drawY + 95, width - 20, 15, hero.currentMp, hero.maxMp, '#3498db');
   }
 
   drawBar(ctx, x, y, width, height, current, max, color) {
-    // 背景
     ctx.fillStyle = 'rgba(0,0,0,0.5)';
     ctx.fillRect(x, y, width, height);
 
-    // 进度
     const percent = Math.max(0, current / max);
     ctx.fillStyle = color;
     ctx.fillRect(x, y, width * percent, height);
 
-    // 文字
     ctx.fillStyle = '#fff';
     ctx.font = '12px Arial';
     ctx.textAlign = 'center';
@@ -330,24 +425,19 @@ export class BattleScene {
     const centerX = this.width / 2;
     const centerY = this.height / 2;
 
-    // 回合数
     ctx.fillStyle = '#f39c12';
     ctx.font = 'bold 24px Arial';
     ctx.textAlign = 'center';
     ctx.fillText(`回合: ${this.turn}`, centerX, centerY - 80);
 
-    // 当前行动
     ctx.fillStyle = '#ecf0f1';
     ctx.font = '20px Arial';
     ctx.fillText(this.currentAction, centerX, centerY - 40);
 
-    // 战斗结果
     if (this.battleResult) {
       ctx.fillStyle = this.battleResult === 'win' ? '#2ecc71' : '#e74c3c';
       ctx.font = 'bold 40px Arial';
       ctx.fillText(this.battleResultText, centerX, centerY + 20);
-
-      // 重新开始按钮
       this.drawRestartButton(ctx);
     }
   }
