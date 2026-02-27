@@ -81,10 +81,10 @@ export class BattleScene {
     }));
 
     this.turn = 0;
-    this.currentAction = '战斗开始！';
+    this.currentAction = '点击暂停按钮开始战斗';
     this.battleResult = null;
     this.battleResultText = '';
-    this.isPaused = false;
+    this.isPaused = true;   // 默认暂停
     this.isBattling = false;
 
     // 清空特效和卡牌效果
@@ -150,11 +150,11 @@ export class BattleScene {
   async onAttack(attacker, target, damage) {
     this.currentAction = `${attacker.name} 攻击 ${target.name}，造成 ${damage} 点伤害`;
 
-    // 计算卡牌中心点
-    const fromX = attacker.x + 100;
-    const fromY = attacker.y + 75;
-    const toX = target.x + 100;
-    const toY = target.y + 75;
+    // 计算卡牌中心点（卡牌宽度100，高度120）
+    const fromX = attacker.x + 50;
+    const fromY = attacker.y + 60;
+    const toX = target.x + 50;
+    const toY = target.y + 60;
 
     // 根据职业选择特效类型
     const isMelee = ['warrior', 'tank', 'assassin'].includes(attacker.job);
@@ -179,10 +179,11 @@ export class BattleScene {
   async onSkill(hero, target, damage) {
     this.currentAction = `${hero.name} 释放 ${hero.skill.name}！造成 ${damage} 点伤害`;
 
-    const fromX = hero.x + 100;
-    const fromY = hero.y + 75;
-    const toX = target.x + 100;
-    const toY = target.y + 75;
+    // 计算卡牌中心点（卡牌宽度100，高度120）
+    const fromX = hero.x + 50;
+    const fromY = hero.y + 60;
+    const toX = target.x + 50;
+    const toY = target.y + 60;
 
     const isMelee = ['warrior', 'tank', 'assassin'].includes(hero.job);
 
@@ -346,15 +347,30 @@ export class BattleScene {
   }
 
   drawEnemyArea(ctx) {
-    const startX = 20;
-    const startY = 20;
-    const cardWidth = this.width / 3 - 30;
-    const cardHeight = 150;
-    const gap = 10;
+    const cardWidth = 100;
+    const cardHeight = 120;
+    const gapX = 8;
+    const gapY = 8;
+
+    // 第一行（3张）
+    const row1Y = 20;
+    const row1StartX = (this.width - (cardWidth * 3 + gapX * 2)) / 2;
+
+    // 第二行（3张）
+    const row2Y = row1Y + cardHeight + gapY;
+    const row2StartX = row1StartX;
 
     this.enemyHeroes.forEach((hero, index) => {
-      const x = startX + index * (cardWidth + gap);
-      const y = startY;
+      let x, y;
+      if (index < 3) {
+        // 第一行
+        x = row1StartX + index * (cardWidth + gapX);
+        y = row1Y;
+      } else {
+        // 第二行
+        x = row2StartX + (index - 3) * (cardWidth + gapX);
+        y = row2Y;
+      }
       hero.x = x;
       hero.y = y;
       this.drawCard(ctx, hero, x, y, cardWidth, cardHeight);
@@ -362,15 +378,30 @@ export class BattleScene {
   }
 
   drawMyArea(ctx) {
-    const startX = 20;
-    const cardWidth = this.width / 3 - 30;
-    const cardHeight = 150;
-    const gap = 10;
-    const startY = this.height - cardHeight - 20;
+    const cardWidth = 100;
+    const cardHeight = 120;
+    const gapX = 8;
+    const gapY = 8;
+
+    // 第一行（3张）
+    const row1Y = this.height - cardHeight * 2 - gapY - 20;
+    const row1StartX = (this.width - (cardWidth * 3 + gapX * 2)) / 2;
+
+    // 第二行（3张）
+    const row2Y = row1Y + cardHeight + gapY;
+    const row2StartX = row1StartX;
 
     this.myHeroes.forEach((hero, index) => {
-      const x = startX + index * (cardWidth + gap);
-      const y = startY;
+      let x, y;
+      if (index < 3) {
+        // 第一行
+        x = row1StartX + index * (cardWidth + gapX);
+        y = row1Y;
+      } else {
+        // 第二行
+        x = row2StartX + (index - 3) * (cardWidth + gapX);
+        y = row2Y;
+      }
       hero.x = x;
       hero.y = y;
       this.drawCard(ctx, hero, x, y, cardWidth, cardHeight);

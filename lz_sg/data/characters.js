@@ -47,5 +47,53 @@ export const heroes = [
       costMp: 100,
       damage: 3.0
     }
+  },
+  {
+    id: 'zhao_yun',
+    name: '赵云',
+    job: 'warrior',      // 战士
+    maxHp: 1300,
+    atk: 160,
+    def: 60,
+    speed: 95,
+    maxMp: 100,
+    mpRecovery: 10,
+    skill: {
+      name: '龙胆亮银枪',
+      costMp: 100,
+      damage: 2.6
+    }
+  },
+  {
+    id: 'lu_bu',
+    name: '吕布',
+    job: 'assassin',     // 刺客
+    maxHp: 1000,
+    atk: 220,
+    def: 40,
+    speed: 100,
+    maxMp: 100,
+    mpRecovery: 10,
+    skill: {
+      name: '无双斩',
+      costMp: 100,
+      damage: 3.5
+    }
+  },
+  {
+    id: 'diaochan',
+    name: '貂蝉',
+    job: 'support',      // 辅助
+    maxHp: 900,
+    atk: 80,
+    def: 40,
+    speed: 85,
+    maxMp: 100,
+    mpRecovery: 10,
+    skill: {
+      name: '闭月羞花',
+      costMp: 100,
+      damage: 1.8
+    }
   }
 ];
