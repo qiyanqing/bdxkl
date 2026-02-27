@@ -25,6 +25,9 @@ export class BattleScene {
     // 卡牌受击效果 { id: { flash: 0, shakeX: 0, shakeY: 0 } }
     this.cardEffects = {};
 
+    // 攻击者位移效果 { id: { offsetX: 0, offsetY: 0, returning: false } }
+    this.attackEffects = {};
+
     // 战斗控制
     this.isPaused = false;           // 暂停状态
     this.speedMultiplier = 1;        // 倍速 1/2/3
@@ -101,6 +104,7 @@ export class BattleScene {
     // 清空特效和卡牌效果
     this.effectManager.clear();
     this.cardEffects = {};
+    this.attackEffects = {};
 
     // 创建战斗实例
     this.combat = new Combat(this.myHeroes, this.enemyHeroes);
@@ -167,6 +171,9 @@ export class BattleScene {
     const toX = target.x + 50;
     const toY = target.y + 60;
 
+    // 攻击者前进动画
+    this.triggerAttackEffect(attacker.id, fromX, fromY, toX, toY);
+
     // 根据职业选择特效类型
     const isMelee = ['warrior', 'tank', 'assassin'].includes(attacker.job);
 
@@ -177,7 +184,8 @@ export class BattleScene {
       this.effectManager.createBeamEffect(fromX, fromY, toX, toY, color);
     }
 
-    this.triggerCardEffect(target.id);
+    // 增强受击效果
+    this.triggerCardEffect(target.id, true);
 
     setTimeout(() => {
       this.effectManager.createDamageNumber(toX, toY, damage, false);
@@ -196,6 +204,9 @@ export class BattleScene {
     const toX = target.x + 50;
     const toY = target.y + 60;
 
+    // 攻击者前进动画
+    this.triggerAttackEffect(hero.id, fromX, fromY, toX, toY);
+
     const isMelee = ['warrior', 'tank', 'assassin'].includes(hero.job);
 
     if (isMelee) {
@@ -204,7 +215,8 @@ export class BattleScene {
       this.effectManager.createBeamEffect(fromX, fromY, toX, toY, '#FFD700');
     }
 
-    this.triggerCardEffect(target.id);
+    // 增强受击效果
+    this.triggerCardEffect(target.id, true);
 
     setTimeout(() => {
       this.effectManager.createDamageNumber(toX, toY, damage, true);
@@ -214,12 +226,45 @@ export class BattleScene {
     await this.delay(1000 / this.speedMultiplier);
   }
 
-  triggerCardEffect(heroId) {
-    this.cardEffects[heroId] = {
-      flash: 5,
-      shakeX: 8,
-      shakeY: 0
+  // 触发攻击者前进动画
+  triggerAttackEffect(heroId, fromX, fromY, toX, toY) {
+    // 计算攻击方向
+    const dx = toX - fromX;
+    const dy = toY - fromY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    // 归一化方向
+    const dirX = dx / distance;
+    const dirY = dy / distance;
+
+    // 前进距离（卡牌宽度的一半）
+    const advanceDistance = 40;
+
+    this.attackEffects[heroId] = {
+      offsetX: dirX * advanceDistance,
+      offsetY: dirY * advanceDistance,
+      frame: 0,
+      maxFrames: 10, // 前进10帧，后退10帧
+      phase: 'advance' // advance / return
     };
+  }
+
+  // 触发卡牌受击效果（增强版）
+  triggerCardEffect(heroId, enhanced = false) {
+    if (enhanced) {
+      // 增强版：更大的震动幅度，更长的持续时间
+      this.cardEffects[heroId] = {
+        flash: 12,    // 闪烁帧数（增加到12）
+        shakeX: 15,   // 震动幅度（增加到15）
+        shakeY: 8     // 垂直震动
+      };
+    } else {
+      this.cardEffects[heroId] = {
+        flash: 5,
+        shakeX: 8,
+        shakeY: 0
+      };
+    }
   }
 
   delay(ms) {
@@ -272,6 +317,25 @@ export class BattleScene {
     // 更新特效
     this.effectManager.update();
 
+    // 更新攻击者位移效果
+    Object.keys(this.attackEffects).forEach(id => {
+      const effect = this.attackEffects[id];
+      effect.frame++;
+
+      if (effect.phase === 'advance') {
+        // 前进阶段
+        if (effect.frame >= effect.maxFrames) {
+          effect.phase = 'return';
+          effect.frame = 0;
+        }
+      } else {
+        // 后退阶段
+        if (effect.frame >= effect.maxFrames) {
+          delete this.attackEffects[id];
+        }
+      }
+    });
+
     // 更新卡牌受击效果
     Object.keys(this.cardEffects).forEach(id => {
       const effect = this.cardEffects[id];
@@ -280,10 +344,18 @@ export class BattleScene {
         effect.flash--;
       }
 
-      if (effect.shakeX > 0) {
-        effect.shakeX = -effect.shakeX;
+      if (effect.shakeX !== 0) {
+        effect.shakeX = -effect.shakeX; // 左右震动
         if (effect.flash === 0) {
           effect.shakeX = 0;
+          effect.shakeY = 0;
+        }
+      }
+
+      if (effect.shakeY !== 0) {
+        effect.shakeY = -effect.shakeY; // 上下震动
+        if (effect.flash === 0) {
+          effect.shakeY = 0;
         }
       }
     });
@@ -291,7 +363,7 @@ export class BattleScene {
     // 清理已完成的卡牌效果
     Object.keys(this.cardEffects).forEach(id => {
       const effect = this.cardEffects[id];
-      if (effect.flash === 0 && effect.shakeX === 0) {
+      if (effect.flash === 0 && effect.shakeX === 0 && effect.shakeY === 0) {
         delete this.cardEffects[id];
       }
     });
@@ -431,13 +503,35 @@ export class BattleScene {
   }
 
   drawCard(ctx, hero, x, y, width, height) {
-    const effect = this.cardEffects[hero.id] || { flash: 0, shakeX: 0, shakeY: 0 };
-    const drawX = x + effect.shakeX;
-    const drawY = y + effect.shakeY;
+    // 获取受击效果
+    const hitEffect = this.cardEffects[hero.id] || { flash: 0, shakeX: 0, shakeY: 0 };
+
+    // 获取攻击位移效果
+    const attackEffect = this.attackEffects[hero.id];
+    let attackOffsetX = 0;
+    let attackOffsetY = 0;
+
+    if (attackEffect) {
+      const progress = attackEffect.frame / attackEffect.maxFrames;
+      if (attackEffect.phase === 'advance') {
+        // 前进：平滑移动
+        const easedProgress = this.easeInOutQuad(progress);
+        attackOffsetX = attackEffect.offsetX * easedProgress;
+        attackOffsetY = attackEffect.offsetY * easedProgress;
+      } else {
+        // 后退：平滑回归
+        const easedProgress = this.easeInOutQuad(progress);
+        attackOffsetX = attackEffect.offsetX * (1 - easedProgress);
+        attackOffsetY = attackEffect.offsetY * (1 - easedProgress);
+      }
+    }
+
+    const drawX = x + hitEffect.shakeX + attackOffsetX;
+    const drawY = y + hitEffect.shakeY + attackOffsetY;
 
     let bgColor = hero.currentHp <= 0 ? '#333' : '#16213e';
 
-    if (effect.flash > 0 && effect.flash % 2 === 0) {
+    if (hitEffect.flash > 0 && hitEffect.flash % 2 === 0) {
       bgColor = '#FFFFFF';
     }
 
@@ -458,6 +552,11 @@ export class BattleScene {
     const barY = drawY + height - 28; // 距离底部28px
     this.drawHpBar(ctx, drawX + 6, barY, width - 12, 12, hero.currentHp, hero.maxHp);
     this.drawMpBar(ctx, drawX + 6, barY + 14, width - 12, 8, hero.currentMp, hero.maxMp);
+  }
+
+  // 缓动函数（平滑动画）
+  easeInOutQuad(t) {
+    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
   }
 
   drawHpBar(ctx, x, y, width, height, current, max) {
