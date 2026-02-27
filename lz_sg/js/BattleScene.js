@@ -30,17 +30,18 @@ export class BattleScene {
     this.speedMultiplier = 1;        // 倍速 1/2/3
     this.isBattling = false;         // 是否正在进行战斗循环
 
-    // 按钮区域
+    // 按钮区域（位于我方阵容上方）
+    const buttonY = this.height - 180; // 我方卡牌上方
     this.pauseBtn = {
       x: this.width - 70,
-      y: 10,
+      y: buttonY,
       width: 60,
       height: 40
     };
 
     this.speedBtn = {
       x: this.width - 140,
-      y: 10,
+      y: buttonY,
       width: 60,
       height: 40
     };
