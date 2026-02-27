@@ -454,11 +454,10 @@ export class BattleScene {
     ctx.textAlign = 'center';
     ctx.fillText(hero.name, drawX + width / 2, drawY + 25);
 
-    // 血条（带数字）
-    this.drawHpBar(ctx, drawX + 8, drawY + 38, width - 16, 14, hero.currentHp, hero.maxHp);
-
-    // 蓝条（无数字）
-    this.drawMpBar(ctx, drawX + 8, drawY + 58, width - 16, 10, hero.currentMp, hero.maxMp);
+    // 血条和蓝条放在卡片最下方
+    const barY = drawY + height - 28; // 距离底部28px
+    this.drawHpBar(ctx, drawX + 6, barY, width - 12, 12, hero.currentHp, hero.maxHp);
+    this.drawMpBar(ctx, drawX + 6, barY + 14, width - 12, 8, hero.currentMp, hero.maxMp);
   }
 
   drawHpBar(ctx, x, y, width, height, current, max) {
