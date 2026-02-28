@@ -41,18 +41,24 @@ export class MapScene {
     // TODO: 加载关卡配置
   }
 
-  render() {
+  update() {
+    // 动画更新逻辑
+    // TODO: 后续添加
+  }
+
+  render(ctx = this.ctx) {
     if (!this.isActive) return;
 
     // 清空画布
-    this.ctx.fillStyle = '#1a1a2e';
-    this.ctx.fillRect(0, 0, this.width, this.height);
+    ctx.fillStyle = '#1a1a2e';
+    ctx.fillRect(0, 0, this.width, this.height);
   }
 
   gameLoop() {
     if (!this.isActive) return;
 
-    this.render();
+    this.update();
+    this.render(this.ctx);
     requestAnimationFrame(() => this.gameLoop());
   }
 
