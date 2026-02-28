@@ -1,8 +1,6 @@
 // game.js - 游戏主入口
-import { Game } from './js/Game.js';
+// 开发模式：显示场景选择界面
+import { SceneSelector } from './js/SceneSelector.js';
 
-// 创建游戏实例
-const game = new Game();
-
-// 初始化游戏
-game.init();
+const selector = new SceneSelector();
+selector.init();
