@@ -1,6 +1,7 @@
 // js/RecruitScene.js - 招募场景
 import { gachaManager } from './data/GachaManager.js';
 import { RarityColors, Rarity } from './data/gachaPool.js';
+import { GachaEffectManager } from './effects/GachaEffectManager.js';
 
 export class RecruitScene {
   constructor(canvas, width, height) {
@@ -12,6 +13,9 @@ export class RecruitScene {
 
     // 返回回调
     this.backCallback = null;
+
+    // 抽卡特效管理器
+    this.effectManager = new GachaEffectManager(this.ctx, width, height);
 
     // 获取安全区域
     this.safeArea = this.getSafeArea();
@@ -197,6 +201,9 @@ export class RecruitScene {
     this.state.animationProgress = 0;
     this.state.showResults = false;
 
+    // 启动抽卡特效
+    this.effectManager.startSummon();
+
     // 立即执行抽卡
     const result = gachaManager.pullOne();
     this.state.results = [result];
@@ -261,6 +268,9 @@ export class RecruitScene {
     this.state.revealIndex = 0;
     this.state.currentBatch = 0;
     this.state.allCardsRevealed = false;
+
+    // 重置特效管理器
+    this.effectManager.reset();
   }
 
   /**
@@ -277,11 +287,21 @@ export class RecruitScene {
     const deltaTime = Date.now() - this.lastTime;
     this.lastTime = Date.now();
 
+    // 更新抽卡特效
+    this.effectManager.update();
+
     // 更新抽卡动画
     if (this.state.isPulling && !this.state.showResults) {
       this.state.animationProgress += 0.02;
       if (this.state.animationProgress >= 1) {
         this.state.animationProgress = 1;
+
+        // 启动展示特效（单抽）
+        if (this.state.pullType === 'single') {
+          const result = this.state.results[0];
+          this.effectManager.startReveal(result.rarity);
+        }
+
         // 抽卡动画完成，开始展示结果
         setTimeout(() => {
           this.state.showResults = true;
@@ -299,6 +319,15 @@ export class RecruitScene {
         // 展示当前批次的所有卡片
         if (this.state.currentBatch < this.state.revealBatches.length) {
           const batch = this.state.revealBatches[this.state.currentBatch];
+
+          // 为当前批次的每张卡片启动展示特效
+          for (let i = batch.start; i < batch.end; i++) {
+            const result = this.state.results[i];
+            setTimeout(() => {
+              this.effectManager.startReveal(result.rarity);
+            }, (i - batch.start) * 100);
+          }
+
           this.state.revealIndex = batch.end;
           this.state.currentBatch++;
 
@@ -336,8 +365,8 @@ export class RecruitScene {
         // 显示结果
         this.drawResults();
       } else {
-        // 绘制抽卡动画
-        this.drawPullAnimation();
+        // 绘制抽卡特效
+        this.effectManager.draw();
       }
     }
 
