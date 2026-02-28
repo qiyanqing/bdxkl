@@ -559,7 +559,7 @@ export class RecruitScene {
 
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
     this.ctx.beginPath();
-    this.ctx.roundRect(btn.x, btn.y, btn.width, btn.height, 5);
+    this.drawRoundRect(this.ctx, btn.x, btn.y, btn.width, btn.height, 5);
     this.ctx.fill();
 
     this.ctx.strokeStyle = '#f1c40f';
