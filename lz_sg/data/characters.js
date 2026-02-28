@@ -11,7 +11,7 @@ export const heroes = [
     speed: 80,           // 速度
     maxMp: 100,          // 蓝量上限
     mpRecovery: 10,      // 普攻回蓝
-    image: 'assets/images/characters/guan_yu.png',  // 立绘路径
+    image: 'assets/images/characters/guan_yu.jpg',  // 立绘路径
     skill: {
       name: '青龙偃月斩',
       costMp: 100,
@@ -29,7 +29,7 @@ export const heroes = [
     speed: 50,
     maxMp: 100,
     mpRecovery: 10,
-    image: 'assets/images/characters/zhang_fei.png',
+    image: 'assets/images/characters/zhang_fei.jpg',
     skill: {
       name: '狮吼功',
       costMp: 100,
@@ -47,7 +47,7 @@ export const heroes = [
     speed: 90,
     maxMp: 100,
     mpRecovery: 10,
-    image: 'assets/images/characters/huang_zhong.png',
+    image: 'assets/images/characters/huang_zhong.jpg',
     skill: {
       name: '百步穿杨',
       costMp: 100,
@@ -65,7 +65,7 @@ export const heroes = [
     speed: 95,
     maxMp: 100,
     mpRecovery: 10,
-    image: 'assets/images/characters/zhao_yun.png',
+    image: 'assets/images/characters/zhao_yun.jpg',
     skill: {
       name: '龙胆亮银枪',
       costMp: 100,
@@ -73,7 +73,7 @@ export const heroes = [
     }
   },
   {
-    id: 'lu_bu',
+    id: 'lv_bu',
     name: '吕布',
     job: 'assassin',     // 刺客
     rarity: 'gold',      // 稀有度
@@ -83,7 +83,7 @@ export const heroes = [
     speed: 100,
     maxMp: 100,
     mpRecovery: 10,
-    image: 'assets/images/characters/lu_bu.png',
+    image: 'assets/images/characters/lv_bu.jpg',
     skill: {
       name: '无双斩',
       costMp: 100,
@@ -91,7 +91,7 @@ export const heroes = [
     }
   },
   {
-    id: 'diaochan',
+    id: 'diao_chan',
     name: '貂蝉',
     job: 'support',      // 辅助
     rarity: 'gold',      // 稀有度
@@ -101,7 +101,7 @@ export const heroes = [
     speed: 85,
     maxMp: 100,
     mpRecovery: 10,
-    image: 'assets/images/characters/diaochan.png',
+    image: 'assets/images/characters/diao_chan.jpg',
     skill: {
       name: '闭月羞花',
       costMp: 100,
