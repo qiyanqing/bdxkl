@@ -589,10 +589,12 @@ export class BattleScene {
 
   // 绘制立绘（或占位图）
   drawPortrait(ctx, hero, x, y, width, height) {
-    const portraitImg = this.characterImages ? this.characterImages[hero.id] : null;
+    // 敌方角色的ID包含'_enemy'后缀，需要去掉才能找到立绘图片
+    const imageId = hero.id.replace('_enemy', '');
+    const portraitImg = this.characterImages ? this.characterImages[imageId] : null;
 
     if (portraitImg && portraitImg.complete && portraitImg.width > 0) {
-      // 有立绘图片：绘制图片（裁剪到上半部分）
+      // 有立绘图片：绘制图片
       const imgWidth = width;
       const imgHeight = height;
       const imgX = x;
