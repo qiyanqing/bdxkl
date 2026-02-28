@@ -121,7 +121,7 @@ export class TopBar {
     this.drawPlayerInfo(infoX, y, fontSize, playerData);
 
     // 绘制资源栏
-    this.drawResources(paddingRight, y, iconSize, smallFontSize, playerData);
+    this.drawResources(this.width - paddingRight, y, iconSize, smallFontSize, playerData);
   }
 
   /**
