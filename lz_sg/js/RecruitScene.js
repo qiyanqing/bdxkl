@@ -520,11 +520,11 @@ export class RecruitScene {
         // 单抽：卡片底部 + 20px
         hintTextY = centerY + height / 2 + 20;
       } else {
-        // 十连：第4批卡片底部 + 20px
+        // 十连：第4批卡片底部 + 30px
         const firstBatchY = 160;
         const batchGap = height + 5;
         const lastBatchY = firstBatchY + batchGap * 3;
-        hintTextY = lastBatchY + height + 20;
+        hintTextY = lastBatchY + height + 30;
       }
 
       this.ctx.fillStyle = '#fff';
