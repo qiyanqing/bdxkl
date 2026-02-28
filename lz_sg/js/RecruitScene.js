@@ -21,10 +21,17 @@ export class RecruitScene {
       isPulling: false,      // 是否正在抽卡
       pullType: null,        // 'single' 或 'ten'
       results: [],           // 抽卡结果
-      animationProgress: 0,  // 动画进度
+      animationProgress: 0,  // 抽卡动画进度
       showResults: false,    // 是否显示结果
-      selectedCardIndex: 0,  // 当前选中的结果卡片
+      revealIndex: 0,        // 当前展示到第几张卡片
+      revealBatches: [],     // 十连的展示批次 [2, 3, 3, 2]
+      currentBatch: 0,       // 当前展示批次
+      batchProgress: 0,      // 当前批次进度
+      allCardsRevealed: false, // 所有卡片是否已展示完成
     };
+
+    // 十连展示批次配置：2-3-3-2
+    this.tenPullBatches = [2, 3, 3, 2];
 
     // 按钮配置
     this.buttons = {
@@ -204,18 +211,44 @@ export class RecruitScene {
     this.state.pullType = 'ten';
     this.state.animationProgress = 0;
     this.state.showResults = false;
+    this.state.revealIndex = 0;
+    this.state.currentBatch = 0;
+    this.state.batchProgress = 0;
+    this.state.allCardsRevealed = false;
+    this.state.revealBatches = [];
 
     // 立即执行抽卡
     const results = gachaManager.pullTen();
     this.state.results = results;
+
+    // 计算展示批次
+    let startIndex = 0;
+    for (const count of this.tenPullBatches) {
+      this.state.revealBatches.push({
+        start: startIndex,
+        end: startIndex + count,
+        count: count,
+      });
+      startIndex += count;
+    }
   }
 
   /**
    * 跳过动画
    */
   skipAnimation() {
-    this.state.animationProgress = 1;
-    this.state.showResults = true;
+    if (this.state.pullType === 'ten') {
+      // 十连跳过直接展示所有卡片
+      this.state.animationProgress = 1;
+      this.state.showResults = true;
+      this.state.revealIndex = 10;
+      this.state.currentBatch = 4;
+      this.state.allCardsRevealed = true;
+    } else {
+      // 单抽直接展示结果
+      this.state.animationProgress = 1;
+      this.state.showResults = true;
+    }
   }
 
   /**
@@ -225,6 +258,9 @@ export class RecruitScene {
     this.state.isPulling = false;
     this.state.showResults = false;
     this.state.results = [];
+    this.state.revealIndex = 0;
+    this.state.currentBatch = 0;
+    this.state.allCardsRevealed = false;
   }
 
   /**
@@ -246,10 +282,31 @@ export class RecruitScene {
       this.state.animationProgress += 0.02;
       if (this.state.animationProgress >= 1) {
         this.state.animationProgress = 1;
-        // 延迟显示结果
+        // 抽卡动画完成，开始展示结果
         setTimeout(() => {
           this.state.showResults = true;
         }, 200);
+      }
+    }
+
+    // 更新卡片逐一展示动画（仅十连）
+    if (this.state.showResults && this.state.pullType === 'ten' && !this.state.allCardsRevealed) {
+      this.state.batchProgress += 0.015; // 控制展示速度
+
+      if (this.state.batchProgress >= 1) {
+        this.state.batchProgress = 0;
+
+        // 展示当前批次的所有卡片
+        if (this.state.currentBatch < this.state.revealBatches.length) {
+          const batch = this.state.revealBatches[this.state.currentBatch];
+          this.state.revealIndex = batch.end;
+          this.state.currentBatch++;
+
+          // 如果是最后一批，标记为全部展示完成
+          if (this.state.currentBatch >= this.state.revealBatches.length) {
+            this.state.allCardsRevealed = true;
+          }
+        }
       }
     }
   }
@@ -436,75 +493,160 @@ export class RecruitScene {
   drawResults() {
     const results = this.state.results;
     const { width, height, gap } = this.cardConfig;
-
-    // 计算总宽度
-    const totalWidth = results.length * width + (results.length - 1) * gap;
-    const startX = (this.width - totalWidth) / 2;
+    const centerX = this.width / 2;
     const centerY = this.height / 2;
 
     // 半透明背景
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
     this.ctx.fillRect(0, 0, this.width, this.height);
 
-    // 绘制每个结果卡片
-    results.forEach((result, index) => {
-      const x = startX + index * (width + gap);
+    // 单抽直接展示
+    if (this.state.pullType === 'single') {
+      const x = centerX - width / 2;
       const y = centerY - height / 2;
-
-      this.drawResultCard(x, y, width, height, result);
-    });
+      this.drawResultCard(x, y, width, height, results[0], 1);
+    }
+    // 十连按批次逐一展示
+    else if (this.state.pullType === 'ten') {
+      this.drawTenPullResults(centerX, centerY, width, height, gap);
+    }
 
     // 提示文字
-    this.ctx.fillStyle = '#fff';
-    this.ctx.font = '18px Arial';
-    this.ctx.textAlign = 'center';
-    this.ctx.fillText('点击任意位置关闭', this.width / 2, centerY + height / 2 + 40);
+    const showHint = this.state.pullType === 'single' || this.state.allCardsRevealed;
+    if (showHint) {
+      this.ctx.fillStyle = '#fff';
+      this.ctx.font = '18px Arial';
+      this.ctx.textAlign = 'center';
+      this.ctx.fillText('点击任意位置关闭', this.width / 2, centerY + height / 2 + 130);
+    }
+  }
+
+  /**
+   * 绘制十连抽卡结果（2-3-3-2 分批展示）
+   */
+  drawTenPullResults(centerX, centerY, cardWidth, cardHeight, gap) {
+    const results = this.state.results;
+    const revealIndex = this.state.revealIndex;
+
+    // 定义各批次的位置
+    // 第1批(2张)：上方居中
+    // 第2批(3张)：中间一行
+    // 第3批(3张)：中间一行
+    // 第4批(2张)：下方居中
+
+    const positions = [];
+
+    // 第1批：2张，上方
+    const batch1Width = 2 * cardWidth + gap;
+    const batch1StartX = centerX - batch1Width / 2;
+    positions.push({ x: batch1StartX, y: centerY - cardHeight - gap - 20 });
+    positions.push({ x: batch1StartX + cardWidth + gap, y: centerY - cardHeight - gap - 20 });
+
+    // 第2批：3张，中间上
+    const batch2Width = 3 * cardWidth + 2 * gap;
+    const batch2StartX = centerX - batch2Width / 2;
+    positions.push({ x: batch2StartX, y: centerY - cardHeight / 2 - 10 });
+    positions.push({ x: batch2StartX + cardWidth + gap, y: centerY - cardHeight / 2 - 10 });
+    positions.push({ x: batch2StartX + 2 * (cardWidth + gap), y: centerY - cardHeight / 2 - 10 });
+
+    // 第3批：3张，中间下
+    const batch3Width = 3 * cardWidth + 2 * gap;
+    const batch3StartX = centerX - batch3Width / 2;
+    positions.push({ x: batch3StartX, y: centerY + cardHeight / 2 + gap - 10 });
+    positions.push({ x: batch3StartX + cardWidth + gap, y: centerY + cardHeight / 2 + gap - 10 });
+    positions.push({ x: batch3StartX + 2 * (cardWidth + gap), y: centerY + cardHeight / 2 + gap - 10 });
+
+    // 第4批：2张，下方
+    const batch4Width = 2 * cardWidth + gap;
+    const batch4StartX = centerX - batch4Width / 2;
+    positions.push({ x: batch4StartX, y: centerY + cardHeight + 2 * gap });
+    positions.push({ x: batch4StartX + cardWidth + gap, y: centerY + cardHeight + 2 * gap });
+
+    // 绘制已展示的卡片
+    for (let i = 0; i < revealIndex && i < results.length; i++) {
+      const pos = positions[i];
+      const result = results[i];
+
+      // 计算当前卡片的动画进度
+      const batchIndex = Math.floor(i / this.tenPullBatches[Math.min(this.state.currentBatch, 3)]);
+      const isFirstInBatch = i === 0 || this.tenPullBatches.slice(0, Math.ceil(i / 5)).reduce((a, b) => a + b, 0) === i + 1;
+
+      // 新展示的卡片有缩放动画
+      let scale = 1;
+      if (this.state.batchProgress < 1 && this.state.currentBatch > 0) {
+        const batchInfo = this.state.revealBatches[this.state.currentBatch - 1];
+        if (batchInfo && i >= batchInfo.start && i < batchInfo.end) {
+          // 当前批次正在展示的卡片
+          const indexInBatch = i - batchInfo.start;
+          const countInBatch = batchInfo.count;
+          const progressPerCard = 1 / countInBatch;
+          const cardProgress = Math.min(1, this.state.batchProgress / progressPerCard);
+          // 0 -> 1 的弹性动画
+          scale = 1 + Math.sin(cardProgress * Math.PI) * 0.3;
+          if (cardProgress >= 1) scale = 1;
+        }
+      }
+
+      this.drawResultCard(pos.x, pos.y, cardWidth, cardHeight, result, scale);
+    }
   }
 
   /**
    * 绘制结果卡片
    */
-  drawResultCard(x, y, width, height, result) {
+  drawResultCard(x, y, width, height, result, scale = 1) {
     const { character, rarity, isPity } = result;
     const color = RarityColors[rarity];
+
+    // 应用缩放
+    const centerX = x + width / 2;
+    const centerY = y + height / 2;
+    const scaledWidth = width * scale;
+    const scaledHeight = height * scale;
+    const scaledX = centerX - scaledWidth / 2;
+    const scaledY = centerY - scaledHeight / 2;
+
+    this.ctx.save();
 
     // 卡片背景
     this.ctx.fillStyle = color;
     this.ctx.globalAlpha = 0.3;
-    this.ctx.fillRect(x, y, width, height);
+    this.ctx.fillRect(scaledX, scaledY, scaledWidth, scaledHeight);
     this.ctx.globalAlpha = 1;
 
     // 卡片边框
     this.ctx.strokeStyle = color;
     this.ctx.lineWidth = 3;
-    this.ctx.strokeRect(x, y, width, height);
+    this.ctx.strokeRect(scaledX, scaledY, scaledWidth, scaledHeight);
 
     // 稀有度标签
     this.ctx.fillStyle = color;
     this.ctx.font = 'bold 16px Arial';
     this.ctx.textAlign = 'center';
-    this.ctx.fillText(rarity, x + width / 2, y + 25);
+    this.ctx.fillText(rarity, centerX, scaledY + 25);
 
     // 角色头像
-    this.ctx.font = '48px Arial';
-    this.ctx.fillText(character.avatar, x + width / 2, y + height / 2);
+    this.ctx.font = `${Math.floor(48 * scale)}px Arial`;
+    this.ctx.fillText(character.avatar, centerX, centerY);
 
     // 角色名称
     this.ctx.fillStyle = '#fff';
-    this.ctx.font = 'bold 18px Arial';
-    this.ctx.fillText(character.name, x + width / 2, y + height - 35);
+    this.ctx.font = `bold ${Math.floor(18 * scale)}px Arial`;
+    this.ctx.fillText(character.name, centerX, scaledY + scaledHeight - 35);
 
     // 阵营
-    this.ctx.font = '14px Arial';
+    this.ctx.font = `${Math.floor(14 * scale)}px Arial`;
     this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-    this.ctx.fillText(character.faction, x + width / 2, y + height - 15);
+    this.ctx.fillText(character.faction, centerX, scaledY + scaledHeight - 15);
 
     // 保底标记
     if (isPity) {
       this.ctx.fillStyle = '#f1c40f';
       this.ctx.font = 'bold 14px Arial';
-      this.ctx.fillText('保底', x + width / 2, y + 50);
+      this.ctx.fillText('保底', centerX, scaledY + 50);
     }
+
+    this.ctx.restore();
   }
 
   /**
