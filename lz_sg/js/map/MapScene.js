@@ -41,6 +41,17 @@ export class MapScene {
     this.playerRenderer = new PlayerRenderer(this.ctx);
     this.eventSystem = new GridEventSystem(this.levelState);
     this.uiController = new UIController(this.ctx, width, height);
+
+    // 动画相关属性
+    this.animation = {
+      isAnimating: false,
+      currentGridIndex: 0,
+      targetGridIndex: 0,
+      progress: 0,      // 0到1的进度
+      speed: 0.05,      // 移动速度
+      moveQueue: [],    // 待移动的格子队列
+      totalSteps: 0     // 记录本次移动的总步数
+    };
   }
 
   init() {
@@ -57,8 +68,7 @@ export class MapScene {
   }
 
   update() {
-    // 动画更新逻辑
-    // TODO: 后续添加
+    this.updateMoveAnimation();
   }
 
   render(ctx = this.ctx) {
@@ -74,10 +84,24 @@ export class MapScene {
       this.gridRenderer.drawGrid(grid, isSelected);
     });
 
-    // 绘制玩家棋子
-    const currentGrid = this.grids[this.levelState.playerPosition];
-    if (currentGrid) {
-      this.playerRenderer.drawPlayer(currentGrid, this.levelState.leaderHeroId);
+    // 绘制玩家棋子（支持动画）
+    let playerGrid = this.grids[this.levelState.playerPosition];
+
+    if (this.animation.isAnimating) {
+      // 计算动画位置
+      const fromGrid = this.grids[this.animation.currentGridIndex];
+      const toGrid = this.grids[this.animation.targetGridIndex];
+
+      // 线性插值
+      const x = fromGrid.x + (toGrid.x - fromGrid.x) * this.animation.progress;
+      const y = fromGrid.y + (toGrid.y - fromGrid.y) * this.animation.progress;
+
+      // 创建临时格子对象用于渲染
+      playerGrid = { ...playerGrid, x, y };
+    }
+
+    if (playerGrid) {
+      this.playerRenderer.drawPlayer(playerGrid, this.levelState.leaderHeroId);
     }
 
     // 绘制UI
@@ -102,25 +126,80 @@ export class MapScene {
 
   // 骰子投掷
   rollDice() {
-    if (this.levelState.diceRemaining <= 0) {
-      console.log('没有剩余骰子了');
-      this.checkLevelEnd();
+    if (this.levelState.diceRemaining <= 0 || this.animation.isAnimating) {
+      if (this.levelState.diceRemaining <= 0) {
+        console.log('没有剩余骰子了');
+        this.checkLevelEnd();
+      }
       return;
     }
 
     const diceValue = this.playerController.rollDice();
     console.log('投掷骰子:', diceValue);
 
-    const targetPos = this.playerController.calculateTargetPosition(diceValue);
-    this.playerController.moveTo(targetPos);
-    this.playerController.updateLevelState(diceValue);
+    const startPos = this.levelState.playerPosition;
+    const totalGrids = this.grids.length;
 
-    // 等待移动动画完成后触发事件
-    setTimeout(async () => {
-      const currentGrid = this.grids[this.levelState.playerPosition];
-      const eventResult = await this.eventSystem.triggerEvent(currentGrid);
-      this.handleEventResult(eventResult);
-    }, 500);
+    // 计算移动路径上的所有格子
+    this.animation.moveQueue = [];
+    for (let i = 1; i <= diceValue; i++) {
+      this.animation.moveQueue.push((startPos + i) % totalGrids);
+    }
+
+    // 记录总步数
+    this.animation.totalSteps = diceValue;
+
+    // 开始动画
+    this.startMoveAnimation();
+  }
+
+  // 开始移动动画
+  startMoveAnimation() {
+    if (this.animation.moveQueue.length === 0) {
+      // 移动完成，触发事件
+      this.triggerGridEvent();
+      return;
+    }
+
+    this.animation.isAnimating = true;
+    this.animation.currentGridIndex = this.levelState.playerPosition;
+    this.animation.targetGridIndex = this.animation.moveQueue.shift();
+    this.animation.progress = 0;
+  }
+
+  // 更新动画状态
+  updateMoveAnimation() {
+    if (!this.animation.isAnimating) return;
+
+    this.animation.progress += this.animation.speed;
+
+    if (this.animation.progress >= 1) {
+      // 当前格子移动完成
+      this.levelState.playerPosition = this.animation.targetGridIndex;
+      this.animation.progress = 0;
+
+      // 继续下一个格子
+      if (this.animation.moveQueue.length > 0) {
+        this.animation.currentGridIndex = this.animation.targetGridIndex;
+        this.animation.targetGridIndex = this.animation.moveQueue.shift();
+      } else {
+        // 所有移动完成
+        this.animation.isAnimating = false;
+        this.playerController.updateLevelState(this.animation.totalSteps);
+
+        // 触发格子事件
+        setTimeout(() => {
+          this.triggerGridEvent();
+        }, 200);
+      }
+    }
+  }
+
+  // 触发格子事件
+  async triggerGridEvent() {
+    const currentGrid = this.grids[this.levelState.playerPosition];
+    const eventResult = await this.eventSystem.triggerEvent(currentGrid);
+    this.handleEventResult(eventResult);
   }
 
   // 处理事件结果
