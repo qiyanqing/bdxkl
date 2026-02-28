@@ -528,39 +528,43 @@ export class RecruitScene {
     const results = this.state.results;
     const revealIndex = this.state.revealIndex;
 
+    // 整体向上偏移
+    const offsetY = centerY - 100; // 将布局基准点向上移动100px
+    const batchGap = cardHeight + 30; // 批次之间的垂直间距
+
     // 定义各批次的位置
-    // 第1批(2张)：上方居中
-    // 第2批(3张)：中间一行
-    // 第3批(3张)：中间一行
-    // 第4批(2张)：下方居中
+    // 第1批(2张)：上方
+    // 第2批(3张)：中上
+    // 第3批(3张)：中下
+    // 第4批(2张)：下方
 
     const positions = [];
 
-    // 第1批：2张，上方
+    // 第1批：2张
     const batch1Width = 2 * cardWidth + gap;
     const batch1StartX = centerX - batch1Width / 2;
-    positions.push({ x: batch1StartX, y: centerY - cardHeight - gap - 20 });
-    positions.push({ x: batch1StartX + cardWidth + gap, y: centerY - cardHeight - gap - 20 });
+    positions.push({ x: batch1StartX, y: offsetY });
+    positions.push({ x: batch1StartX + cardWidth + gap, y: offsetY });
 
-    // 第2批：3张，中间上
+    // 第2批：3张
     const batch2Width = 3 * cardWidth + 2 * gap;
     const batch2StartX = centerX - batch2Width / 2;
-    positions.push({ x: batch2StartX, y: centerY - cardHeight / 2 - 10 });
-    positions.push({ x: batch2StartX + cardWidth + gap, y: centerY - cardHeight / 2 - 10 });
-    positions.push({ x: batch2StartX + 2 * (cardWidth + gap), y: centerY - cardHeight / 2 - 10 });
+    positions.push({ x: batch2StartX, y: offsetY + batchGap });
+    positions.push({ x: batch2StartX + cardWidth + gap, y: offsetY + batchGap });
+    positions.push({ x: batch2StartX + 2 * (cardWidth + gap), y: offsetY + batchGap });
 
-    // 第3批：3张，中间下
+    // 第3批：3张
     const batch3Width = 3 * cardWidth + 2 * gap;
     const batch3StartX = centerX - batch3Width / 2;
-    positions.push({ x: batch3StartX, y: centerY + cardHeight / 2 + gap - 10 });
-    positions.push({ x: batch3StartX + cardWidth + gap, y: centerY + cardHeight / 2 + gap - 10 });
-    positions.push({ x: batch3StartX + 2 * (cardWidth + gap), y: centerY + cardHeight / 2 + gap - 10 });
+    positions.push({ x: batch3StartX, y: offsetY + batchGap * 2 });
+    positions.push({ x: batch3StartX + cardWidth + gap, y: offsetY + batchGap * 2 });
+    positions.push({ x: batch3StartX + 2 * (cardWidth + gap), y: offsetY + batchGap * 2 });
 
-    // 第4批：2张，下方
+    // 第4批：2张
     const batch4Width = 2 * cardWidth + gap;
     const batch4StartX = centerX - batch4Width / 2;
-    positions.push({ x: batch4StartX, y: centerY + cardHeight + 2 * gap });
-    positions.push({ x: batch4StartX + cardWidth + gap, y: centerY + cardHeight + 2 * gap });
+    positions.push({ x: batch4StartX, y: offsetY + batchGap * 3 });
+    positions.push({ x: batch4StartX + cardWidth + gap, y: offsetY + batchGap * 3 });
 
     // 绘制已展示的卡片
     for (let i = 0; i < revealIndex && i < results.length; i++) {
@@ -568,10 +572,6 @@ export class RecruitScene {
       const result = results[i];
 
       // 计算当前卡片的动画进度
-      const batchIndex = Math.floor(i / this.tenPullBatches[Math.min(this.state.currentBatch, 3)]);
-      const isFirstInBatch = i === 0 || this.tenPullBatches.slice(0, Math.ceil(i / 5)).reduce((a, b) => a + b, 0) === i + 1;
-
-      // 新展示的卡片有缩放动画
       let scale = 1;
       if (this.state.batchProgress < 1 && this.state.currentBatch > 0) {
         const batchInfo = this.state.revealBatches[this.state.currentBatch - 1];
