@@ -2,8 +2,10 @@
 import { playerDataManager } from './data/playerData.js';
 import { TopBar } from './main/TopBar.js';
 import { MainButton } from './main/MainButton.js';
+import { RecruitButton } from './main/RecruitButton.js';
 import { BottomTab } from './main/BottomTab.js';
 import { MapScene } from './map/MapScene.js';
+import { RecruitScene } from './RecruitScene.js';
 
 export class MainScene {
   constructor(canvas, width, height) {
@@ -22,6 +24,7 @@ export class MainScene {
     // 子组件
     this.topBar = new TopBar(this.ctx, width, height);
     this.mainButton = new MainButton(this.ctx, width, height);
+    this.recruitButton = new RecruitButton(this.ctx, width, height, this.mainButton);
     this.bottomTab = new BottomTab(this.ctx, width, height);
 
     // 波纹效果列表
@@ -83,6 +86,12 @@ export class MainScene {
       return;
     }
 
+    // 检查招募按钮点击
+    if (this.recruitButton.checkClick(x, y)) {
+      this.handleRecruitButtonClick();
+      return;
+    }
+
     // 检查返回按钮点击
     if (this.backButton && this.checkBackButtonClick(x, y)) {
       this.handleBackButtonClick();
@@ -126,6 +135,26 @@ export class MainScene {
   }
 
   /**
+   * 处理招募按钮点击
+   */
+  handleRecruitButtonClick() {
+    console.log('点击招募按钮');
+    this.recruitButton.triggerClickAnimation();
+
+    // 添加波纹效果
+    this.ripples.push({
+      x: this.recruitButton.config.centerX,
+      y: this.recruitButton.config.centerY,
+      progress: 0,
+    });
+
+    // 延迟进入招募场景
+    setTimeout(() => {
+      this.enterRecruitScene();
+    }, 300);
+  }
+
+  /**
    * 进入地图场景
    */
   enterMapScene() {
@@ -143,11 +172,48 @@ export class MainScene {
   }
 
   /**
+   * 进入招募场景
+   */
+  enterRecruitScene() {
+    console.log('进入招募场景');
+    this.isActive = false;
+
+    // 创建招募场景
+    const recruitScene = new RecruitScene(this.canvas, this.width, this.height);
+    recruitScene.init();
+
+    // 设置返回回调
+    recruitScene.setBackCallback(() => {
+      this.returnFromRecruitScene(recruitScene);
+    });
+  }
+
+  /**
    * 从地图场景返回
    */
   returnFromMapScene(mapScene) {
     console.log('从地图场景返回');
     mapScene.isActive = false;
+
+    // 重新激活主场景
+    this.isActive = true;
+
+    // 重新加载玩家数据
+    this.playerData = playerDataManager.load();
+
+    // 恢复触摸事件绑定
+    this.bindTouchEvents();
+
+    // 恢复游戏循环
+    this.gameLoop();
+  }
+
+  /**
+   * 从招募场景返回
+   */
+  returnFromRecruitScene(recruitScene) {
+    console.log('从招募场景返回');
+    recruitScene.isActive = false;
 
     // 重新激活主场景
     this.isActive = true;
@@ -227,6 +293,9 @@ export class MainScene {
     // 更新战斗按钮动画
     this.mainButton.update(deltaTime);
 
+    // 更新招募按钮动画
+    this.recruitButton.update(deltaTime);
+
     // 更新波纹效果
     this.updateRipples();
   }
@@ -263,6 +332,9 @@ export class MainScene {
 
     // 绘制战斗按钮
     this.mainButton.draw();
+
+    // 绘制招募按钮
+    this.recruitButton.draw();
 
     // 绘制波纹效果
     this.ripples.forEach(ripple => {
