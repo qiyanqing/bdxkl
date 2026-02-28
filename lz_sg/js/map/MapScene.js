@@ -18,7 +18,7 @@ export class MapScene {
     this.levelState = {
       currentLevel: 1,
       diceUsed: 0,
-      diceRemaining: 15,
+      diceRemaining: 20,
       playerPosition: 0,
       totalSteps: 0,
       forceBattleCounter: 0,
@@ -43,6 +43,15 @@ export class MapScene {
       targetY: 0
     };
 
+    // 拖拽相关
+    this.drag = {
+      isDragging: false,
+      startX: 0,
+      startY: 0,
+      startCameraX: 0,
+      startCameraY: 0
+    };
+
     // 子系统
     this.gridRenderer = new GridRenderer(this.ctx);
     this.playerController = new PlayerController(this.levelState);
@@ -60,13 +69,79 @@ export class MapScene {
       moveQueue: [],    // 待移动的格子队列
       totalSteps: 0     // 记录本次移动的总步数
     };
+
+    // 返回按钮
+    this.backButton = {
+      x: width - 70,
+      y: 10,
+      width: 60,
+      height: 30,
+      callback: null,
+    };
   }
 
   init() {
     console.log('地图场景初始化');
     this.isActive = true;
     this.loadLevelConfig();
+    this.bindTouchEvents();
     this.gameLoop();
+  }
+
+  // 绑定触摸事件
+  bindTouchEvents() {
+    // 触摸开始
+    wx.onTouchStart((e) => {
+      const touch = e.touches[0];
+      const x = touch.x || touch.clientX;
+      const y = touch.y || touch.clientY;
+
+      // 检查是否点击返回按钮
+      if (this.checkBackButtonClick(x, y)) {
+        this.handleBackButtonClick();
+        return;
+      }
+
+      this.drag.isDragging = true;
+      this.drag.startX = x;
+      this.drag.startY = y;
+      this.drag.startCameraX = this.camera.x;
+      this.drag.startCameraY = this.camera.y;
+    });
+
+    // 触摸移动
+    wx.onTouchMove((e) => {
+      if (!this.drag.isDragging) return;
+
+      const touch = e.touches[0];
+      const currentX = touch.x || touch.clientX;
+      const currentY = touch.y || touch.clientY;
+
+      // 计算拖拽偏移量
+      const deltaX = currentX - this.drag.startX;
+      const deltaY = currentY - this.drag.startY;
+
+      // 更新摄像机位置
+      this.camera.x = this.drag.startCameraX - deltaX;
+      this.camera.y = this.drag.startCameraY - deltaY;
+
+      // 限制摄像机不超出地图边界
+      this.limitCameraBounds();
+    });
+
+    // 触摸结束
+    wx.onTouchEnd(() => {
+      this.drag.isDragging = false;
+    });
+  }
+
+  // 限制摄像机边界
+  limitCameraBounds() {
+    const mapWidth = this.config.mapWidth || this.width;
+    const mapHeight = this.config.mapHeight || this.height;
+    
+    this.camera.x = Math.max(0, Math.min(this.camera.x, mapWidth - this.width));
+    this.camera.y = Math.max(0, Math.min(this.camera.y, mapHeight - this.height));
   }
 
   loadLevelConfig() {
@@ -79,6 +154,8 @@ export class MapScene {
 
   // 更新摄像机位置（平滑跟随玩家）
   updateCamera() {
+    if (this.drag.isDragging) return; // 拖拽时不跟随
+
     const playerGrid = this.grids[this.levelState.playerPosition];
     if (!playerGrid) return;
 
@@ -107,18 +184,26 @@ export class MapScene {
     if (!this.isActive) return;
 
     // 清空画布
-    ctx.fillStyle = '#1a1a2e';
+    ctx.fillStyle = '#1e3a8a';
     ctx.fillRect(0, 0, this.width, this.height);
 
     ctx.save();
     // 应用摄像机偏移
     ctx.translate(-this.camera.x, -this.camera.y);
 
+    // 绘制棋盘格背景
+    this.drawChessboardBackground(ctx);
+
+    // 绘制格子之间的连接线
+    this.drawGridConnections(ctx);
+
     // 绘制所有格子
     this.grids.forEach((grid, index) => {
       // 只绘制视野内的格子
-      if (grid.x + this.camera.x >= -100 && grid.x + this.camera.x <= this.width + 100 &&
-          grid.y + this.camera.y >= -100 && grid.y + this.camera.y <= this.height + 100) {
+      const screenX = grid.x - this.camera.x;
+      const screenY = grid.y - this.camera.y;
+      if (screenX >= -100 && screenX <= this.width + 100 &&
+          screenY >= -100 && screenY <= this.height + 100) {
         const isSelected = index === this.levelState.playerPosition;
         this.gridRenderer.drawGrid(grid, isSelected);
       }
@@ -133,8 +218,96 @@ export class MapScene {
     ctx.restore();
 
     // 绘制UI（不受摄像机影响）
+    this.drawBackButton();
     this.uiController.drawTopBar(this.levelState);
     this.uiController.drawBottomBar(this.levelState);
+  }
+
+  // 绘制棋盘格背景
+  drawChessboardBackground(ctx) {
+    const gridWidth = 70; // 与MapGenerator中的gridWidth匹配
+    const gridHeight = 50; // 与MapGenerator中的gridHeight匹配
+    const offsetX = 50;
+    const offsetY = 50;
+
+    // 绘制网格线
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.lineWidth = 1;
+
+    // 计算可见区域的起始和结束坐标
+    const startX = Math.floor((this.camera.x - 100) / gridWidth) * gridWidth + offsetX;
+    const endX = Math.ceil((this.camera.x + this.width + 100) / gridWidth) * gridWidth + offsetX;
+    const startY = Math.floor((this.camera.y - 100) / gridHeight) * gridHeight + offsetY;
+    const endY = Math.ceil((this.camera.y + this.height + 100) / gridHeight) * gridHeight + offsetY;
+
+    // 绘制垂直线
+    for (let x = startX; x < endX; x += gridWidth) {
+      ctx.beginPath();
+      ctx.moveTo(x, offsetY);
+      ctx.lineTo(x, this.config.mapHeight);
+      ctx.stroke();
+    }
+
+    // 绘制水平线
+    for (let y = startY; y < endY; y += gridHeight) {
+      ctx.beginPath();
+      ctx.moveTo(offsetX, y);
+      ctx.lineTo(this.config.mapWidth, y);
+      ctx.stroke();
+    }
+  }
+
+  // 绘制格子之间的连接线
+  drawGridConnections(ctx) {
+    if (this.grids.length < 2) return;
+
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+
+    // 绘制连接线
+    for (let i = 0; i < this.grids.length - 1; i++) {
+      const current = this.grids[i];
+      const next = this.grids[i + 1];
+      
+      // 检查是否在视野内
+      const currentScreenX = current.x - this.camera.x;
+      const currentScreenY = current.y - this.camera.y;
+      const nextScreenX = next.x - this.camera.x;
+      const nextScreenY = next.y - this.camera.y;
+      
+      if (currentScreenX >= -100 && currentScreenX <= this.width + 100 &&
+          currentScreenY >= -100 && currentScreenY <= this.height + 100 &&
+          nextScreenX >= -100 && nextScreenX <= this.width + 100 &&
+          nextScreenY >= -100 && nextScreenY <= this.height + 100) {
+        ctx.beginPath();
+        ctx.moveTo(current.x, current.y);
+        ctx.lineTo(next.x, next.y);
+        ctx.stroke();
+      }
+    }
+
+    // 绘制首尾连接
+    const first = this.grids[0];
+    const last = this.grids[this.grids.length - 1];
+    
+    const firstScreenX = first.x - this.camera.x;
+    const firstScreenY = first.y - this.camera.y;
+    const lastScreenX = last.x - this.camera.x;
+    const lastScreenY = last.y - this.camera.y;
+    
+    if (firstScreenX >= -100 && firstScreenX <= this.width + 100 &&
+        firstScreenY >= -100 && firstScreenY <= this.height + 100 &&
+        lastScreenX >= -100 && lastScreenX <= this.width + 100 &&
+        lastScreenY >= -100 && lastScreenY <= this.height + 100) {
+      ctx.beginPath();
+      ctx.moveTo(last.x, last.y);
+      ctx.lineTo(first.x, first.y);
+      ctx.stroke();
+    }
+
+    ctx.restore();
   }
 
   gameLoop() {
@@ -250,5 +423,49 @@ export class MapScene {
 
     console.log('关卡结束！使用骰子:', diceUsed, '星级:', stars);
     // TODO: 显示结算界面
+  }
+
+  // 绘制返回按钮
+  drawBackButton() {
+    const btn = this.backButton;
+    if (!btn || !btn.callback) return;
+
+    // 按钮背景
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+    this.ctx.beginPath();
+    this.ctx.roundRect(btn.x, btn.y, btn.width, btn.height, 5);
+    this.ctx.fill();
+
+    // 按钮边框
+    this.ctx.strokeStyle = '#f1c40f';
+    this.ctx.lineWidth = 2;
+    this.ctx.stroke();
+
+    // 按钮文字
+    this.ctx.fillStyle = '#f1c40f';
+    this.ctx.font = 'bold 14px Arial';
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
+    this.ctx.fillText('返回', btn.x + btn.width / 2, btn.y + btn.height / 2);
+  }
+
+  // 检查返回按钮点击
+  checkBackButtonClick(x, y) {
+    const btn = this.backButton;
+    if (!btn || !btn.callback) return false;
+    return x >= btn.x && x <= btn.x + btn.width &&
+           y >= btn.y && y <= btn.y + btn.height;
+  }
+
+  // 处理返回按钮点击
+  handleBackButtonClick() {
+    if (this.backButton && this.backButton.callback) {
+      this.backButton.callback();
+    }
+  }
+
+  // 设置返回按钮回调
+  setBackButton(callback) {
+    this.backButton.callback = callback;
   }
 }

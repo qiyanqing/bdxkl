@@ -1,6 +1,7 @@
 // js/SceneSelector.js - 场景选择器
 import { MapScene } from './map/MapScene.js';
 import { BattleScene } from './BattleScene.js';
+import { MainScene } from './MainScene.js';
 
 export class SceneSelector {
   constructor() {
@@ -22,13 +23,29 @@ export class SceneSelector {
     this.height = windowHeight;
     this.canvas.width = windowWidth;
     this.canvas.height = windowHeight;
+    
+    console.log('画布尺寸:', { width: windowWidth, height: windowHeight });
 
     // 显示选择界面
     this.showSelector();
 
     // 绑定触摸事件
     wx.onTouchStart((e) => {
-      this.handleTouch(e.touches[0].clientX, e.touches[0].clientY);
+      console.log('触摸事件触发:', e);
+      const touch = e.touches[0];
+      console.log('触摸点信息:', touch);
+      
+      // 尝试使用不同的坐标获取方式
+      const touchX = touch.x || touch.clientX || touch.pageX;
+      const touchY = touch.y || touch.clientY || touch.pageY;
+      
+      console.log('计算触摸坐标:', { x: touchX, y: touchY });
+      this.handleTouch(touchX, touchY);
+    });
+    
+    // 也绑定touchend事件作为备选
+    wx.onTouchEnd((e) => {
+      console.log('触摸结束事件:', e);
     });
   }
 
@@ -43,9 +60,10 @@ export class SceneSelector {
     this.ctx.textAlign = 'center';
     this.ctx.fillText('三国卡牌战斗 - 开发测试', this.width / 2, 100);
 
-    // 绘制两个按钮
+    // 绘制三个按钮
     this.drawButton('地图探索', this.width / 2, 200, '#3498db');
-    this.drawButton('战斗场景', this.width / 2, 300, '#e74c3c');
+    this.drawButton('战斗场景', this.width / 2, 280, '#e74c3c');
+    this.drawButton('游戏主界面', this.width / 2, 360, '#f39c12');
   }
 
   drawButton(text, x, y, color) {
@@ -87,21 +105,52 @@ export class SceneSelector {
   }
 
   handleTouch(x, y) {
-    if (this.currentScene) return; // 已进入场景，忽略点击
+    console.log('触摸事件:', x, y);
+    console.log('当前场景:', this.currentScene);
+
+    // 如果已经在场景中，传递触摸事件
+    if (this.currentScene) {
+      if (this.currentScene.onTouch) {
+        console.log('传递触摸事件给场景');
+        this.currentScene.onTouch(x, y);
+      }
+      return;
+    }
+
+    // 检查按钮点击
+    const buttonWidth = 200;
+    const buttonHeight = 60;
 
     // 检查地图探索按钮
-    if (this.checkButton(x, y, this.width / 2, 200, 200, 60)) {
+    if (this.checkButton(x, y, this.width / 2, 200, buttonWidth, buttonHeight)) {
       this.enterMapScene();
+      return;
     }
+
     // 检查战斗场景按钮
-    else if (this.checkButton(x, y, this.width / 2, 300, 200, 60)) {
+    if (this.checkButton(x, y, this.width / 2, 280, buttonWidth, buttonHeight)) {
       this.enterBattleScene();
+      return;
+    }
+
+    // 检查游戏主界面按钮
+    if (this.checkButton(x, y, this.width / 2, 360, buttonWidth, buttonHeight)) {
+      this.enterMainScene();
+      return;
     }
   }
 
   checkButton(x, y, btnX, btnY, width, height) {
-    return x >= btnX - width / 2 && x <= btnX + width / 2 &&
-           y >= btnY - height / 2 && y <= btnY + height / 2;
+    const left = btnX - width / 2;
+    const right = btnX + width / 2;
+    const top = btnY - height / 2;
+    const bottom = btnY + height / 2;
+    
+    console.log('按钮区域:', { left, right, top, bottom });
+    console.log('触摸位置:', { x, y });
+    console.log('是否在按钮内:', x >= left && x <= right && y >= top && y <= bottom);
+    
+    return x >= left && x <= right && y >= top && y <= bottom;
   }
 
   enterMapScene() {
@@ -117,5 +166,11 @@ export class SceneSelector {
       const game = new Game();
       game.init();
     });
+  }
+
+  enterMainScene() {
+    console.log('进入游戏主界面');
+    this.currentScene = new MainScene(this.canvas, this.width, this.height);
+    this.currentScene.init();
   }
 }
