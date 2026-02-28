@@ -511,13 +511,26 @@ export class RecruitScene {
       this.drawTenPullResults(centerX, centerY, width, height, gap);
     }
 
-    // 提示文字
+    // 提示文字（在最后一排卡片下方20px）
     const showHint = this.state.pullType === 'single' || this.state.allCardsRevealed;
     if (showHint) {
+      let hintTextY;
+
+      if (this.state.pullType === 'single') {
+        // 单抽：卡片底部 + 20px
+        hintTextY = centerY + height / 2 + 20;
+      } else {
+        // 十连：第4批卡片底部 + 20px
+        const firstBatchY = 160;
+        const batchGap = height + 5;
+        const lastBatchY = firstBatchY + batchGap * 3;
+        hintTextY = lastBatchY + height + 20;
+      }
+
       this.ctx.fillStyle = '#fff';
       this.ctx.font = '18px Arial';
       this.ctx.textAlign = 'center';
-      this.ctx.fillText('点击任意位置关闭', this.width / 2, centerY + height / 2 + 130);
+      this.ctx.fillText('点击任意位置关闭', this.width / 2, hintTextY);
     }
   }
 
