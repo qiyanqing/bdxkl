@@ -561,21 +561,21 @@ export class BattleScene {
     // 立绘填满整个卡片区域
     this.drawPortrait(ctx, hero, drawX, drawY, width, height);
 
-    // 顶部名字栏（半透明黑色背景）
-    if (hitEffect.flash > 0 && hitEffect.flash % 2 === 0) {
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-    } else {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-    }
-    this.drawRoundRect(ctx, drawX + 2, drawY + 2, width - 4, 22, 6);
-    ctx.fill();
+    // 角色名（左上角，带描边效果确保清晰可见）
+    const nameX = drawX + 8;
+    const nameY = drawY + 18;
 
-    // 角色名
-    ctx.fillStyle = hero.currentHp <= 0 ? '#666' : '#fff';
-    ctx.font = 'bold 13px Arial';
-    ctx.textAlign = 'center';
+    // 文字描边（黑色）
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 3;
+    ctx.font = 'bold 14px Arial';
+    ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
-    ctx.fillText(hero.name, drawX + width / 2, drawY + 13);
+    ctx.strokeText(hero.name, nameX, nameY);
+
+    // 文字填充（白色）
+    ctx.fillStyle = hero.currentHp <= 0 ? '#999' : '#fff';
+    ctx.fillText(hero.name, nameX, nameY);
 
     // 底部血蓝条区域（半透明黑色背景）
     ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
