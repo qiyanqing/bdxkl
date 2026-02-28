@@ -38,8 +38,8 @@ export class BottomTab {
       indicator: '#f1c40f',
     };
 
-    // 当前选中的Tab
-    this.selectedTab = 'hero';
+    // 当前选中的Tab（默认不选中）
+    this.selectedTab = null;
 
     // 点击区域缓存
     this.clickAreas = [];
