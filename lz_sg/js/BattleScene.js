@@ -34,8 +34,8 @@ export class BattleScene {
     this.isBattling = false;         // 是否正在进行战斗循环
 
     // 按钮区域（位于黄忠卡片上方靠右）
-    const cardWidth = 100;
-    const cardHeight = 120;
+    const cardWidth = 130;  // 放大30% (100 * 1.3)
+    const cardHeight = 156; // 放大30% (120 * 1.3)
     const gapX = 8;
     const gapY = 8;
     const row1Y = this.height - cardHeight * 2 - gapY - 20;
@@ -45,17 +45,17 @@ export class BattleScene {
     const huangzhongX = row1StartX + 2 * (cardWidth + gapX);
 
     // 按钮放在黄忠卡片上方靠右
-    const buttonY = row1Y - 30; // 卡片上方30px
-    const buttonSize = 36;
+    const buttonY = row1Y - 35; // 卡片上方35px
+    const buttonSize = 40;
 
     this.speedBtn = {
-      x: huangzhongX + cardWidth - 30, // 黄忠卡片右侧向内30px
+      x: huangzhongX + cardWidth - 40, // 黄忠卡片右侧向内40px
       y: buttonY,
       radius: buttonSize / 2
     };
 
     this.pauseBtn = {
-      x: huangzhongX + cardWidth - 80, // 倍速按钮左侧50px
+      x: huangzhongX + cardWidth - 90, // 倍速按钮左侧50px
       y: buttonY,
       radius: buttonSize / 2
     };
@@ -186,11 +186,11 @@ export class BattleScene {
   async onAttack(attacker, target, damage) {
     this.currentAction = `${attacker.name} 攻击 ${target.name}，造成 ${damage} 点伤害`;
 
-    // 计算卡牌中心点（卡牌宽度100，高度120）
-    const fromX = attacker.x + 50;
-    const fromY = attacker.y + 60;
-    const toX = target.x + 50;
-    const toY = target.y + 60;
+    // 计算卡牌中心点（卡牌宽度130，高度156）
+    const fromX = attacker.x + 65;
+    const fromY = attacker.y + 78;
+    const toX = target.x + 65;
+    const toY = target.y + 78;
 
     // 攻击者前进动画
     this.triggerAttackEffect(attacker.id, fromX, fromY, toX, toY);
@@ -219,11 +219,11 @@ export class BattleScene {
   async onSkill(hero, target, damage) {
     this.currentAction = `${hero.name} 释放 ${hero.skill.name}！造成 ${damage} 点伤害`;
 
-    // 计算卡牌中心点（卡牌宽度100，高度120）
-    const fromX = hero.x + 50;
-    const fromY = hero.y + 60;
-    const toX = target.x + 50;
-    const toY = target.y + 60;
+    // 计算卡牌中心点（卡牌宽度130，高度156）
+    const fromX = hero.x + 65;
+    const fromY = hero.y + 78;
+    const toX = target.x + 65;
+    const toY = target.y + 78;
 
     // 攻击者前进动画
     this.triggerAttackEffect(hero.id, fromX, fromY, toX, toY);
@@ -462,8 +462,8 @@ export class BattleScene {
   }
 
   drawEnemyArea(ctx) {
-    const cardWidth = 100;
-    const cardHeight = 120;
+    const cardWidth = 130;  // 放大30% (100 * 1.3)
+    const cardHeight = 156; // 放大30% (120 * 1.3)
     const gapX = 8;
     const gapY = 8;
 
@@ -493,8 +493,8 @@ export class BattleScene {
   }
 
   drawMyArea(ctx) {
-    const cardWidth = 100;
-    const cardHeight = 120;
+    const cardWidth = 130;  // 放大30% (100 * 1.3)
+    const cardHeight = 156; // 放大30% (120 * 1.3)
     const gapX = 8;
     const gapY = 8;
 
