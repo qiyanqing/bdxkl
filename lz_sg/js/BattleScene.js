@@ -34,8 +34,8 @@ export class BattleScene {
     this.isBattling = false;         // 是否正在进行战斗循环
 
     // 按钮区域（位于黄忠卡片上方靠右）
-    const cardWidth = 130;  // 放大30% (100 * 1.3)
-    const cardHeight = 156; // 放大30% (120 * 1.3)
+    const cardWidth = 130;  // 卡片宽度
+    const cardHeight = 202; // 适配512×798立绘比例 (130/512*798≈202)
     const gapX = 8;
     const gapY = 8;
     const row1Y = this.height - cardHeight * 2 - gapY - 20;
@@ -186,11 +186,11 @@ export class BattleScene {
   async onAttack(attacker, target, damage) {
     this.currentAction = `${attacker.name} 攻击 ${target.name}，造成 ${damage} 点伤害`;
 
-    // 计算卡牌中心点（卡牌宽度130，高度156）
+    // 计算卡牌中心点（卡牌宽度130，高度202）
     const fromX = attacker.x + 65;
-    const fromY = attacker.y + 78;
+    const fromY = attacker.y + 101;
     const toX = target.x + 65;
-    const toY = target.y + 78;
+    const toY = target.y + 101;
 
     // 攻击者前进动画
     this.triggerAttackEffect(attacker.id, fromX, fromY, toX, toY);
@@ -219,11 +219,11 @@ export class BattleScene {
   async onSkill(hero, target, damage) {
     this.currentAction = `${hero.name} 释放 ${hero.skill.name}！造成 ${damage} 点伤害`;
 
-    // 计算卡牌中心点（卡牌宽度130，高度156）
+    // 计算卡牌中心点（卡牌宽度130，高度202）
     const fromX = hero.x + 65;
-    const fromY = hero.y + 78;
+    const fromY = hero.y + 101;
     const toX = target.x + 65;
-    const toY = target.y + 78;
+    const toY = target.y + 101;
 
     // 攻击者前进动画
     this.triggerAttackEffect(hero.id, fromX, fromY, toX, toY);
@@ -462,8 +462,8 @@ export class BattleScene {
   }
 
   drawEnemyArea(ctx) {
-    const cardWidth = 130;  // 放大30% (100 * 1.3)
-    const cardHeight = 156; // 放大30% (120 * 1.3)
+    const cardWidth = 130;  // 卡片宽度
+    const cardHeight = 202; // 适配512×798立绘比例
     const gapX = 8;
     const gapY = 8;
 
@@ -493,8 +493,8 @@ export class BattleScene {
   }
 
   drawMyArea(ctx) {
-    const cardWidth = 130;  // 放大30% (100 * 1.3)
-    const cardHeight = 156; // 放大30% (120 * 1.3)
+    const cardWidth = 130;  // 卡片宽度
+    const cardHeight = 202; // 适配512×798立绘比例
     const gapX = 8;
     const gapY = 8;
 
