@@ -7,11 +7,36 @@
     "enhance": true,
     "postcss": true,
     "minified": true,
-    "newFeature": true
+    "newFeature": true,
+    "compileWorklet": false,
+    "uglifyFileName": false,
+    "uploadWithSourceMap": true,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "useCompilerPlugins": false,
+    "condition": false,
+    "swc": false,
+    "disableSWC": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
   },
-  "appid": "touristappid",
+  "appid": "wx2b1de9157e42f387",
   "projectname": "lz_sg",
   "libVersion": "2.28.0",
   "compileType": "game",
-  "condition": {}
+  "condition": {},
+  "simulatorPluginLibVersion": {},
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "isGameTourist": false,
+  "editorSetting": {}
 }

@@ -550,32 +550,41 @@ export class BattleScene {
     const drawX = x + hitEffect.shakeX + attackOffsetX;
     const drawY = y + hitEffect.shakeY + attackOffsetY;
 
-    let bgColor = hero.currentHp <= 0 ? '#333' : '#16213e';
-
-    if (hitEffect.flash > 0 && hitEffect.flash % 2 === 0) {
-      bgColor = '#FFFFFF';
-    }
-
-    ctx.fillStyle = bgColor;
+    // 绘制卡片边框和背景
+    ctx.fillStyle = hero.currentHp <= 0 ? '#333' : '#16213e';
     ctx.strokeStyle = hero.currentHp <= 0 ? '#555' : '#0f3460';
     ctx.lineWidth = 2;
     this.drawRoundRect(ctx, drawX, drawY, width, height, 10);
     ctx.fill();
     ctx.stroke();
 
+    // 立绘填满整个卡片区域
+    this.drawPortrait(ctx, hero, drawX, drawY, width, height);
+
+    // 顶部名字栏（半透明黑色背景）
+    if (hitEffect.flash > 0 && hitEffect.flash % 2 === 0) {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    } else {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+    }
+    this.drawRoundRect(ctx, drawX + 2, drawY + 2, width - 4, 22, 6);
+    ctx.fill();
+
     // 角色名
     ctx.fillStyle = hero.currentHp <= 0 ? '#666' : '#fff';
-    ctx.font = 'bold 14px Arial';
+    ctx.font = 'bold 13px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText(hero.name, drawX + width / 2, drawY + 15);
+    ctx.textBaseline = 'middle';
+    ctx.fillText(hero.name, drawX + width / 2, drawY + 13);
 
-    // 绘制立绘（或占位图）
-    this.drawPortrait(ctx, hero, drawX, drawY + 25, width, height - 45);
+    // 底部血蓝条区域（半透明黑色背景）
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+    this.drawRoundRect(ctx, drawX + 2, drawY + height - 26, width - 4, 24, 6);
+    ctx.fill();
 
-    // 血条和蓝条放在卡片最下方
-    const barY = drawY + height - 28; // 距离底部28px
-    this.drawHpBar(ctx, drawX + 6, barY, width - 12, 12, hero.currentHp, hero.maxHp);
-    this.drawMpBar(ctx, drawX + 6, barY + 14, width - 12, 8, hero.currentMp, hero.maxMp);
+    // 血条和蓝条
+    this.drawHpBar(ctx, drawX + 6, drawY + height - 22, width - 12, 10, hero.currentHp, hero.maxHp);
+    this.drawMpBar(ctx, drawX + 6, drawY + height - 11, width - 12, 6, hero.currentMp, hero.maxMp);
   }
 
   // 绘制立绘（或占位图）
@@ -618,16 +627,20 @@ export class BattleScene {
       default: bgColor = '#95a5a6';
     }
 
-    // 绘制色块背景
+    // 绘制色块背景（填满整个卡片区域）
+    ctx.save();
+    this.drawRoundRect(ctx, x + 2, y + 2, width - 4, height - 4, 8);
+    ctx.clip();
     ctx.fillStyle = bgColor;
-    ctx.fillRect(x + 4, y, width - 8, height - 45);
+    ctx.fillRect(x + 2, y + 2, width - 4, height - 4);
+    ctx.restore();
 
-    // 绘制首字
+    // 绘制首字（居中显示）
     ctx.fillStyle = '#fff';
-    ctx.font = 'bold 36px Arial';
+    ctx.font = 'bold 48px Arial';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(firstChar, x + width / 2, y + (height - 45) / 2);
+    ctx.fillText(firstChar, x + width / 2, y + height / 2);
   }
 
   // 缓动函数（平滑动画）
