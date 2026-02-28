@@ -35,7 +35,7 @@ export class BattleScene {
 
     // 按钮区域（位于黄忠卡片上方靠右）
     const cardWidth = 130;  // 卡片宽度
-    const cardHeight = 202; // 适配512×798立绘比例 (130/512*798≈202)
+    const cardHeight = 175; // 缩短高度留出空余空间
     const gapX = 8;
     const gapY = 8;
     const row1Y = this.height - cardHeight * 2 - gapY - 20;
@@ -186,11 +186,11 @@ export class BattleScene {
   async onAttack(attacker, target, damage) {
     this.currentAction = `${attacker.name} 攻击 ${target.name}，造成 ${damage} 点伤害`;
 
-    // 计算卡牌中心点（卡牌宽度130，高度202）
+    // 计算卡牌中心点（卡牌宽度130，高度175）
     const fromX = attacker.x + 65;
-    const fromY = attacker.y + 101;
+    const fromY = attacker.y + 87;
     const toX = target.x + 65;
-    const toY = target.y + 101;
+    const toY = target.y + 87;
 
     // 攻击者前进动画
     this.triggerAttackEffect(attacker.id, fromX, fromY, toX, toY);
@@ -219,11 +219,11 @@ export class BattleScene {
   async onSkill(hero, target, damage) {
     this.currentAction = `${hero.name} 释放 ${hero.skill.name}！造成 ${damage} 点伤害`;
 
-    // 计算卡牌中心点（卡牌宽度130，高度202）
+    // 计算卡牌中心点（卡牌宽度130，高度175）
     const fromX = hero.x + 65;
-    const fromY = hero.y + 101;
+    const fromY = hero.y + 87;
     const toX = target.x + 65;
-    const toY = target.y + 101;
+    const toY = target.y + 87;
 
     // 攻击者前进动画
     this.triggerAttackEffect(hero.id, fromX, fromY, toX, toY);
@@ -463,7 +463,7 @@ export class BattleScene {
 
   drawEnemyArea(ctx) {
     const cardWidth = 130;  // 卡片宽度
-    const cardHeight = 202; // 适配512×798立绘比例
+    const cardHeight = 175; // 缩短高度留出空余空间
     const gapX = 8;
     const gapY = 8;
 
@@ -494,7 +494,7 @@ export class BattleScene {
 
   drawMyArea(ctx) {
     const cardWidth = 130;  // 卡片宽度
-    const cardHeight = 202; // 适配512×798立绘比例
+    const cardHeight = 175; // 缩短高度留出空余空间
     const gapX = 8;
     const gapY = 8;
 
