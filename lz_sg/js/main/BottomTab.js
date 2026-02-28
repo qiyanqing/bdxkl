@@ -1,10 +1,13 @@
-// js/main/BottomTab.js - 底部功能Tab栏
+// js/main/BottomTab.js - 底部功能Tab栏（适配 Home Indicator）
 
 export class BottomTab {
   constructor(ctx, width, height) {
     this.ctx = ctx;
     this.width = width;
     this.height = height;
+
+    // 获取系统安全区域信息
+    this.safeArea = this.getSafeArea();
 
     // Tab配置
     this.tabs = [
@@ -40,6 +43,74 @@ export class BottomTab {
 
     // 点击区域缓存
     this.clickAreas = [];
+
+    console.log('BottomTab 安全区域:', this.safeArea);
+  }
+
+  /**
+   * 获取系统安全区域信息
+   */
+  getSafeArea() {
+    try {
+      const systemInfo = wx.getSystemInfoSync();
+      console.log('系统信息:', systemInfo);
+
+      const windowHeight = systemInfo.windowHeight || systemInfo.screenHeight;
+      const windowWidth = systemInfo.windowWidth || systemInfo.screenWidth;
+
+      // 获取安全区域
+      const safeArea = systemInfo.safeArea || {
+        top: 0,
+        left: 0,
+        right: windowWidth,
+        bottom: windowHeight,
+      };
+
+      // 计算底部安全区域高度（Home Indicator）
+      // iPhone X 及以后的机型底部有 Home Indicator，高度约 34px
+      const bottomSafeHeight = windowHeight - safeArea.bottom;
+
+      // 判断是否有 Home Indicator
+      const hasHomeIndicator = bottomSafeHeight > 5;
+
+      return {
+        top: safeArea.top,
+        left: safeArea.left,
+        right: safeArea.right,
+        bottom: safeArea.bottom,
+        windowHeight,
+        windowWidth,
+        bottomSafeHeight,
+        hasHomeIndicator,
+      };
+    } catch (e) {
+      console.error('获取安全区域失败:', e);
+      return {
+        top: 0,
+        left: 0,
+        right: this.width,
+        bottom: this.height,
+        windowHeight: this.height,
+        windowWidth: this.width,
+        bottomSafeHeight: 0,
+        hasHomeIndicator: false,
+      };
+    }
+  }
+
+  /**
+   * 获取 BottomTab 的实际 Y 坐标
+   */
+  getBottomTabY() {
+    // 屏幕高度 - Tab栏高度 - 底部安全区域高度
+    return this.height - this.config.height - this.safeArea.bottomSafeHeight;
+  }
+
+  /**
+   * 获取 BottomBar 的实际高度（包括安全区域）
+   */
+  getBottomBarHeight() {
+    return this.config.height + this.safeArea.bottomSafeHeight;
   }
 
   /**
@@ -47,15 +118,16 @@ export class BottomTab {
    */
   draw() {
     const { height, iconSize, fontSize, indicatorHeight, paddingTop } = this.config;
-    const y = this.height - height;
+    const y = this.getBottomTabY();
     const tabWidth = this.width / this.tabs.length;
+    const totalHeight = this.getBottomBarHeight();
 
     // 清空点击区域缓存
     this.clickAreas = [];
 
-    // 绘制背景
+    // 绘制背景（延伸到屏幕底部，覆盖 Home Indicator 区域）
     this.ctx.fillStyle = this.colors.background;
-    this.ctx.fillRect(0, y, this.width, height);
+    this.ctx.fillRect(0, y, this.width, totalHeight);
 
     // 绘制每个Tab
     this.tabs.forEach((tab, index) => {
@@ -80,7 +152,7 @@ export class BottomTab {
         x: x,
         y: y,
         width: tabWidth,
-        height: height,
+        height: height, // 只记录内容高度，不包括安全区域
       });
     });
 
@@ -171,5 +243,12 @@ export class BottomTab {
    */
   getTabInfo(tabId) {
     return this.tabs.find(tab => tab.id === tabId);
+  }
+
+  /**
+   * 获取内容区域的结束 Y 坐标（BottomTab 上方）
+   */
+  getContentEndY() {
+    return this.getBottomTabY();
   }
 }

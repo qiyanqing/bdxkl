@@ -1,10 +1,13 @@
-// js/main/TopBar.js - 顶部信息栏
+// js/main/TopBar.js - 顶部信息栏（适配刘海屏/灵动岛）
 
 export class TopBar {
   constructor(ctx, width, height) {
     this.ctx = ctx;
     this.width = width;
     this.height = height;
+
+    // 获取系统安全区域信息
+    this.safeArea = this.getSafeArea();
 
     // 布局参数
     this.config = {
@@ -30,6 +33,73 @@ export class TopBar {
       gems: '#a855f7',
       stamina: '#22c55e',
     };
+
+    console.log('TopBar 安全区域:', this.safeArea);
+  }
+
+  /**
+   * 获取系统安全区域信息
+   */
+  getSafeArea() {
+    try {
+      const systemInfo = wx.getSystemInfoSync();
+      console.log('系统信息:', systemInfo);
+
+      // 获取安全区域
+      const safeArea = systemInfo.safeArea || {
+        top: 0,
+        left: 0,
+        right: systemInfo.windowWidth || systemInfo.screenWidth,
+        bottom: systemInfo.windowHeight || systemInfo.screenHeight,
+      };
+
+      // 状态栏高度
+      const statusBarHeight = systemInfo.statusBarHeight || 0;
+
+      // 计算顶部安全区域高度（状态栏 + 刘海/灵动岛额外空间）
+      // iPhone 14 Pro Max 的灵动岛高度约 34px，其他刘海屏约 30px
+      const topSafeHeight = safeArea.top;
+
+      // 判断是否是刘海屏/灵动岛
+      const isNotchScreen = topSafeHeight > statusBarHeight + 5;
+
+      return {
+        top: topSafeHeight,
+        left: safeArea.left,
+        right: safeArea.right,
+        bottom: safeArea.bottom,
+        statusBarHeight,
+        isNotchScreen,
+        // 额外的顶部偏移量，用于避开刘海/灵动岛
+        topOffset: isNotchScreen ? Math.max(10, topSafeHeight - statusBarHeight) : 0,
+      };
+    } catch (e) {
+      console.error('获取安全区域失败:', e);
+      return {
+        top: 0,
+        left: 0,
+        right: this.width,
+        bottom: this.height,
+        statusBarHeight: 0,
+        isNotchScreen: false,
+        topOffset: 0,
+      };
+    }
+  }
+
+  /**
+   * 获取 TopBar 的实际起始 Y 坐标
+   */
+  getTopBarY() {
+    // 状态栏高度 + 额外偏移量（用于避开刘海/灵动岛）
+    return this.safeArea.top + this.safeArea.topOffset;
+  }
+
+  /**
+   * 获取 TopBar 的实际高度
+   */
+  getTopBarHeight() {
+    return this.config.height;
   }
 
   /**
@@ -37,9 +107,10 @@ export class TopBar {
    */
   draw(playerData) {
     const { height, paddingTop, paddingLeft, paddingRight, avatarSize, fontSize, smallFontSize, iconSize, spacing } = this.config;
-    const y = paddingTop;
+    const topBarY = this.getTopBarY();
+    const y = topBarY + paddingTop;
 
-    // 绘制背景渐变
+    // 绘制背景渐变（延伸到顶部，覆盖状态栏区域）
     this.drawBackground();
 
     // 绘制头像区域
@@ -54,16 +125,20 @@ export class TopBar {
   }
 
   /**
-   * 绘制背景
+   * 绘制背景（延伸到屏幕顶部）
    */
   drawBackground() {
     const { height } = this.config;
-    const gradient = this.ctx.createLinearGradient(0, 0, 0, height);
+    const topBarY = this.getTopBarY();
+
+    // 背景从屏幕顶部开始绘制，覆盖状态栏区域
+    const gradient = this.ctx.createLinearGradient(0, 0, 0, topBarY + height);
     gradient.addColorStop(0, this.colors.backgroundStart);
     gradient.addColorStop(1, this.colors.backgroundEnd);
 
     this.ctx.fillStyle = gradient;
-    this.ctx.fillRect(0, 0, this.width, height);
+    // 从屏幕顶部 (0, 0) 开始绘制，确保覆盖状态栏
+    this.ctx.fillRect(0, 0, this.width, topBarY + height);
   }
 
   /**
@@ -118,7 +193,7 @@ export class TopBar {
    */
   drawResources(rightX, y, iconSize, fontSize, playerData) {
     const { resources } = playerData;
-    const { gold, gems, stamina, stamina: maxStamina } = this.colors;
+    const { gold, gems, stamina } = this.colors;
 
     // 计算资源项宽度
     const itemWidth = 80;
@@ -156,10 +231,18 @@ export class TopBar {
    */
   checkAvatarClick(x, y) {
     const { paddingTop, paddingLeft, avatarSize } = this.config;
+    const topBarY = this.getTopBarY();
     const avatarX = paddingLeft;
-    const avatarY = paddingTop;
+    const avatarY = topBarY + paddingTop;
 
     return x >= avatarX && x <= avatarX + avatarSize &&
            y >= avatarY && y <= avatarY + avatarSize;
+  }
+
+  /**
+   * 获取内容区域的起始 Y 坐标（TopBar 下方）
+   */
+  getContentStartY() {
+    return this.getTopBarY() + this.config.height;
   }
 }

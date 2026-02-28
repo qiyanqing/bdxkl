@@ -163,12 +163,26 @@ export class MainScene {
   }
 
   /**
-   * 设置返回按钮
+   * 设置返回按钮（适配安全区域）
    */
   setBackButton(callback) {
+    // 获取安全区域信息
+    let topSafePadding = 10;
+    try {
+      const systemInfo = wx.getSystemInfoSync();
+      const safeArea = systemInfo.safeArea || { top: 0 };
+      const statusBarHeight = systemInfo.statusBarHeight || 0;
+      // 如果是刘海屏/灵动岛，增加顶部间距
+      if (safeArea.top > statusBarHeight + 5) {
+        topSafePadding = safeArea.top;
+      }
+    } catch (e) {
+      console.error('获取安全区域失败:', e);
+    }
+
     this.backButton = {
       x: this.width - 70,
-      y: 10,
+      y: topSafePadding,
       width: 60,
       height: 30,
       callback: callback,
