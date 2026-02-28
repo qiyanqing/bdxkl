@@ -528,11 +528,11 @@ export class RecruitScene {
     const results = this.state.results;
     const revealIndex = this.state.revealIndex;
 
-    // 重新计算布局，确保所有卡片在屏幕内
-    // 第1批从顶部往下 80px 开始
-    const firstBatchY = 80;
-    // 批次之间的间距（卡片高度 160 + 间距）
-    const batchGap = cardHeight - 20; // 140px
+    // 重新计算布局，确保所有卡片在屏幕内且不重叠
+    // 第1批从顶部往下 60px 开始
+    const firstBatchY = 60;
+    // 批次之间的间距 = 卡片高度 + 额外间距，确保不重叠
+    const batchGap = cardHeight + 5; // 165px
 
     const positions = [];
 
