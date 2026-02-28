@@ -35,6 +35,14 @@ export class MapScene {
     this.grids = [];
     this.player = null;
 
+    // 摄像机系统
+    this.camera = {
+      x: 0,
+      y: 0,
+      targetX: 0,
+      targetY: 0
+    };
+
     // 子系统
     this.gridRenderer = new GridRenderer(this.ctx);
     this.playerController = new PlayerController(this.levelState);
@@ -64,10 +72,34 @@ export class MapScene {
   loadLevelConfig() {
     const generator = new MapGenerator(null, this.width, this.height);
     this.grids = generator.generate();
+    // 保存地图配置供摄像机使用
+    this.config = generator.config;
     console.log('地图生成完成，格子数:', this.grids.length);
   }
 
+  // 更新摄像机位置（平滑跟随玩家）
+  updateCamera() {
+    const playerGrid = this.grids[this.levelState.playerPosition];
+    if (!playerGrid) return;
+
+    // 目标：玩家在屏幕中心
+    this.camera.targetX = playerGrid.x - this.width / 2;
+    this.camera.targetY = playerGrid.y - this.height / 2;
+
+    // 限制摄像机不超出地图边界
+    const mapWidth = this.grids.length > 0 ? this.config.mapWidth || this.width : this.width;
+    const mapHeight = this.grids.length > 0 ? this.config.mapHeight || this.height : this.height;
+
+    this.camera.targetX = Math.max(0, Math.min(this.camera.targetX, mapWidth - this.width));
+    this.camera.targetY = Math.max(0, Math.min(this.camera.targetY, mapHeight - this.height));
+
+    // 平滑移动摄像机
+    this.camera.x += (this.camera.targetX - this.camera.x) * 0.1;
+    this.camera.y += (this.camera.targetY - this.camera.y) * 0.1;
+  }
+
   update() {
+    this.updateCamera();
     this.updateMoveAnimation();
   }
 
@@ -78,33 +110,29 @@ export class MapScene {
     ctx.fillStyle = '#1a1a2e';
     ctx.fillRect(0, 0, this.width, this.height);
 
+    ctx.save();
+    // 应用摄像机偏移
+    ctx.translate(-this.camera.x, -this.camera.y);
+
     // 绘制所有格子
     this.grids.forEach((grid, index) => {
-      const isSelected = index === this.levelState.playerPosition;
-      this.gridRenderer.drawGrid(grid, isSelected);
+      // 只绘制视野内的格子
+      if (grid.x + this.camera.x >= -100 && grid.x + this.camera.x <= this.width + 100 &&
+          grid.y + this.camera.y >= -100 && grid.y + this.camera.y <= this.height + 100) {
+        const isSelected = index === this.levelState.playerPosition;
+        this.gridRenderer.drawGrid(grid, isSelected);
+      }
     });
 
-    // 绘制玩家棋子（支持动画）
-    let playerGrid = this.grids[this.levelState.playerPosition];
-
-    if (this.animation.isAnimating) {
-      // 计算动画位置
-      const fromGrid = this.grids[this.animation.currentGridIndex];
-      const toGrid = this.grids[this.animation.targetGridIndex];
-
-      // 线性插值
-      const x = fromGrid.x + (toGrid.x - fromGrid.x) * this.animation.progress;
-      const y = fromGrid.y + (toGrid.y - fromGrid.y) * this.animation.progress;
-
-      // 创建临时格子对象用于渲染
-      playerGrid = { ...playerGrid, x, y };
-    }
-
+    // 绘制玩家棋子
+    const playerGrid = this.grids[this.levelState.playerPosition];
     if (playerGrid) {
       this.playerRenderer.drawPlayer(playerGrid, this.levelState.leaderHeroId);
     }
 
-    // 绘制UI
+    ctx.restore();
+
+    // 绘制UI（不受摄像机影响）
     this.uiController.drawTopBar(this.levelState);
     this.uiController.drawBottomBar(this.levelState);
   }

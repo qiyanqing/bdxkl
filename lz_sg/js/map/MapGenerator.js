@@ -8,13 +8,13 @@ export class MapGenerator {
     this.config.canvasHeight = canvasHeight;
   }
 
-  // 生成环形地图路径
+  // 生成大富翁风格的大地图路径
   generate() {
     const grids = [];
     const totalGrids = this.config.totalGrids;
 
-    // 生成环形路径坐标
-    const path = this.generateRingPath(totalGrids);
+    // 生成S型曲折路径
+    const path = this.generateSnakePath(totalGrids);
 
     // 分配格子类型
     const types = this.generateGridTypes(totalGrids);
@@ -34,22 +34,40 @@ export class MapGenerator {
     return grids;
   }
 
-  // 生成环形路径
-  generateRingPath(totalGrids) {
+  // 生成S型大地图路径（超出屏幕尺寸）
+  generateSnakePath(totalGrids) {
     const path = [];
-    const centerX = this.config.canvasWidth / 2;
-    const centerY = this.config.canvasHeight / 2;
-    const radius = 120; // 基础半径
 
-    for (let i = 0; i < totalGrids; i++) {
-      // 将格子分布成环形
-      const angle = (i / totalGrids) * Math.PI * 2 - Math.PI / 2; // 从顶部开始
+    // 地图配置
+    const gridSize = 80;      // 格子间距
+    const gridWidth = 60;     // 格子宽度
+    const gridHeight = 45;    // 格子高度
+    const gridsPerRow = 6;    // 每行6个格子
+    const rows = Math.ceil(totalGrids / gridsPerRow); // 总行数
 
-      // 2.5D效果：Y轴压缩
-      const x = centerX + Math.cos(angle) * radius;
-      const y = centerY + Math.sin(angle) * radius * 0.6; // 压缩Y轴
+    // 计算需要的地图尺寸
+    const mapWidth = gridsPerRow * gridSize + 100; // 留边距
+    const mapHeight = rows * gridSize + 200;
 
-      path.push({ x, y });
+    // 存储地图尺寸供摄像机使用
+    this.config.mapWidth = mapWidth;
+    this.config.mapHeight = mapHeight;
+
+    // 生成S型路径
+    for (let row = 0; row < rows; row++) {
+      const gridsInThisRow = Math.min(gridsPerRow, totalGrids - row * gridsPerRow);
+
+      // 偶数行从左到右，奇数行从右到左
+      const isLeftToRight = row % 2 === 0;
+
+      for (let col = 0; col < gridsInThisRow; col++) {
+        const actualCol = isLeftToRight ? col : (gridsPerRow - 1 - col);
+
+        const x = 50 + actualCol * gridSize;
+        const y = 100 + row * gridSize;
+
+        path.push({ x, y });
+      }
     }
 
     return path;
