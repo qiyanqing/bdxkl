@@ -34,7 +34,24 @@ export class GridEventSystem {
   // 普通战斗
   async triggerBattle(grid, isElite) {
     console.log(isElite ? '触发精英战斗' : '触发普通战斗');
-    // TODO: 跳转到战斗场景
+
+    // 保存当前地图状态
+    const mapState = JSON.stringify(this.levelState);
+
+    // 跳转到战斗场景
+    // 注意：小游戏环境暂不支持页面跳转，后续实现
+    if (typeof wx !== 'undefined' && wx.navigateTo) {
+      wx.navigateTo({
+        url: `/pages/battle/battle?enemyType=${isElite ? 'elite' : 'normal'}&mapState=${encodeURIComponent(mapState)}`,
+        success: () => {
+          console.log('进入战斗场景');
+        },
+        fail: (err) => {
+          console.error('跳转失败，小游戏环境暂不支持:', err);
+        }
+      });
+    }
+
     return { type: 'battle', isElite };
   }
 
