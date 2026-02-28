@@ -1,5 +1,7 @@
 // js/map/MapScene.js
 // 地图场景主类
+import { MapGenerator } from './MapGenerator.js';
+
 export class MapScene {
   constructor(canvas, width, height) {
     this.canvas = canvas;
@@ -38,7 +40,9 @@ export class MapScene {
   }
 
   loadLevelConfig() {
-    // TODO: 加载关卡配置
+    const generator = new MapGenerator(null, this.width, this.height);
+    this.grids = generator.generate();
+    console.log('地图生成完成，格子数:', this.grids.length);
   }
 
   update() {
