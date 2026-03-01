@@ -1,5 +1,6 @@
 import { MapRenderer } from './MapRenderer.js';
 import { MapState } from './MapState.js';
+import { PathEditor } from './PathEditor.js';
 
 /**
  * 主程序入口
@@ -12,6 +13,14 @@ class MapDebugger {
 
         // 创建渲染器
         this.renderer = new MapRenderer('map-canvas');
+
+        // 创建路径编辑器
+        this.pathEditor = new PathEditor({
+            canvas: this.renderer.canvas,
+            state: this.state,
+            gridSystem: this.renderer.getGridSystem(),
+            renderer: this.renderer
+        });
 
         // 初始化
         this.initTestData();
@@ -68,6 +77,7 @@ class MapDebugger {
 
     /**
      * 初始化事件监听器
+     * 注意：鼠标和键盘事件已由 PathEditor 处理
      */
     initEventListeners() {
         // 模式切换按钮
@@ -78,22 +88,12 @@ class MapDebugger {
             });
         });
 
-        // Canvas 鼠标事件
-        const canvas = this.renderer.canvas;
-
-        canvas.addEventListener('mousemove', (e) => {
-            this.handleMouseMove(e);
-        });
-
-        canvas.addEventListener('click', (e) => {
-            this.handleMouseClick(e);
-        });
-
-        // 操作按钮
+        // 导出按钮（委托给 PathEditor）
         document.getElementById('btn-export').addEventListener('click', () => {
-            this.exportJSON();
+            this.pathEditor.exportJSON();
         });
 
+        // 验证按钮
         document.getElementById('btn-validate').addEventListener('click', () => {
             this.validateMap();
         });
@@ -123,128 +123,6 @@ class MapDebugger {
     }
 
     /**
-     * 处理鼠标移动事件
-     * @param {MouseEvent} e
-     */
-    handleMouseMove(e) {
-        const rect = this.renderer.canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-
-        // 查找鼠标下的格子
-        const grid = this.renderer.findGridAt(x, y);
-
-        // 更新悬停状态
-        this.renderer.setHoveredGrid(grid);
-
-        // 更新格子详情面板
-        this.updateGridInfo(grid);
-    }
-
-    /**
-     * 处理鼠标点击事件
-     * @param {MouseEvent} e
-     */
-    handleMouseClick(e) {
-        const rect = this.renderer.canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-
-        const gridSystem = this.renderer.getGridSystem();
-        const grid = gridSystem.snapToGrid(x, y);
-
-        switch (this.state.editMode) {
-            case 'add':
-                this.addGrid(grid);
-                break;
-            case 'select':
-                this.selectGrid(grid);
-                break;
-            case 'delete':
-                this.deleteGrid(grid);
-                break;
-        }
-    }
-
-    /**
-     * 添加格子
-     * @param {Object} grid - 网格坐标 {x, y}
-     */
-    addGrid(grid) {
-        const newGrid = this.state.addGrid(grid);
-        if (newGrid) {
-            console.log('添加格子:', newGrid);
-        } else {
-            console.log('格子已存在:', grid);
-        }
-    }
-
-    /**
-     * 选择格子
-     * @param {Object} grid - 网格坐标 {x, y}
-     */
-    selectGrid(grid) {
-        const found = this.state.getGridAtPosition(grid.x, grid.y);
-        if (found) {
-            this.state.setSelectedGrid(found.id);
-            console.log('选中格子:', found);
-        } else {
-            this.state.setSelectedGrid(null);
-        }
-    }
-
-    /**
-     * 删除格子
-     * @param {Object} grid - 网格坐标 {x, y}
-     */
-    deleteGrid(grid) {
-        const found = this.state.getGridAtPosition(grid.x, grid.y);
-        if (found) {
-            const deleted = this.state.deleteGrid(found.id);
-            console.log('删除格子:', deleted);
-        }
-    }
-
-    /**
-     * 更新格子详情面板
-     * @param {Object} grid - 格子对象
-     */
-    updateGridInfo(grid) {
-        const gridInfo = document.getElementById('grid-info');
-
-        if (!grid) {
-            gridInfo.innerHTML = '<p>鼠标悬停格子查看详情</p>';
-            return;
-        }
-
-        const info = `
-            <p><span class="info-label">格子 ID:</span> <span class="info-value">${grid.id}</span></p>
-            <p><span class="info-label">坐标:</span> <span class="info-value">(${grid.x}, ${grid.y})</span></p>
-            <p><span class="info-label">类型:</span> <span class="info-value">${this.getTypeName(grid.type)}</span></p>
-            <p><span class="info-label">下一个:</span> <span class="info-value">${grid.next ? `(${grid.next.x}, ${grid.next.y})` : '无'}</span></p>
-        `;
-
-        gridInfo.innerHTML = info;
-    }
-
-    /**
-     * 获取类型名称
-     * @param {string} type - 类型
-     * @returns {string} 类型名称
-     */
-    getTypeName(type) {
-        const types = {
-            'start': '起点',
-            'normal': '普通',
-            'battle': '战斗',
-            'event': '事件',
-            'shop': '商店',
-            'rest': '休息'
-        };
-        return types[type] || type;
-    }
-
-    /**
      * 更新 UI 显示
      */
     updateUI() {
@@ -257,23 +135,6 @@ class MapDebugger {
 
         // 初始化模式按钮状态
         this.updateModeButtons(this.state.editMode);
-    }
-
-    /**
-     * 导出 JSON
-     */
-    exportJSON() {
-        const json = this.state.toJSON();
-        console.log('导出 JSON:', json);
-
-        // 下载文件
-        const blob = new Blob([json], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'map-data.json';
-        a.click();
-        URL.revokeObjectURL(url);
     }
 
     /**
