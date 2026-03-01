@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地图调试工具</title>
+    <link rel="stylesheet" href="css/map-debugger.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>🎮 地图调试工具</h1>
+        </header>
+        <div class="main-content">
+            <aside class="control-panel">
+                <!-- 编辑模式 -->
+                <section class="panel-section">
+                    <h3>编辑模式</h3>
+                    <div class="mode-buttons">
+                        <button id="btn-add-mode" class="mode-btn active" data-mode="add">添加</button>
+                        <button id="btn-select-mode" class="mode-btn" data-mode="select">选择</button>
+                        <button id="btn-delete-mode" class="mode-btn" data-mode="delete">删除</button>
+                    </div>
+                </section>
+
+                <!-- 验证结果 -->
+                <section class="panel-section">
+                    <h3>验证结果</h3>
+                    <div id="validation-status" class="validation-status">
+                        <span class="status-icon">⏳</span>
+                        <span class="status-text">待验证</span>
+                    </div>
+                    <div id="validation-details" class="validation-details"></div>
+                </section>
+
+                <!-- 格子详情 -->
+                <section class="panel-section">
+                    <h3>格子详情</h3>
+                    <div id="grid-info" class="grid-info">
+                        <p>鼠标悬停格子查看详情</p>
+                    </div>
+                </section>
+
+                <!-- 操作按钮 -->
+                <section class="panel-section">
+                    <button id="btn-export" class="action-btn">导出 JSON</button>
+                    <button id="btn-validate" class="action-btn primary">验证地图</button>
+                </section>
+            </aside>
+            <main class="canvas-container">
+                <canvas id="map-canvas"></canvas>
+            </main>
+        </div>
+    </div>
+    <script type="module" src="js/map-debugger/main.js"></script>
+</body>
+</html>
