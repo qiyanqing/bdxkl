@@ -111,11 +111,6 @@ class MapDebugger {
             });
         });
 
-        // 验证按钮
-        document.getElementById('btn-validate').addEventListener('click', () => {
-            this.validateMap();
-        });
-
         // 生成关卡按钮
         document.getElementById('btn-generate').addEventListener('click', () => {
             this.generateMap();
