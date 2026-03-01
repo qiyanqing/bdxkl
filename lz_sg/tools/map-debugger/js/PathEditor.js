@@ -1,4 +1,5 @@
 import { GRID_TYPES } from './MapGenerator.js';
+import { ContextMenu } from './ContextMenu.js';
 
 /**
  * 路径编辑器类
@@ -20,6 +21,19 @@ export class PathEditor {
         this.dragStartGrid = null;
         this.dragStartPos = null;
 
+        // 右键菜单
+        this.contextMenu = new ContextMenu({
+            onSelect: (gridType) => {
+                if (this.targetGrid) {
+                    // 更新格子类型
+                    this.targetGrid.type = gridType;
+                    this.state.notify('gridUpdated', this.targetGrid);
+                    console.log('格子类型已更新:', gridType);
+                }
+            }
+        });
+        this.targetGrid = null;
+
         // 绑定事件
         this.bindEvents();
     }
@@ -34,6 +48,7 @@ export class PathEditor {
         this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
         this.canvas.addEventListener('mouseup', (e) => this.handleMouseUp(e));
         this.canvas.addEventListener('dblclick', (e) => this.handleDoubleClick(e));
+        this.canvas.addEventListener('contextmenu', (e) => this.handleContextMenu(e));
 
         // 键盘事件
         document.addEventListener('keydown', (e) => this.handleKeyDown(e));
@@ -237,6 +252,31 @@ export class PathEditor {
 
         // 更新渲染器
         this.renderer.setGrids(allGrids);
+    }
+
+    /**
+     * 处理右键菜单事件
+     * @param {MouseEvent} e - 鼠标事件
+     */
+    handleContextMenu(e) {
+        e.preventDefault();
+
+        const { x, y } = this.getMousePos(e);
+        const clickedGrid = this.renderer.findGridAt(x, y);
+
+        if (!clickedGrid) {
+            return;
+        }
+
+        // 保存目标格子引用
+        this.targetGrid = clickedGrid;
+
+        // 获取页面坐标（用于定位菜单）
+        const pageX = e.pageX;
+        const pageY = e.pageY;
+
+        // 显示右键菜单
+        this.contextMenu.show(pageX, pageY, clickedGrid);
     }
 
     /**
