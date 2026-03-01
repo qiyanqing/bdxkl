@@ -16,6 +16,12 @@ export class PathEditor {
         this.gridSystem = gridSystem;
         this.renderer = renderer;
 
+        // 鼠标按下状态（用于区分点击和长按拖拽）
+        this.mouseDownTime = 0;
+        this.mouseDownPos = { x: 0, y: 0 };
+        this.dragThreshold = 200; // 长按阈值（毫秒）
+        this.dragDistanceThreshold = 5; // 移动阈值（像素）
+
         // 拖拽状态
         this.isDragging = false;
         this.dragStartGrid = null;
@@ -55,7 +61,7 @@ export class PathEditor {
     }
 
     /**
-     * 处理点击事件（根据编辑模式分发）
+     * 处理点击事件（左键单击选中格子）
      * @param {MouseEvent} e - 鼠标事件
      */
     handleClick(e) {
@@ -64,44 +70,30 @@ export class PathEditor {
             return;
         }
 
+        // 检测是否是快速点击（时间差小于阈值且移动距离小于阈值）
+        const timeDiff = Date.now() - this.mouseDownTime;
         const { x, y } = this.getMousePos(e);
+        const distance = Math.sqrt(
+            Math.pow(x - this.mouseDownPos.x, 2) +
+            Math.pow(y - this.mouseDownPos.y, 2)
+        );
+
+        // 如果时间超过阈值或移动距离超过阈值，认为是拖拽，不处理点击
+        if (timeDiff > this.dragThreshold || distance > this.dragDistanceThreshold) {
+            return;
+        }
+
+        // 左键单击：选中格子
         const clickedGrid = this.renderer.findGridAt(x, y);
-        const gridPos = this.gridSystem.snapToGrid(x, y);
 
-        switch (this.state.editMode) {
-            case 'add':
-                this.handleAddClick(gridPos.x, gridPos.y, clickedGrid);
-                break;
-            case 'select':
-                this.handleSelectClick(clickedGrid);
-                break;
-            case 'delete':
-                this.handleDeleteClick(clickedGrid);
-                break;
-        }
-    }
-
-    /**
-     * 处理添加模式下的点击
-     * @param {number} x - 网格 X 坐标
-     * @param {number} y - 网格 Y 坐标
-     * @param {Object} clickedGrid - 点击位置已有的格子（如果有）
-     */
-    handleAddClick(x, y, clickedGrid) {
-        // 如果点击位置已有格子，不添加
         if (clickedGrid) {
-            console.log('位置已有格子:', clickedGrid);
-            return;
+            // 清除之前的选中状态，选中当前格子
+            this.state.setSelectedGrid(clickedGrid.id);
+            console.log('选中格子:', clickedGrid);
+        } else {
+            // 点击空白区，清除选中状态
+            this.state.setSelectedGrid(null);
         }
-
-        // 添加新格子
-        const newGrid = this.state.addGrid({ x, y, type: GRID_TYPES.EMPTY });
-        if (!newGrid) {
-            return;
-        }
-
-        // 自动连接到最近的格子
-        this.autoConnectToNearest(newGrid);
     }
 
     /**
@@ -137,58 +129,50 @@ export class PathEditor {
     }
 
     /**
-     * 处理选择模式下的点击
-     * @param {Object} clickedGrid - 点击的格子
-     */
-    handleSelectClick(clickedGrid) {
-        if (clickedGrid) {
-            this.state.setSelectedGrid(clickedGrid.id);
-            console.log('选中格子:', clickedGrid);
-        } else {
-            this.state.setSelectedGrid(null);
-        }
-    }
-
-    /**
-     * 处理删除模式下的点击
-     * @param {Object} clickedGrid - 点击的格子
-     */
-    handleDeleteClick(clickedGrid) {
-        if (clickedGrid) {
-            const deleted = this.state.deleteGrid(clickedGrid.id);
-            console.log('删除格子:', deleted);
-        }
-    }
-
-    /**
-     * 处理鼠标按下事件（开始拖拽）
+     * 处理鼠标按下事件（记录按下时间和位置）
      * @param {MouseEvent} e - 鼠标事件
      */
     handleMouseDown(e) {
-        // 只有在选择模式下才能拖拽
-        if (this.state.editMode !== 'select') {
+        // 只处理左键
+        if (e.button !== 0) {
             return;
         }
 
         const { x, y } = this.getMousePos(e);
         const clickedGrid = this.renderer.findGridAt(x, y);
 
+        // 记录按下时间和位置（用于区分点击和长按拖拽）
+        this.mouseDownTime = Date.now();
+        this.mouseDownPos = { x, y };
+
+        // 如果点击了格子，准备拖拽
         if (clickedGrid) {
-            this.isDragging = true;
             this.dragStartGrid = clickedGrid;
             this.dragStartPos = { x, y };
-
-            // 选中拖拽的格子
-            this.state.setSelectedGrid(clickedGrid.id);
         }
     }
 
     /**
-     * 处理鼠标移动事件（悬停效果、拖拽）
+     * 处理鼠标移动事件（检测拖拽、悬停效果）
      * @param {MouseEvent} e - 鼠标事件
      */
     handleMouseMove(e) {
         const { x, y } = this.getMousePos(e);
+
+        // 检测是否进入拖拽模式（时间超过阈值且移动距离超过阈值）
+        if (this.dragStartGrid && !this.isDragging) {
+            const timeDiff = Date.now() - this.mouseDownTime;
+            const distance = Math.sqrt(
+                Math.pow(x - this.mouseDownPos.x, 2) +
+                Math.pow(y - this.mouseDownPos.y, 2)
+            );
+
+            if (timeDiff > this.dragThreshold && distance > this.dragDistanceThreshold) {
+                // 进入拖拽模式
+                this.isDragging = true;
+                console.log('开始拖拽格子:', this.dragStartGrid);
+            }
+        }
 
         // 处理拖拽
         if (this.isDragging && this.dragStartGrid) {
@@ -223,6 +207,7 @@ export class PathEditor {
             this.isDragging = false;
             this.dragStartGrid = null;
             this.dragStartPos = null;
+            console.log('结束拖拽');
         }
     }
 
@@ -255,28 +240,40 @@ export class PathEditor {
     }
 
     /**
-     * 处理右键菜单事件
+     * 处理右键菜单事件（区分格子和空白区）
      * @param {MouseEvent} e - 鼠标事件
      */
     handleContextMenu(e) {
         e.preventDefault();
 
         const { x, y } = this.getMousePos(e);
+        const gridPos = this.gridSystem.snapToGrid(x, y);
         const clickedGrid = this.renderer.findGridAt(x, y);
-
-        if (!clickedGrid) {
-            return;
-        }
-
-        // 保存目标格子引用
-        this.targetGrid = clickedGrid;
 
         // 获取页面坐标（用于定位菜单）
         const pageX = e.pageX;
         const pageY = e.pageY;
 
-        // 显示右键菜单
-        this.contextMenu.show(pageX, pageY, clickedGrid);
+        if (clickedGrid) {
+            // 右键点击格子：显示属性菜单
+            this.targetGrid = clickedGrid;
+            this.contextMenu.show(pageX, pageY, clickedGrid);
+        } else {
+            // 右键点击空白区：添加空白格
+            const newGrid = this.state.addGrid({
+                x: gridPos.x,
+                y: gridPos.y,
+                type: GRID_TYPES.EMPTY
+            });
+
+            if (newGrid) {
+                console.log('添加空白格:', newGrid);
+                // 自动连接到最近的格子
+                this.autoConnectToNearest(newGrid);
+            } else {
+                console.log('该位置已有格子，无法添加');
+            }
+        }
     }
 
     /**
@@ -290,27 +287,6 @@ export class PathEditor {
         }
 
         switch (e.key.toLowerCase()) {
-            case 'a':
-                // 切换到添加模式
-                e.preventDefault();
-                this.state.setEditMode('add');
-                console.log('切换到添加模式');
-                break;
-
-            case 's':
-                // 切换到选择模式
-                e.preventDefault();
-                this.state.setEditMode('select');
-                console.log('切换到选择模式');
-                break;
-
-            case 'd':
-                // 切换到删除模式
-                e.preventDefault();
-                this.state.setEditMode('delete');
-                console.log('切换到删除模式');
-                break;
-
             case 'delete':
             case 'backspace':
                 // 删除选中的格子
@@ -332,13 +308,19 @@ export class PathEditor {
     }
 
     /**
-     * 删除选中的格子
+     * 删除选中的格子（将格子类型设为空白）
      */
     deleteSelectedGrid() {
         const selectedId = this.state.selectedGridId;
-        if (selectedId !== null) {
-            const deleted = this.state.deleteGrid(selectedId);
-            console.log('删除选中格子:', deleted);
+        if (selectedId === null) {
+            return;
+        }
+
+        const grid = this.state.getGrid(selectedId);
+        if (grid) {
+            grid.type = GRID_TYPES.EMPTY;
+            this.state.notify('gridUpdated', grid);
+            console.log('删除格子（设为空白）:', grid);
         }
     }
 
