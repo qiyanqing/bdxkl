@@ -4,9 +4,9 @@
 export const levelTemplate = {
   levelId: 1,
   levelName: '第一章-初出茅庐',
-  totalGrids: 15,              // 总格子数
-  totalDice: 15,               // 通关所需骰子数
-  forceBattleInterval: 10,     // 强制战斗间隔（骰子数）
+  totalGrids: 50,              // 总格子数（方形折线路径）
+  totalDice: 35,               // 通关所需骰子数
+  forceBattleInterval: 15,     // 强制战斗间隔（骰子数）
   gridTypes: {                 // 格子类型分布比例
     battle: 0.1,       // 10% 普通战斗
     elite: 0.0,        // 0% 精英战斗

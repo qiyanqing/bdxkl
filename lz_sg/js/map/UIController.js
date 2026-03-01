@@ -73,6 +73,9 @@ export class UIController {
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
     this.ctx.fillRect(0, 0, this.width, y + barHeight);
 
+    // 绘制返回按钮
+    this.drawBackButton(40, y + barHeight / 2);
+
     // 文字信息
     this.ctx.fillStyle = '#fff';
     this.ctx.font = '14px Arial';
@@ -80,9 +83,52 @@ export class UIController {
     this.ctx.textBaseline = 'middle';
 
     const info = `关卡${levelState.currentLevel} | 剩余骰子: ${levelState.diceRemaining}`;
-    this.ctx.fillText(info, 20, y + barHeight / 2);
+    this.ctx.fillText(info, 80, y + barHeight / 2);
 
     this.ctx.restore();
+  }
+
+  // 绘制返回按钮
+  drawBackButton(x, y) {
+    const radius = 15;
+
+    this.ctx.save();
+
+    // 按钮圆形
+    this.ctx.beginPath();
+    this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+
+    // 渐变背景
+    const gradient = this.ctx.createRadialGradient(x - 5, y - 5, 0, x, y, radius);
+    gradient.addColorStop(0, '#3498db');
+    gradient.addColorStop(1, '#2980b9');
+    this.ctx.fillStyle = gradient;
+    this.ctx.fill();
+
+    // 边框
+    this.ctx.strokeStyle = '#fff';
+    this.ctx.lineWidth = 2;
+    this.ctx.stroke();
+
+    // 返回图标
+    this.ctx.fillStyle = '#fff';
+    this.ctx.font = 'bold 16px Arial';
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
+    this.ctx.fillText('←', x, y);
+
+    this.ctx.restore();
+  }
+
+  // 检查是否点击返回按钮（适配安全区域）
+  checkBackButtonClick(x, y) {
+    const topSafeY = this.safeArea.top + this.safeArea.topOffset;
+    const buttonX = 40;
+    const buttonY = topSafeY + 20; // 顶部栏中心
+    const radius = 15;
+
+    const distance = Math.sqrt(Math.pow(x - buttonX, 2) + Math.pow(y - buttonY, 2));
+    return distance <= radius;
   }
 
   // 绘制底部控制栏（适配 Home Indicator）

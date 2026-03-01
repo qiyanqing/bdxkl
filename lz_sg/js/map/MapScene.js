@@ -111,49 +111,52 @@ export class MapScene {
 
   // 绑定触摸事件
   bindTouchEvents() {
-    // 触摸开始
-    wx.onTouchStart((e) => {
-      const touch = e.touches[0];
-      const x = touch.x || touch.clientX;
-      const y = touch.y || touch.clientY;
+    // 只有在微信小游戏环境中才绑定触摸事件
+    if (typeof wx !== 'undefined') {
+      // 触摸开始
+      wx.onTouchStart((e) => {
+        const touch = e.touches[0];
+        const x = touch.x || touch.clientX;
+        const y = touch.y || touch.clientY;
 
-      // 检查是否点击返回按钮
-      if (this.checkBackButtonClick(x, y)) {
-        this.handleBackButtonClick();
-        return;
-      }
+        // 检查是否点击返回按钮
+        if (this.checkBackButtonClick(x, y)) {
+          this.handleBackButtonClick();
+          return;
+        }
 
-      this.drag.isDragging = true;
-      this.drag.startX = x;
-      this.drag.startY = y;
-      this.drag.startCameraX = this.camera.x;
-      this.drag.startCameraY = this.camera.y;
-    });
+        this.drag.isDragging = true;
+        this.drag.startX = x;
+        this.drag.startY = y;
+        this.drag.startCameraX = this.camera.x;
+        this.drag.startCameraY = this.camera.y;
+      });
 
-    // 触摸移动
-    wx.onTouchMove((e) => {
-      if (!this.drag.isDragging) return;
+      // 触摸移动
+      wx.onTouchMove((e) => {
+        if (!this.drag.isDragging) return;
 
-      const touch = e.touches[0];
-      const currentX = touch.x || touch.clientX;
-      const currentY = touch.y || touch.clientY;
+        const touch = e.touches[0];
+        const currentX = touch.x || touch.clientX;
+        const currentY = touch.y || touch.clientY;
 
-      // 计算拖拽偏移量
-      const deltaX = currentX - this.drag.startX;
-      const deltaY = currentY - this.drag.startY;
+        // 计算拖拽偏移量
+        const deltaX = currentX - this.drag.startX;
+        const deltaY = currentY - this.drag.startY;
 
-      // 更新摄像机位置
-      this.camera.x = this.drag.startCameraX - deltaX;
-      this.camera.y = this.drag.startCameraY - deltaY;
+        // 更新摄像机位置
+        this.camera.x = this.drag.startCameraX - deltaX;
+        this.camera.y = this.drag.startCameraY - deltaY;
 
-      // 限制摄像机不超出地图边界
-      this.limitCameraBounds();
-    });
+        // 限制摄像机不超出地图边界
+        this.limitCameraBounds();
+      });
 
-    // 触摸结束
-    wx.onTouchEnd(() => {
-      this.drag.isDragging = false;
-    });
+      // 触摸结束
+      wx.onTouchEnd(() => {
+        this.drag.isDragging = false;
+      });
+    }
   }
 
   // 限制摄像机边界
@@ -161,8 +164,9 @@ export class MapScene {
     const mapWidth = this.config.mapWidth || this.width;
     const mapHeight = this.config.mapHeight || this.height;
     
-    this.camera.x = Math.max(0, Math.min(this.camera.x, mapWidth - this.width));
-    this.camera.y = Math.max(0, Math.min(this.camera.y, mapHeight - this.height));
+    // 允许摄像机向左和向上移动，以查看左侧和上方的格子
+    this.camera.x = Math.min(this.camera.x, mapWidth - this.width);
+    this.camera.y = Math.min(this.camera.y, mapHeight - this.height);
   }
 
   loadLevelConfig() {
@@ -188,8 +192,9 @@ export class MapScene {
     const mapWidth = this.grids.length > 0 ? this.config.mapWidth || this.width : this.width;
     const mapHeight = this.grids.length > 0 ? this.config.mapHeight || this.height : this.height;
 
-    this.camera.targetX = Math.max(0, Math.min(this.camera.targetX, mapWidth - this.width));
-    this.camera.targetY = Math.max(0, Math.min(this.camera.targetY, mapHeight - this.height));
+    // 允许摄像机向左和向上移动，以查看左侧和上方的格子
+    this.camera.targetX = Math.min(this.camera.targetX, mapWidth - this.width);
+    this.camera.targetY = Math.min(this.camera.targetY, mapHeight - this.height);
 
     // 平滑移动摄像机
     this.camera.x += (this.camera.targetX - this.camera.x) * 0.1;
@@ -220,14 +225,8 @@ export class MapScene {
 
     // 绘制所有格子
     this.grids.forEach((grid, index) => {
-      // 只绘制视野内的格子
-      const screenX = grid.x - this.camera.x;
-      const screenY = grid.y - this.camera.y;
-      if (screenX >= -100 && screenX <= this.width + 100 &&
-          screenY >= -100 && screenY <= this.height + 100) {
-        const isSelected = index === this.levelState.playerPosition;
-        this.gridRenderer.drawGrid(grid, isSelected);
-      }
+      const isSelected = index === this.levelState.playerPosition;
+      this.gridRenderer.drawGrid(grid, isSelected);
     });
 
     // 绘制玩家棋子
@@ -292,41 +291,20 @@ export class MapScene {
       const current = this.grids[i];
       const next = this.grids[i + 1];
       
-      // 检查是否在视野内
-      const currentScreenX = current.x - this.camera.x;
-      const currentScreenY = current.y - this.camera.y;
-      const nextScreenX = next.x - this.camera.x;
-      const nextScreenY = next.y - this.camera.y;
-      
-      if (currentScreenX >= -100 && currentScreenX <= this.width + 100 &&
-          currentScreenY >= -100 && currentScreenY <= this.height + 100 &&
-          nextScreenX >= -100 && nextScreenX <= this.width + 100 &&
-          nextScreenY >= -100 && nextScreenY <= this.height + 100) {
-        ctx.beginPath();
-        ctx.moveTo(current.x, current.y);
-        ctx.lineTo(next.x, next.y);
-        ctx.stroke();
-      }
+      ctx.beginPath();
+      ctx.moveTo(current.x, current.y);
+      ctx.lineTo(next.x, next.y);
+      ctx.stroke();
     }
 
     // 绘制首尾连接
     const first = this.grids[0];
     const last = this.grids[this.grids.length - 1];
     
-    const firstScreenX = first.x - this.camera.x;
-    const firstScreenY = first.y - this.camera.y;
-    const lastScreenX = last.x - this.camera.x;
-    const lastScreenY = last.y - this.camera.y;
-    
-    if (firstScreenX >= -100 && firstScreenX <= this.width + 100 &&
-        firstScreenY >= -100 && firstScreenY <= this.height + 100 &&
-        lastScreenX >= -100 && lastScreenX <= this.width + 100 &&
-        lastScreenY >= -100 && lastScreenY <= this.height + 100) {
-      ctx.beginPath();
-      ctx.moveTo(last.x, last.y);
-      ctx.lineTo(first.x, first.y);
-      ctx.stroke();
-    }
+    ctx.beginPath();
+    ctx.moveTo(last.x, last.y);
+    ctx.lineTo(first.x, first.y);
+    ctx.stroke();
 
     ctx.restore();
   }
@@ -340,9 +318,43 @@ export class MapScene {
   }
 
   onTouch(x, y) {
+    // 检查是否点击返回按钮
+    if (this.uiController.checkBackButtonClick(x, y)) {
+      console.log('点击返回按钮');
+      this.returnToMainMenu();
+      return;
+    }
+    
+    // 确保场景处于活动状态
+    if (!this.isActive) {
+      console.log('激活场景');
+      this.isActive = true;
+      this.gameLoop();
+    }
+    
     // 检查是否点击骰子按钮
+    console.log('检查骰子按钮点击:', {x, y, diceRemaining: this.levelState.diceRemaining});
     if (this.uiController.checkDiceButtonClick(x, y, this.levelState)) {
+      console.log('点击骰子按钮');
       this.rollDice();
+    }
+  }
+
+  // 返回主菜单
+  returnToMainMenu() {
+    console.log('返回主菜单');
+    // 重置场景状态
+    this.isActive = false;
+    
+    // 直接跳转到主菜单（通过重新初始化整个游戏）
+    if (typeof wx !== 'undefined' && typeof wx.reLaunch === 'function') {
+      // 在微信小游戏环境中，重新加载游戏
+      wx.reLaunch({
+        url: '/game.js'
+      });
+    } else {
+      // 在其他环境中，重新创建场景选择器
+      location.reload();
     }
   }
 

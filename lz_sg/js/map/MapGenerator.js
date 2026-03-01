@@ -34,42 +34,134 @@ export class MapGenerator {
     return grids;
   }
 
-  // 生成S型大地图路径（超出屏幕尺寸）
+  // 生成方形折线大富翁地图路径
   generateSnakePath(totalGrids) {
     const path = [];
 
     // 地图配置
-    const gridSize = 80;      // 格子间距
-    const gridWidth = 60;     // 格子宽度
-    const gridHeight = 45;    // 格子高度
-    const gridsPerRow = 6;    // 每行6个格子
-    const rows = Math.ceil(totalGrids / gridsPerRow); // 总行数
+    const gridWidth = 70;     // 格子宽度
+    const gridHeight = 50;    // 格子高度
 
     // 计算需要的地图尺寸
-    const mapWidth = gridsPerRow * gridSize + 100; // 留边距
-    const mapHeight = rows * gridSize + 200;
+    const mapWidth = 1200; // 固定地图宽度
+    const mapHeight = 900;  // 固定地图高度
 
     // 存储地图尺寸供摄像机使用
     this.config.mapWidth = mapWidth;
     this.config.mapHeight = mapHeight;
 
-    // 生成S型路径
-    for (let row = 0; row < rows; row++) {
-      const gridsInThisRow = Math.min(gridsPerRow, totalGrids - row * gridsPerRow);
+    // 起点坐标 - 调整到红框位置（屏幕下方中间）
+    const startX = 400; // 调整起点X坐标到红框位置
+    const startY = 650; // 调整起点Y坐标到红框位置
+    let x = startX;
+    let y = startY;
 
-      // 偶数行从左到右，奇数行从右到左
-      const isLeftToRight = row % 2 === 0;
-
-      for (let col = 0; col < gridsInThisRow; col++) {
-        const actualCol = isLeftToRight ? col : (gridsPerRow - 1 - col);
-
-        const x = 50 + actualCol * gridSize;
-        const y = 100 + row * gridSize;
-
-        path.push({ x, y });
-      }
+    // 生成方形折线路径 - 每边都有一个简单的Z字形折线，确保格子对齐
+    
+    // 下边（带Z字形折线）
+    // 第一段：向左
+    for (let i = 0; i < 4; i++) {
+      path.push({ x, y, isStart: i === 0 });
+      x -= gridWidth;
+    }
+    // 第二段：向下（Z字下折）
+    y += gridHeight;
+    path.push({ x, y });
+    // 第三段：向左
+    for (let i = 0; i < 3; i++) {
+      x -= gridWidth;
+      path.push({ x, y });
+    }
+    // 第四段：向上（Z字上折）
+    y -= gridHeight;
+    path.push({ x, y });
+    // 第五段：向左
+    for (let i = 0; i < 3; i++) {
+      x -= gridWidth;
+      path.push({ x, y });
     }
 
+    // 左边（带Z字形折线）
+    // 第一段：向上
+    for (let i = 0; i < 4; i++) {
+      y -= gridHeight;
+      path.push({ x, y });
+    }
+    // 第二段：向左（Z字左折）
+    x -= gridWidth;
+    path.push({ x, y });
+    // 第三段：向上
+    for (let i = 0; i < 3; i++) {
+      y -= gridHeight;
+      path.push({ x, y });
+    }
+    // 第四段：向右（Z字右折）
+    x += gridWidth;
+    path.push({ x, y });
+    // 第五段：向上
+    for (let i = 0; i < 3; i++) {
+      y -= gridHeight;
+      path.push({ x, y });
+    }
+
+    // 上边（带Z字形折线）
+    // 第一段：向右
+    for (let i = 0; i < 4; i++) {
+      x += gridWidth;
+      path.push({ x, y });
+    }
+    // 第二段：向上（Z字上折）
+    y -= gridHeight;
+    path.push({ x, y });
+    // 第三段：向右
+    for (let i = 0; i < 3; i++) {
+      x += gridWidth;
+      path.push({ x, y });
+    }
+    // 第四段：向下（Z字下折）
+    y += gridHeight;
+    path.push({ x, y });
+    // 第五段：向右
+    for (let i = 0; i < 3; i++) {
+      x += gridWidth;
+      path.push({ x, y });
+    }
+
+    // 右边（带Z字形折线，回到起点）
+    // 第一段：向下
+    for (let i = 0; i < 4; i++) {
+      y += gridHeight;
+      path.push({ x, y });
+    }
+    // 第二段：向右（Z字右折）
+    x += gridWidth;
+    path.push({ x, y });
+    // 第三段：向下
+    for (let i = 0; i < 3; i++) {
+      y += gridHeight;
+      path.push({ x, y });
+    }
+    // 第四段：向左（Z字左折）
+    x -= gridWidth;
+    path.push({ x, y });
+    // 第五段：向下回到起点
+    for (let i = 0; i < 3; i++) {
+      y += gridHeight;
+      path.push({ x, y });
+    }
+    // 确保最后一个格子回到起点
+    path[path.length - 1] = { x: startX, y: startY, isEnd: true };
+
+    // 确保路径长度正好等于totalGrids
+    if (path.length > totalGrids) {
+      return path.slice(0, totalGrids);
+    } else if (path.length < totalGrids) {
+      // 如果路径长度不足，在起点附近添加额外的格子
+      while (path.length < totalGrids) {
+        path.push({ x: startX, y: startY + (Math.random() * 10 - 5) });
+      }
+      return path;
+    }
     return path;
   }
 

@@ -33,8 +33,7 @@ export class PlayerController {
       steps *= 2;
     }
 
-    const totalGrids = 15; // 从配置获取
-    return (this.currentPosition + steps) % totalGrids;
+    return steps;
   }
 
   // 移动到目标位置
@@ -51,7 +50,7 @@ export class PlayerController {
     if (this.currentPosition < this.targetPosition) {
       this.currentPosition++;
     } else if (this.currentPosition > this.targetPosition) {
-      this.currentPosition = (this.currentPosition + 1) % 15;
+      this.currentPosition = (this.currentPosition + 1) % this.levelState.totalGrids || 15;
     } else {
       this.isMoving = false;
       return true; // 移动完成
@@ -64,7 +63,6 @@ export class PlayerController {
   updateLevelState(steps) {
     this.levelState.diceUsed++;
     this.levelState.diceRemaining--;
-    this.levelState.playerPosition = this.currentPosition;
     this.levelState.totalSteps += steps;
   }
 }
