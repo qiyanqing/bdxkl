@@ -280,19 +280,25 @@ export class MapState {
         try {
             const data = JSON.parse(jsonString);
 
-            // 重建格子数组
+            // 重建格子数组，保留 nextId 和 prevId
             this.grids = data.grids.map(g => ({
                 id: g.id,
                 x: g.x,
                 y: g.y,
                 type: g.type,
-                next: null
+                nextId: g.nextId,
+                prevId: g.prevId,
+                next: null,
+                prev: null
             }));
 
             // 重建连接关系
             this.grids.forEach(grid => {
                 if (grid.nextId !== null) {
                     grid.next = this.grids.find(g => g.id === grid.nextId) || null;
+                }
+                if (grid.prevId !== null) {
+                    grid.prev = this.grids.find(g => g.id === grid.prevId) || null;
                 }
             });
 
