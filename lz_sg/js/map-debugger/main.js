@@ -2,6 +2,7 @@ import { MapRenderer } from './MapRenderer.js';
 import { MapState } from './MapState.js';
 import { PathEditor } from './PathEditor.js';
 import { PathValidator } from './PathValidator.js';
+import { MapGenerator } from './MapGenerator.js';
 
 /**
  * 主程序入口
@@ -18,6 +19,9 @@ class MapDebugger {
         // 创建路径验证器
         this.validator = new PathValidator(this.renderer.getGridSystem());
 
+        // 创建地图生成器
+        this.generator = new MapGenerator(this.renderer.getGridSystem());
+
         // 创建路径编辑器
         this.pathEditor = new PathEditor({
             canvas: this.renderer.canvas,
@@ -25,6 +29,15 @@ class MapDebugger {
             gridSystem: this.renderer.getGridSystem(),
             renderer: this.renderer
         });
+
+        // 难度配置
+        this.difficulties = {
+            '1': { gridCount: 15, zigzagEdges: ['top', 'right', 'bottom'] },
+            '2': { gridCount: 25, zigzagEdges: ['top', 'right', 'bottom'] },
+            '3': { gridCount: 35, zigzagEdges: ['top', 'right', 'bottom'] },
+            '4': { gridCount: 50, zigzagEdges: ['top', 'right', 'bottom', 'left'] },
+            'bonus': { gridCount: 10, zigzagEdges: [] }
+        };
 
         // 初始化
         this.initTestData();
@@ -102,6 +115,11 @@ class MapDebugger {
         // 验证按钮
         document.getElementById('btn-validate').addEventListener('click', () => {
             this.validateMap();
+        });
+
+        // 生成地图按钮
+        document.getElementById('btn-generate').addEventListener('click', () => {
+            this.generateMap();
         });
     }
 
@@ -237,6 +255,68 @@ class MapDebugger {
         }
 
         detailsEl.innerHTML = detailsHTML;
+    }
+
+    /**
+     * 生成地图
+     * 根据选择的难度配置自动生成地图
+     */
+    generateMap() {
+        // 获取选择的难度
+        const difficultySelect = document.getElementById('difficulty-select');
+        const difficulty = difficultySelect.value;
+        const config = this.difficulties[difficulty];
+
+        if (!config) {
+            alert('无效的难度配置');
+            return;
+        }
+
+        console.log('生成地图...', config);
+
+        // 清空现有格子
+        this.state.clear();
+
+        // 使用生成器生成格子
+        const generatedGrids = this.generator.generate(config);
+
+        // 将生成的格子添加到状态管理器
+        generatedGrids.forEach(gridData => {
+            this.state.addGrid({
+                x: gridData.x,
+                y: gridData.y,
+                type: gridData.type
+            });
+        });
+
+        // 重建连接关系
+        for (let i = 0; i < generatedGrids.length - 1; i++) {
+            const fromGrid = this.state.getGridAtPosition(generatedGrids[i].x, generatedGrids[i].y);
+            const toGrid = this.state.getGridAtPosition(generatedGrids[i + 1].x, generatedGrids[i + 1].y);
+            if (fromGrid && toGrid) {
+                this.state.connectGrids(fromGrid.id, toGrid.id);
+            }
+        }
+
+        // 连接最后一个格子到第一个格子（形成闭环）
+        if (generatedGrids.length > 2) {
+            const firstGrid = this.state.getGridAtPosition(generatedGrids[0].x, generatedGrids[0].y);
+            const lastGrid = this.state.getGridAtPosition(
+                generatedGrids[generatedGrids.length - 1].x,
+                generatedGrids[generatedGrids.length - 1].y
+            );
+            if (firstGrid && lastGrid) {
+                this.state.connectGrids(lastGrid.id, firstGrid.id);
+            }
+        }
+
+        // 更新渲染器
+        this.renderer.setGrids(this.state.getAllGrids());
+
+        // 自动验证
+        this.updateValidationPanel();
+
+        console.log(`地图生成完成，共 ${this.state.getAllGrids().length} 个格子`);
     }
 }
 

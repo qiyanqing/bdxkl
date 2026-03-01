@@ -249,6 +249,30 @@ body {
     color: var(--text-primary);
 }
 
+/* 难度选择器 */
+.difficulty-select {
+    width: 100%;
+    padding: 10px;
+    background: var(--bg-secondary);
+    border: 2px solid var(--accent-blue);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 14px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.difficulty-select:hover {
+    border-color: var(--accent-green);
+}
+
+.difficulty-select:focus {
+    outline: none;
+    border-color: var(--accent-green);
+    box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.2);
+}
+
 /* 操作按钮 */
 .action-btn {
     width: 100%;
