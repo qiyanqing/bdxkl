@@ -1,6 +1,22 @@
 /**
+ * 格子类型定义
+ */
+export const GRID_TYPES = {
+    EMPTY: 'empty',           // 空白格
+    START: 'start',           // 起点
+    BATTLE: 'battle',         // 普通战斗格
+    ELITE: 'elite',           // 精英战斗格
+    SHOP: 'shop',             // 商店格
+    BUFF: 'buff',             // buff格
+    EVENT: 'event',           // 事件格
+    REST: 'rest',             // 休息格
+    DICE: 'dice',             // 骰子格
+    REWARD: 'reward'          // 奖励格
+};
+
+/**
  * 地图生成器类
- * 根据配置自动生成符合三大原则的地图
+ * 生成环形地图：4条边×12格=48格
  */
 export class MapGenerator {
     /**
@@ -9,242 +25,137 @@ export class MapGenerator {
      */
     constructor(gridSystem) {
         this.gridSystem = gridSystem;
+        this.GRIDS_PER_EDGE = 12; // 每条边12格
+        this.TOTAL_GRIDS = 48;     // 总共48格
     }
 
     /**
      * 生成地图
      * @param {Object} config - 配置参数
-     * @param {number} config.gridCount - 格子总数
-     * @param {string[]} config.zigzagEdges - 哪些边有折线 ['top', 'right', 'bottom', 'left']
-     * @param {number} config.startX - 起点X网格坐标（默认1）
-     * @param {number} config.startY - 起点Y网格坐标（默认1）
+     * @param {string} config.levelType - 关卡类型：'normal' | 'bonus'
+     * @param {number} config.startX - 起点X网格坐标（默认100）
+     * @param {number} config.startY - 起点Y网格坐标（默认80）
      * @returns {Array} 格子数组
      */
     generate(config) {
         const {
-            gridCount,
-            zigzagEdges,
-            startX = 1,
-            startY = 1
+            levelType = 'normal',
+            startX = 100,
+            startY = 80
         } = config;
 
         const grids = [];
-
         let currentGridX = startX;
         let currentGridY = startY;
 
-        // 添加上边折线
-        if (zigzagEdges.includes('top')) {
-            const result = this.addTopZigzag(grids, currentGridX, currentGridY, gridCount);
-            currentGridX = result.currentX;
-            currentGridY = result.currentY;
-
-            // 如果已经用完所有格子，直接返回
-            if (grids.length >= gridCount) {
-                this.connectGrids(grids);
-                return grids.slice(0, gridCount);
-            }
+        // 生成上边（从左到右，12格）
+        for (let i = 0; i < this.GRIDS_PER_EDGE; i++) {
+            const gridType = this.getGridType(levelType, grids.length);
+            grids.push({
+                id: grids.length,
+                x: currentGridX,
+                y: currentGridY,
+                type: gridType,
+                next: null
+            });
+            currentGridX += 1; // 向右移动
         }
 
-        // 添加右边折线
-        if (zigzagEdges.includes('right')) {
-            const result = this.addRightZigzag(grids, currentGridX, currentGridY, gridCount);
-            currentGridX = result.currentX;
-            currentGridY = result.currentY;
-
-            if (grids.length >= gridCount) {
-                this.connectGrids(grids);
-                return grids.slice(0, gridCount);
+        // 生成右边（从上到下，12格）
+        for (let i = 0; i < this.GRIDS_PER_EDGE; i++) {
+            // 跳过第一个格子，因为上边最后一个格子已经在右上角
+            if (i === 0) {
+                currentGridY += 1;
+                continue;
             }
+            const gridType = this.getGridType(levelType, grids.length);
+            grids.push({
+                id: grids.length,
+                x: currentGridX,
+                y: currentGridY,
+                type: gridType,
+                next: null
+            });
+            currentGridY += 1; // 向下移动
         }
 
-        // 添加下边折线
-        if (zigzagEdges.includes('bottom')) {
-            const result = this.addBottomZigzag(grids, currentGridX, currentGridY, gridCount);
-            currentGridX = result.currentX;
-            currentGridY = result.currentY;
-
-            if (grids.length >= gridCount) {
-                this.connectGrids(grids);
-                return grids.slice(0, gridCount);
-            }
-        }
-
-        // 添加左边折线
-        if (zigzagEdges.includes('left')) {
-            const remaining = gridCount - grids.length;
-            for (let i = 0; i < remaining; i++) {
-                const isStart = grids.length === 0;
-                grids.push({
-                    id: i,
-                    x: currentGridX,
-                    y: currentGridY,
-                    type: isStart ? 'start' : 'normal',
-                    next: null
-                });
-
-                // 向左移动
+        // 生成下边（从右到左，12格）
+        for (let i = 0; i < this.GRIDS_PER_EDGE; i++) {
+            // 跳过第一个格子，因为右边最后一个格子已经在右下角
+            if (i === 0) {
                 currentGridX -= 1;
+                continue;
             }
+            const gridType = this.getGridType(levelType, grids.length);
+            grids.push({
+                id: grids.length,
+                x: currentGridX,
+                y: currentGridY,
+                type: gridType,
+                next: null
+            });
+            currentGridX -= 1; // 向左移动
+        }
+
+        // 生成左边（从下到上，12格）
+        for (let i = 0; i < this.GRIDS_PER_EDGE; i++) {
+            // 跳过第一个格子，因为下边最后一个格子已经在左下角
+            // 跳过最后一个格子，因为要回到起点，避免重复
+            if (i === 0) {
+                currentGridY -= 1;
+                continue;
+            }
+            if (i === this.GRIDS_PER_EDGE - 1) {
+                break; // 不生成最后一个格子，回到起点
+            }
+            const gridType = this.getGridType(levelType, grids.length);
+            grids.push({
+                id: grids.length,
+                x: currentGridX,
+                y: currentGridY,
+                type: gridType,
+                next: null
+            });
+            currentGridY -= 1; // 向上移动
         }
 
         // 连接格子成环
         this.connectGrids(grids);
 
-        return grids.slice(0, gridCount);
+        return grids;
     }
 
     /**
-     * 添加上边Z字折线
-     * @param {Array} grids - 格子数组
-     * @param {number} currentX - 当前X网格坐标
-     * @param {number} currentY - 当前Y网格坐标
-     * @param {number} maxCount - 最大格子数
-     * @returns {Object} {currentX, currentY}
+     * 根据关卡类型和格子索引获取格子类型
+     * @param {string} levelType - 关卡类型
+     * @param {number} gridIndex - 格子索引
+     * @returns {string} 格子类型
      */
-    addTopZigzag(grids, currentX, currentY, maxCount) {
-        // 上边折线模式：先向右，然后向下一格，再向左，再向下一格，再向右...
-        // 创建锯齿形状
-        let direction = 1; // 1 = 向右，-1 = 向左
-        let moveCount = 0;
-        const zigzagDepth = 2; // 每次折线的深度
-
-        while (grids.length < maxCount && moveCount < maxCount) {
-            const isStart = grids.length === 0;
-            grids.push({
-                id: grids.length,
-                x: currentX,
-                y: currentY,
-                type: isStart ? 'start' : 'normal',
-                next: null
-            });
-
-            // 水平移动
-            currentX += direction;
-            moveCount++;
-
-            // 每移动2格，改变方向并向下移动一格
-            if (moveCount % zigzagDepth === 0 && grids.length < maxCount) {
-                direction *= -1; // 反转方向
-                currentY += 1; // 向下移动一格
-
-                // 添加转向点
-                if (grids.length < maxCount) {
-                    grids.push({
-                        id: grids.length,
-                        x: currentX,
-                        y: currentY,
-                        type: 'normal',
-                        next: null
-                    });
-                    moveCount++;
-                }
-            }
+    getGridType(levelType, gridIndex) {
+        // 第一个格子总是起点
+        if (gridIndex === 0) {
+            return GRID_TYPES.START;
         }
 
-        return { currentX, currentY };
-    }
-
-    /**
-     * 添加右边Z字折线
-     * @param {Array} grids - 格子数组
-     * @param {number} currentX - 当前X网格坐标
-     * @param {number} currentY - 当前Y网格坐标
-     * @param {number} maxCount - 最大格子数
-     * @returns {Object} {currentX, currentY}
-     */
-    addRightZigzag(grids, currentX, currentY, maxCount) {
-        // 右边折线模式：先向下，然后向左一格，再向上，再向左一格，再向下...
-        let direction = 1; // 1 = 向下，-1 = 向上
-        let moveCount = 0;
-        const zigzagDepth = 2; // 每次折线的深度
-
-        while (grids.length < maxCount && moveCount < maxCount) {
-            // 垂直移动
-            currentY += direction;
-            moveCount++;
-
-            if (grids.length >= maxCount) break;
-
-            grids.push({
-                id: grids.length,
-                x: currentX,
-                y: currentY,
-                type: 'normal',
-                next: null
-            });
-
-            // 每移动2格，改变方向并向左移动一格
-            if (moveCount % zigzagDepth === 0 && grids.length < maxCount) {
-                direction *= -1; // 反转方向
-                currentX -= 1; // 向左移动一格
-
-                // 添加转向点
-                if (grids.length < maxCount) {
-                    grids.push({
-                        id: grids.length,
-                        x: currentX,
-                        y: currentY,
-                        type: 'normal',
-                        next: null
-                    });
-                    moveCount++;
-                }
-            }
+        // 福利关：全部奖励格
+        if (levelType === 'bonus') {
+            return GRID_TYPES.REWARD;
         }
 
-        return { currentX, currentY };
-    }
+        // 普通关：随机分配各种类型
+        const normalTypes = [
+            GRID_TYPES.BATTLE,
+            GRID_TYPES.ELITE,
+            GRID_TYPES.SHOP,
+            GRID_TYPES.BUFF,
+            GRID_TYPES.EVENT,
+            GRID_TYPES.REST,
+            GRID_TYPES.DICE
+        ];
 
-    /**
-     * 添加下边Z字折线
-     * @param {Array} grids - 格子数组
-     * @param {number} currentX - 当前X网格坐标
-     * @param {number} currentY - 当前Y网格坐标
-     * @param {number} maxCount - 最大格子数
-     * @returns {Object} {currentX, currentY}
-     */
-    addBottomZigzag(grids, currentX, currentY, maxCount) {
-        // 下边折线模式：先向左，然后向上一格，再向右，再向上一格，再向左...
-        let direction = -1; // -1 = 向左，1 = 向右
-        let moveCount = 0;
-        const zigzagDepth = 2; // 每次折线的深度
-
-        while (grids.length < maxCount && moveCount < maxCount) {
-            // 水平移动
-            currentX += direction;
-            moveCount++;
-
-            if (grids.length >= maxCount) break;
-
-            grids.push({
-                id: grids.length,
-                x: currentX,
-                y: currentY,
-                type: 'normal',
-                next: null
-            });
-
-            // 每移动2格，改变方向并向上移动一格
-            if (moveCount % zigzagDepth === 0 && grids.length < maxCount) {
-                direction *= -1; // 反转方向
-                currentY -= 1; // 向上移动一格
-
-                // 添加转向点
-                if (grids.length < maxCount) {
-                    grids.push({
-                        id: grids.length,
-                        x: currentX,
-                        y: currentY,
-                        type: 'normal',
-                        next: null
-                    });
-                    moveCount++;
-                }
-            }
-        }
-
-        return { currentX, currentY };
+        // 随机选择一个类型
+        const randomIndex = Math.floor(Math.random() * normalTypes.length);
+        return normalTypes[randomIndex];
     }
 
     /**

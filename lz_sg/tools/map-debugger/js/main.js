@@ -30,15 +30,6 @@ class MapDebugger {
             renderer: this.renderer
         });
 
-        // 难度配置
-        this.difficulties = {
-            '1': { gridCount: 15, zigzagEdges: ['top', 'right', 'bottom'] },
-            '2': { gridCount: 25, zigzagEdges: ['top', 'right', 'bottom'] },
-            '3': { gridCount: 35, zigzagEdges: ['top', 'right', 'bottom'] },
-            '4': { gridCount: 50, zigzagEdges: ['top', 'right', 'bottom', 'left'] },
-            'bonus': { gridCount: 10, zigzagEdges: [] }
-        };
-
         // 初始化
         this.initTestData();
         this.initEventListeners();
@@ -259,25 +250,29 @@ class MapDebugger {
 
     /**
      * 生成地图
-     * 根据选择的难度配置自动生成地图
+     * 根据选择的关卡类型自动生成地图
      */
     generateMap() {
-        // 获取选择的难度
-        const difficultySelect = document.getElementById('difficulty-select');
-        const difficulty = difficultySelect.value;
-        const config = this.difficulties[difficulty];
+        // 获取选择的关卡类型
+        const levelTypeSelect = document.getElementById('level-type-select');
+        const levelType = levelTypeSelect.value;
 
-        if (!config) {
-            alert('无效的难度配置');
+        if (!levelType || (levelType !== 'normal' && levelType !== 'bonus')) {
+            alert('无效的关卡类型');
             return;
         }
 
-        console.log('生成地图...', config);
+        console.log('生成地图...', { levelType });
 
         // 清空现有格子
         this.state.clear();
 
         // 使用生成器生成格子
+        const config = {
+            levelType: levelType,
+            startX: 100,
+            startY: 80
+        };
         const generatedGrids = this.generator.generate(config);
 
         // 将生成的格子添加到状态管理器
