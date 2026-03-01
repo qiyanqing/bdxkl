@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MapState 单元测试</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #eee;
+        }
+        h1 {
+            color: #00ff88;
+        }
+        #test-output {
+            background: #0f0f1e;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        .test-pass {
+            color: #00ff88;
+        }
+        .test-fail {
+            color: #ff4757;
+        }
+        .summary {
+            margin-top: 20px;
+            padding: 15px;
+            background: #2a2a4e;
+            border-radius: 8px;
+        }
+        button {
+            background: #00ff88;
+            color: #1a1a2e;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background: #00cc6a;
+        }
+    </style>
+</head>
+<body>
+    <h1>MapState 单元测试</h1>
+    <button onclick="runTests()">运行测试</button>
+    <pre id="test-output">等待运行测试...</pre>
+
+    <script type="module">
+        import { runTests } from './MapState.test.js';
+
+        window.runTests = function() {
+            const output = document.getElementById('test-output');
+            output.textContent = '正在运行测试...\n\n';
+
+            // 捕获 console.log 输出
+            const logs = [];
+            const originalLog = console.log;
+            const originalError = console.error;
+
+            console.log = function(...args) {
+                logs.push({ type: 'log', message: args.join(' ') });
+                originalLog.apply(console, args);
+            };
+
+            console.error = function(...args) {
+                logs.push({ type: 'error', message: args.join(' ') });
+                originalError.apply(console, args);
+            };
+
+            try {
+                runTests();
+
+                // 显示所有日志
+                let html = '';
+                logs.forEach(log => {
+                    if (log.type === 'log') {
+                        html += `<div class="${log.message.includes('✓') ? 'test-pass' : ''}">${log.message}</div>`;
+                    } else {
+                        html += `<div class="test-fail">${log.message}</div>`;
+                    }
+                });
+
+                output.innerHTML = html + '<div class="summary test-pass">所有测试完成!</div>';
+            } catch (error) {
+                output.innerHTML = `<div class="test-fail">测试失败: ${error.message}</div>`;
+            } finally {
+                // 恢复 console
+                console.log = originalLog;
+                console.error = originalError;
+            }
+        };
+    </script>
+</body>
+</html>
