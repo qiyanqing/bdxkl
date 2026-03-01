@@ -235,6 +235,53 @@ export class MapRenderer {
     }
 
     /**
+     * 绘制违规高亮
+     * @param {Array} violations - 违规列表
+     */
+    drawViolations(violations) {
+        violations.forEach(violation => {
+            if (violation.type === 'diagonal' && violation.gridId !== undefined) {
+                const grid = this.grids.find(g => g.id === violation.gridId);
+                const relatedGrid = this.grids.find(g => g.id === violation.relatedGridId);
+
+                if (grid && relatedGrid) {
+                    this.drawDiagonalViolation(grid, relatedGrid);
+                }
+            }
+        });
+    }
+
+    /**
+     * 绘制对角线违规标记
+     * @param {Object} grid1 - 第一个格子
+     * @param {Object} grid2 - 第二个格子
+     */
+    drawDiagonalViolation(grid1, grid2) {
+        const fromCenter = this.gridSystem.getCenter(grid1);
+        const toCenter = this.gridSystem.getCenter(grid2);
+
+        // 绘制红色虚线
+        this.ctx.beginPath();
+        this.ctx.setLineDash([5, 5]);
+        this.ctx.moveTo(fromCenter.x, fromCenter.y);
+        this.ctx.lineTo(toCenter.x, toCenter.y);
+        this.ctx.strokeStyle = '#ff0000';
+        this.ctx.lineWidth = 3;
+        this.ctx.stroke();
+        this.ctx.setLineDash([]);
+
+        // 绘制警告图标
+        const midX = (fromCenter.x + toCenter.x) / 2;
+        const midY = (fromCenter.y + toCenter.y) / 2;
+
+        this.ctx.fillStyle = '#ff0000';
+        this.ctx.font = 'bold 20px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText('⚠', midX, midY);
+    }
+
+    /**
      * 根据像素坐标查找格子
      * @param {number} pixelX - 像素 X 坐标
      * @param {number} pixelY - 像素 Y 坐标

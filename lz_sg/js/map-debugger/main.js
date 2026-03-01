@@ -1,6 +1,7 @@
 import { MapRenderer } from './MapRenderer.js';
 import { MapState } from './MapState.js';
 import { PathEditor } from './PathEditor.js';
+import { PathValidator } from './PathValidator.js';
 
 /**
  * 主程序入口
@@ -13,6 +14,9 @@ class MapDebugger {
 
         // 创建渲染器
         this.renderer = new MapRenderer('map-canvas');
+
+        // 创建路径验证器
+        this.validator = new PathValidator(this.renderer.getGridSystem());
 
         // 创建路径编辑器
         this.pathEditor = new PathEditor({
@@ -61,6 +65,8 @@ class MapDebugger {
                 case 'grid:disconnected':
                     // 更新渲染器的格子数据
                     this.renderer.setGrids(this.state.getAllGrids());
+                    // 自动验证并更新验证面板
+                    this.updateValidationPanel();
                     break;
                 case 'mode:changed':
                     // 更新模式按钮状态
@@ -139,66 +145,98 @@ class MapDebugger {
 
     /**
      * 验证地图
-     * TODO: 后续实现完整的验证逻辑
+     * 使用 PathValidator 执行完整验证
      */
     validateMap() {
         console.log('验证地图...');
 
         const grids = this.state.getAllGrids();
-        let issues = [];
+        const result = this.validator.validate(grids);
 
-        // 检查是否有起点
-        const hasStart = grids.some(g => g.type === 'start');
-        if (!hasStart) {
-            issues.push('缺少起点格子');
+        // 更新验证面板
+        this.updateValidationPanelUI(result);
+
+        // 绘制违规高亮
+        this.renderer.drawViolations(result.violations);
+
+        // 显示结果提示
+        if (result.isValid) {
+            alert('地图验证通过！');
+        } else {
+            alert(`验证失败：发现 ${result.violations.length} 个问题`);
         }
+    }
 
-        // 检查是否有孤立格子（没有前驱也没有后继，除了起点）
-        grids.forEach(grid => {
-            if (grid.type !== 'start') {
-                const hasPrev = grids.some(g => g.next && g.next.id === grid.id);
-                if (!hasPrev && !grid.next) {
-                    issues.push(`格子 ${grid.id} 是孤立的`);
-                }
-            }
-        });
+    /**
+     * 更新验证面板UI（自动验证时调用）
+     */
+    updateValidationPanel() {
+        const grids = this.state.getAllGrids();
+        const result = this.validator.validate(grids);
 
-        // 检查是否有循环
-        const visited = new Set();
-        let hasCycle = false;
+        this.updateValidationPanelUI(result);
 
-        const startGrid = grids.find(g => g.type === 'start') || grids[0];
-        if (startGrid) {
-            let current = startGrid;
-            while (current && !hasCycle) {
-                if (visited.has(current.id)) {
-                    hasCycle = true;
-                    break;
-                }
-                visited.add(current.id);
-                current = current.next;
-            }
+        // 如果有违规，绘制高亮
+        if (result.violations.length > 0) {
+            this.renderer.drawViolations(result.violations);
         }
+    }
 
-        if (hasCycle) {
-            issues.push('检测到循环路径');
-        }
-
-        // 更新验证状态
+    /**
+     * 更新验证面板UI显示
+     * @param {Object} result - 验证结果
+     */
+    updateValidationPanelUI(result) {
         const statusEl = document.getElementById('validation-status');
-        if (issues.length === 0) {
+        const detailsEl = document.getElementById('validation-details');
+
+        // 更新状态图标和文本
+        if (result.isValid) {
             statusEl.innerHTML = `
                 <span class="status-icon">✓</span>
                 <span class="status-text">验证通过</span>
             `;
-            alert('地图验证通过！');
+            statusEl.className = 'validation-status success';
         } else {
             statusEl.innerHTML = `
                 <span class="status-icon">✗</span>
-                <span class="status-text">验证失败 (${issues.length} 个问题)</span>
+                <span class="status-text">验证失败 (${result.violations.length} 个问题)</span>
             `;
-            alert('验证失败：\n' + issues.join('\n'));
+            statusEl.className = 'validation-status error';
         }
+
+        // 更新详情面板
+        let detailsHTML = '';
+
+        // 显示折线统计
+        detailsHTML += `
+            <div class="zigzag-summary">
+                <p style="color: var(--accent-blue); margin-bottom: 8px;">折线统计：</p>
+                <div class="zigzag-item ${result.zigzagEdges.top ? 'has-zigzag' : 'no-zigzag'}">
+                    上边：${result.zigzagEdges.top ? '✓ 有折线' : '✗ 无折线'}
+                </div>
+                <div class="zigzag-item ${result.zigzagEdges.right ? 'has-zigzag' : 'no-zigzag'}">
+                    右边：${result.zigzagEdges.right ? '✓ 有折线' : '✗ 无折线'}
+                </div>
+                <div class="zigzag-item ${result.zigzagEdges.bottom ? 'has-zigzag' : 'no-zigzag'}">
+                    下边：${result.zigzagEdges.bottom ? '✓ 有折线' : '✗ 无折线'}
+                </div>
+                <div class="zigzag-item ${result.zigzagEdges.left ? 'has-zigzag' : 'no-zigzag'}">
+                    左边：${result.zigzagEdges.left ? '✓ 有折线' : '✗ 无折线'}
+                </div>
+            </div>
+        `;
+
+        // 显示违规列表
+        if (result.violations.length > 0) {
+            detailsHTML += '<div style="margin-top: 12px;"><p style="color: var(--accent-red); margin-bottom: 8px;">违规列表：</p>';
+            result.violations.forEach(v => {
+                detailsHTML += `<div class="violation-item ${v.type}">${v.message}</div>`;
+            });
+            detailsHTML += '</div>';
+        }
+
+        detailsEl.innerHTML = detailsHTML;
     }
 }
 

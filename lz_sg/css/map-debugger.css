@@ -173,6 +173,61 @@ body {
     border-left: 3px solid var(--accent-gold);
 }
 
+/* 违规项样式 */
+.violation-item {
+    padding: 6px 8px;
+    margin-bottom: 6px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.violation-item.diagonal {
+    border-left: 3px solid var(--accent-red);
+    color: #ff6b6b;
+}
+
+.violation-item.edgeCount {
+    border-left: 3px solid var(--accent-gold);
+    color: #ffd700;
+}
+
+.violation-item.zigzag {
+    border-left: 3px solid var(--accent-purple);
+    color: #a855f7;
+}
+
+/* 折线统计容器 */
+.zigzag-summary {
+    padding: 8px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+}
+
+/* 单条边样式 */
+.zigzag-item {
+    padding: 4px 8px;
+    margin-bottom: 4px;
+    font-size: 12px;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+}
+
+.zigzag-item.has-zigzag {
+    background: rgba(0, 255, 136, 0.1);
+    color: var(--accent-green);
+}
+
+.zigzag-item.no-zigzag {
+    background: rgba(255, 71, 87, 0.1);
+    color: var(--accent-red);
+}
+
+.zigzag-item:last-child {
+    margin-bottom: 0;
+}
+
 /* 格子详情 */
 .grid-info {
     min-height: 80px;
