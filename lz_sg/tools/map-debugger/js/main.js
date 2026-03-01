@@ -2,7 +2,7 @@ import { MapRenderer } from './MapRenderer.js';
 import { MapState } from './MapState.js';
 import { PathEditor } from './PathEditor.js';
 import { PathValidator } from './PathValidator.js';
-import { MapGenerator } from './MapGenerator.js';
+import { MapGenerator, GRID_TYPES } from './MapGenerator.js';
 
 /**
  * 主程序入口
@@ -42,9 +42,9 @@ class MapDebugger {
      * 创建3个测试格子：起点(0,0) -> (1,0) -> (2,0)
      */
     initTestData() {
-        const grid0 = this.state.addGrid({ x: 0, y: 0, type: 'start' });
-        const grid1 = this.state.addGrid({ x: 1, y: 0, type: 'normal' });
-        const grid2 = this.state.addGrid({ x: 2, y: 0, type: 'normal' });
+        const grid0 = this.state.addGrid({ x: 0, y: 0, type: GRID_TYPES.START });
+        const grid1 = this.state.addGrid({ x: 1, y: 0, type: GRID_TYPES.BATTLE });
+        const grid2 = this.state.addGrid({ x: 2, y: 0, type: GRID_TYPES.SHOP });
 
         // 设置连接关系
         this.state.connectGrids(grid0.id, grid1.id);

@@ -1,3 +1,5 @@
+import { GRID_TYPES } from './MapGenerator.js';
+
 /**
  * 地图状态管理类
  * 负责管理地图数据、格子状态和观察者通知
@@ -29,7 +31,7 @@ export class MapState {
             id: this.nextId++,
             x: data.x,
             y: data.y,
-            type: data.type || 'normal',
+            type: data.type || GRID_TYPES.EMPTY,
             next: null
         };
 

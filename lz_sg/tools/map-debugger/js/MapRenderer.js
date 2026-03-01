@@ -29,6 +29,34 @@ export class MapRenderer {
             text: '#ffffff'
         };
 
+        // 格子类型颜色配置
+        this.gridColors = {
+            empty: '#444444',      // 空白格 - 深灰色
+            start: '#ffd700',      // 起点 - 金色
+            battle: '#e74c3c',     // 战斗格 - 红色
+            elite: '#9b59b6',      // 精英格 - 紫色
+            shop: '#3498db',       // 商店格 - 蓝色
+            buff: '#2ecc71',       // buff格 - 绿色
+            event: '#e67e22',      // 事件格 - 橙色
+            rest: '#1abc9c',       // 休息格 - 青色
+            dice: '#f39c12',       // 骰子格 - 棕黄色
+            reward: '#ff69b4'      // 奖励格 - 粉色
+        };
+
+        // 格子类型文字标识
+        this.gridLabels = {
+            empty: '',             // 空白格 - 不显示文字
+            start: '起',           // 起点
+            battle: '战',          // 战斗格
+            elite: '精',           // 精英格
+            shop: '商',            // 商店格
+            buff: 'B',             // buff格
+            event: '事',           // 事件格
+            rest: '休',            // 休息格
+            dice: '骰',            // 骰子格
+            reward: '奖'           // 奖励格
+        };
+
         // 初始化画布大小
         this.resizeCanvas();
 
@@ -158,38 +186,53 @@ export class MapRenderer {
         const size = this.gridSystem.gridSize;
         const pixel = this.gridSystem.gridToPixel(grid);
 
-        // 确定格子颜色
-        let color = this.colors.normalGrid;
-        if (type === 'start') {
-            color = this.colors.startGrid;
-        }
+        // 获取格子类型对应的颜色
+        const gridTypeColor = this.gridColors[type] || this.gridColors.empty;
 
-        // 优先显示悬停或选中状态
+        // 确定格子最终颜色（优先使用选中或悬停状态）
+        let color = gridTypeColor;
         if (this.selectedGrid && this.selectedGrid.x === x && this.selectedGrid.y === y) {
             color = this.colors.selectedGrid;
         } else if (this.hoveredGrid && this.hoveredGrid.x === x && this.hoveredGrid.y === y) {
             color = this.colors.hoveredGrid;
         }
 
-        // 绘制格子背景
-        this.ctx.fillStyle = color;
-        this.ctx.fillRect(pixel.x + 2, pixel.y + 2, size - 4, size - 4);
+        // 判断是否为空白格
+        const isEmpty = type === 'empty' || type === 'normal';
+
+        // 绘制格子背景（空白格不填充背景）
+        if (!isEmpty) {
+            this.ctx.fillStyle = color;
+            this.ctx.fillRect(pixel.x + 2, pixel.y + 2, size - 4, size - 4);
+        }
 
         // 绘制格子边框
         this.ctx.strokeStyle = color;
         this.ctx.lineWidth = 3;
-        this.ctx.strokeRect(pixel.x + 2, pixel.y + 2, size - 4, size - 4);
 
-        // 绘制格子编号
-        this.ctx.fillStyle = this.colors.text;
-        this.ctx.font = 'bold 14px Arial';
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        this.ctx.fillText(
-            grid.id || '',
-            pixel.x + size / 2,
-            pixel.y + size / 2
-        );
+        // 空白格使用虚线边框，其他格子使用实线
+        if (isEmpty) {
+            this.ctx.setLineDash([5, 5]);
+        } else {
+            this.ctx.setLineDash([]);
+        }
+
+        this.ctx.strokeRect(pixel.x + 2, pixel.y + 2, size - 4, size - 4);
+        this.ctx.setLineDash([]); // 重置虚线设置
+
+        // 绘制格子类型标识文字
+        const label = this.gridLabels[type] || '';
+        if (label) {
+            this.ctx.fillStyle = this.colors.text;
+            this.ctx.font = 'bold 16px Arial';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.fillText(
+                label,
+                pixel.x + size / 2,
+                pixel.y + size / 2
+            );
+        }
     }
 
     /**

@@ -1,3 +1,5 @@
+import { GRID_TYPES } from './MapGenerator.js';
+
 /**
  * 路径编辑器类
  * 处理地图的鼠标交互、键盘快捷键和编辑操作
@@ -78,7 +80,7 @@ export class PathEditor {
         }
 
         // 添加新格子
-        const newGrid = this.state.addGrid({ x, y, type: 'normal' });
+        const newGrid = this.state.addGrid({ x, y, type: GRID_TYPES.EMPTY });
         if (!newGrid) {
             return;
         }
@@ -225,7 +227,7 @@ export class PathEditor {
         const allGrids = this.state.getAllGrids();
         allGrids.forEach(grid => {
             if (grid.type === 'start') {
-                grid.type = 'normal';
+                grid.type = GRID_TYPES.EMPTY;
             }
         });
 
@@ -346,11 +348,15 @@ export class PathEditor {
     getTypeName(type) {
         const types = {
             'start': '起点',
-            'normal': '普通',
+            'empty': '空白',
             'battle': '战斗',
-            'event': '事件',
+            'elite': '精英',
             'shop': '商店',
-            'rest': '休息'
+            'buff': 'Buff',
+            'event': '事件',
+            'rest': '休息',
+            'dice': '骰子',
+            'reward': '奖励'
         };
         return types[type] || type;
     }
