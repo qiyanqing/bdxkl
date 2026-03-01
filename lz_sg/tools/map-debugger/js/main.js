@@ -125,6 +125,17 @@ class MapDebugger {
         document.getElementById('btn-save-level').addEventListener('click', () => {
             this.saveLevel();
         });
+
+        // 测试移动按钮
+        document.getElementById('btn-test-route').addEventListener('click', () => {
+            this.testRoute();
+        });
+
+        // 随机骰子按钮
+        document.getElementById('btn-random-dice').addEventListener('click', () => {
+            const randomValue = Math.floor(Math.random() * 6) + 1;
+            document.getElementById('dice-value').value = randomValue;
+        });
     }
 
     /**
@@ -390,6 +401,112 @@ class MapDebugger {
      */
     showSaveSuccess(levelData) {
         console.log('关卡保存成功:', levelData);
+    }
+
+    /**
+     * 测试移动路线
+     */
+    testRoute() {
+        const grids = this.state.getAllGrids();
+        if (grids.length === 0) {
+            alert('请先生成或编辑关卡地图');
+            return;
+        }
+
+        // 获取配置
+        const direction = document.getElementById('direction-select').value;
+        const diceValue = parseInt(document.getElementById('dice-value').value) || 6;
+
+        // 找到起点
+        const startGrid = grids.find(g => g.type === GRID_TYPES.START);
+        if (!startGrid) {
+            alert('地图中没有起点，无法测试路线');
+            return;
+        }
+
+        // 计算移动路线
+        const route = this.calculateRoute(startGrid, grids, direction, diceValue);
+
+        // 显示路线
+        this.displayRoute(route);
+    }
+
+    /**
+     * 计算移动路线
+     */
+    calculateRoute(startGrid, grids, direction, diceValue) {
+        const route = [];
+        let currentGrid = startGrid;
+        const visited = new Set();
+
+        for (let step = 0; step < diceValue; step++) {
+            if (!currentGrid) break;
+
+            route.push({
+                step: step + 1,
+                gridId: currentGrid.id,
+                gridType: currentGrid.type,
+                x: currentGrid.x,
+                y: currentGrid.y
+            });
+
+            visited.add(currentGrid.id);
+
+            // 移动到下一个格子
+            currentGrid = this.getNextGrid(currentGrid, grids, direction, visited);
+        }
+
+        return route;
+    }
+
+    /**
+     * 获取下一个格子
+     */
+    getNextGrid(currentGrid, grids, direction, visited) {
+        // 简单实现：使用 next 连接
+        if (currentGrid.next && currentGrid.next.id !== undefined) {
+            return currentGrid.next;
+        }
+
+        // 如果没有 next 连接，根据方向寻找下一个格子
+        // 这里简化处理：返回 null
+        return null;
+    }
+
+    /**
+     * 显示路线结果
+     */
+    displayRoute(route) {
+        const container = document.getElementById('route-result');
+
+        if (route.length === 0) {
+            container.innerHTML = '<p class="hint">无法计算路线</p>';
+            return;
+        }
+
+        // 获取格子类型名称
+        const getTypeName = (type) => {
+            const names = {
+                'start': '起',
+                'battle': '战',
+                'elite': '精',
+                'shop': '商',
+                'buff': 'B',
+                'event': '事',
+                'rest': '休',
+                'dice': '骰',
+                'reward': '奖',
+                'empty': '空'
+            };
+            return names[type] || type;
+        };
+
+        container.innerHTML = route.map(step => `
+            <div class="route-step">
+                <span class="route-step-number">${step.step}</span>
+                <span class="route-step-grid">${step.gridId}#${getTypeName(step.gridType)}</span>
+            </div>
+        `).join('');
     }
 }
 
