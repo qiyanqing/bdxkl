@@ -51,10 +51,20 @@
                     </div>
                 </section>
 
-                <!-- 操作按钮 -->
+                <!-- 保存关卡 -->
                 <section class="panel-section">
-                    <button id="btn-export" class="action-btn">导出 JSON</button>
-                    <button id="btn-validate" class="action-btn primary">验证地图</button>
+                    <h3>保存关卡</h3>
+                    <input type="text" id="level-id-input" class="level-input" placeholder="关卡ID (如: 1-1)" maxlength="10">
+                    <input type="text" id="level-name-input" class="level-input" placeholder="关卡名称 (如: 第一章第1关)" maxlength="20">
+                    <button id="btn-save-level" class="action-btn primary">保存关卡</button>
+                </section>
+
+                <!-- 已保存关卡 -->
+                <section class="panel-section">
+                    <h3>已保存关卡</h3>
+                    <div id="saved-levels" class="saved-levels">
+                        <p class="hint">暂无保存的关卡</p>
+                    </div>
                 </section>
             </aside>
             <main class="canvas-container">

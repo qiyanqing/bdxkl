@@ -3,6 +3,7 @@ import { MapState } from './MapState.js';
 import { PathEditor } from './PathEditor.js';
 import { PathValidator } from './PathValidator.js';
 import { MapGenerator, GRID_TYPES } from './MapGenerator.js';
+import { LevelSaver } from './LevelSaver.js';
 
 /**
  * 主程序入口
@@ -30,11 +31,23 @@ class MapDebugger {
             renderer: this.renderer
         });
 
+        // 创建关卡保存器
+        this.levelSaver = new LevelSaver({
+            onSave: (levelData) => {
+                this.updateSavedLevelsList();
+                this.showSaveSuccess(levelData);
+            }
+        });
+
+        // 记录当前关卡类型
+        this.currentLevelType = 'normal';
+
         // 初始化
         this.initTestData();
         this.initEventListeners();
         this.initStateObservers();
         this.updateUI();
+        this.updateSavedLevelsList();
     }
 
     /**
@@ -98,19 +111,19 @@ class MapDebugger {
             });
         });
 
-        // 导出按钮（委托给 PathEditor）
-        document.getElementById('btn-export').addEventListener('click', () => {
-            this.pathEditor.exportJSON();
-        });
-
         // 验证按钮
         document.getElementById('btn-validate').addEventListener('click', () => {
             this.validateMap();
         });
 
-        // 生成地图按钮
+        // 生成关卡按钮
         document.getElementById('btn-generate').addEventListener('click', () => {
             this.generateMap();
+        });
+
+        // 保存关卡按钮
+        document.getElementById('btn-save-level').addEventListener('click', () => {
+            this.saveLevel();
         });
     }
 
@@ -311,7 +324,72 @@ class MapDebugger {
         // 自动验证
         this.updateValidationPanel();
 
+        // 记录当前关卡类型
+        this.currentLevelType = levelType;
+
         console.log(`地图生成完成，共 ${this.state.getAllGrids().length} 个格子`);
+    }
+
+    /**
+     * 保存关卡
+     */
+    saveLevel() {
+        const levelId = document.getElementById('level-id-input').value.trim();
+        const levelName = document.getElementById('level-name-input').value.trim();
+
+        if (!levelId || !levelName) {
+            alert('请输入关卡ID和关卡名称');
+            return;
+        }
+
+        const grids = this.state.getAllGrids();
+        if (grids.length === 0) {
+            alert('请先生成或编辑关卡地图');
+            return;
+        }
+
+        const result = this.levelSaver.saveLevel(levelId, levelName, grids, this.currentLevelType);
+
+        if (result.success) {
+            alert(`关卡 ${levelId} 保存成功！`);
+        } else {
+            alert(`保存失败：${result.message}`);
+        }
+    }
+
+    /**
+     * 更新已保存关卡列表
+     */
+    updateSavedLevelsList() {
+        const container = document.getElementById('saved-levels');
+        const levels = this.levelSaver.loadSavedLevels();
+
+        if (levels.length === 0) {
+            container.innerHTML = '<p class="hint">暂无保存的关卡</p>';
+            return;
+        }
+
+        container.innerHTML = levels.map(level => `
+            <div class="saved-level-item">
+                <span>${level.levelId} - ${level.levelName}</span>
+                <button class="btn-export" data-id="${level.levelId}">导出</button>
+            </div>
+        `).join('');
+
+        // 绑定导出按钮
+        container.querySelectorAll('.btn-export').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const levelId = e.target.dataset.id;
+                this.levelSaver.exportLevel(levelId);
+            });
+        });
+    }
+
+    /**
+     * 显示保存成功提示
+     */
+    showSaveSuccess(levelData) {
+        console.log('关卡保存成功:', levelData);
     }
 }
 

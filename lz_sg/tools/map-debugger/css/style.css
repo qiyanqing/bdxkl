@@ -382,3 +382,67 @@ body {
     border-radius: 2px;
     flex-shrink: 0;
 }
+
+/* 保存关卡样式 */
+.level-input {
+    width: 100%;
+    padding: 10px;
+    background: var(--bg-secondary);
+    border: 2px solid var(--accent-blue);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 14px;
+    margin-bottom: 10px;
+    transition: border-color 0.2s;
+}
+
+.level-input:focus {
+    outline: none;
+    border-color: var(--accent-green);
+}
+
+.level-input::placeholder {
+    color: var(--text-secondary);
+}
+
+.saved-levels {
+    font-size: 13px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.saved-levels .hint {
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 10px;
+}
+
+.saved-level-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    background: rgba(0, 217, 255, 0.1);
+    border-radius: var(--radius-sm);
+    margin-bottom: 5px;
+}
+
+.saved-level-item span {
+    flex: 1;
+    color: var(--text-primary);
+}
+
+.saved-level-item .btn-export {
+    padding: 4px 10px;
+    background: var(--accent-blue);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--bg-primary);
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.saved-level-item .btn-export:hover {
+    background: var(--accent-green);
+}
